@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Team wizard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
+<style>
+  :root{
+    /* Beeple-ish light palette (lighter inputs/tables/buttons) */
+    --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
+    --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --accentHover:#3450e4;
+    --danger:#ef6b6b; --border:rgba(15,23,42,.10);
+    --field:#ffffff; --fieldBorder:#e5e7eb; --tableHead:#eef2ff;
+
+    --radius:12px; --radius-lg:14px;
+    /* deeper shade shifted right & down */
+    --shadow: 6px 10px 24px rgba(15,23,42,.10), 0 1px 0 rgba(15,23,42,.04);
+    /* Responsive container: never wider than screen, comfy on desktop */
+    --wrap: clamp(320px, 94vw, 980px);
+    /* Title font size */
+    --title-size: clamp(22px, 4.6vw, 34px);
+  }
+  [data-theme="dark"]{
+    --bg:#0b1020; --bg2:#0e1428; --card:#0f1630; --text:#e8ecff; --muted:#b8c3ef;
+    --accent:#5aa2ff; --accent2:#7ec3ff; --accentSoft:#0e2244; --accentHover:#7fb6ff;
+    --danger:#e66d6d; --border:rgba(255,255,255,.14);
+    --field:#121b39; --fieldBorder:rgba(255,255,255,.18); --tableHead:#13224a;
+    --shadow: 10px 14px 28px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.04);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%; overflow-x:hidden}
+  body{
+    margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    transition:background .25s ease,color .25s ease;
+  }
+
+  /* Top */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--border)}
+  .topwrap{
+    width:min(100%,var(--wrap));margin:0 auto;padding:14px 12px;
+    display:grid;gap:8px;grid-template-columns:1fr auto;align-items:center
+  }
+  .brand{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;min-width:0}
+  .brand img{height:26px;max-width:100%}
+  /* Title uses same font as buttons (inherit), but larger and centered below */
+  .page-title{
+    width:min(100%,var(--wrap));margin:12px auto 0 auto;text-align:center;
+    font-weight:800;font-size:var(--title-size); line-height:1.15;
+  }
+  .theme-toggle{
+    border:1px solid var(--border);background:var(--accentSoft);color:#18224d;
+    padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700
+  }
+  [data-theme="dark"] .theme-toggle{ color:#dbe7ff; }
+
+  /* Layout */
+  .container{ width:min(100%, var(--wrap)); margin:14px auto 22px auto; padding:0 12px; display:grid; gap:16px }
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:16px;box-shadow:var(--shadow)
+  }
+  .card h2{margin:0 0 12px 0;font-size:18px}
+  .sub{margin-top:2px;color:var(--muted);font-size:13px}
+
+  /* Controls (lighter) */
+  input,select,textarea,button{
+    width:100%;padding:10px 12px;border:1px solid var(--fieldBorder);border-radius:var(--radius);
+    background:var(--field);color:var(--text);
+    transition:border-color .15s ease, background-color .2s ease, box-shadow .15s ease, transform .06s ease;
+  }
+  input::placeholder,textarea::placeholder{color:var(--muted);opacity:.65}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,107,255,.15);outline:none}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:860px){.row,.row-3{grid-template-columns:1fr}}
+
+  .btn{border:0;border-radius:var(--radius);padding:10px 16px;font-weight:700;cursor:pointer}
+  .btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff}
+  .btn.primary:hover{filter:brightness(1.02)}
+  .btn.secondary{background:#edf2ff;color:#0f172a;border:1px solid var(--border)}
+  [data-theme="dark"] .btn.secondary{background:linear-gradient(180deg,#1f2937,#111827);color:#e5e7eb}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+
+  label{font-weight:600;font-size:13px;margin:12px 0 6px;display:block;color:var(--muted)}
+  .required::after{content:" *";color:var(--accent)}
+  .hidden{display:none}
+
+  /* Notice (orange) */
+  .notice{
+    padding:12px;border:1px dashed #f59e0b;border-radius:10px;background:rgba(245,158,11,.12);color:#92400e
+  }
+  .notice b{font-weight:800}
+
+  /* Cookie banner (glassier) */
+  .cookie{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:18px;
+    width:min(96vw, 640px);
+    background:rgba(255,255,255,.55);  /* more transparent */
+    backdrop-filter: blur(12px) saturate(140%);
+    border:1px solid var(--border);box-shadow:var(--shadow);border-radius:14px;
+    padding:14px;display:flex;gap:12px;align-items:center;z-index:30;color:#0f172a
+  }
+  [data-theme="dark"] .cookie{ background: rgba(15,23,42,.42); color:#e5e7eb; }
+  .cookie.hide{transition:transform .35s ease, opacity .35s ease;transform:translate(-50%, 110%);opacity:0}
+  .cookie .msg{flex:1;word-break:break-word}
+  .cookie .actions{display:flex;gap:10px}
+  .cookie .actions .btn{min-width:96px}
+  @media(max-width:480px){
+    .cookie{flex-direction:column;align-items:stretch}
+    .cookie .actions .btn{width:100%}
+  }
+
+  /* Collapse */
+  .collapsible .head{display:flex;justify-content:space-between;align-items:center}
+  .collapsible .tools{display:flex;gap:8px}
+  .collapsible .body{margin-top:12px}
+  .collapsed .body{display:none}
+
+  /* Tables (no page overflow; lighter) */
+  .table-wrap{width:100%;overflow-x:auto}
+  table{
+    width:100%;
+    min-width:720px;
+    border-collapse:separate;border-spacing:0;border:1px solid var(--fieldBorder);border-radius:12px;overflow:hidden;
+    background:var(--field)
+  }
+  @media (max-width:480px){ table{ min-width:560px; } }
+  th,td{padding:10px 12px;border-bottom:1px solid var(--fieldBorder);vertical-align:top}
+  th{background:var(--tableHead);color:#0b1740;text-align:left;font-weight:800}
+  [data-theme="dark"] th{ color:#d9e3ff; }
+  tr:last-child td{border-bottom:0}
+  .table-note{padding:12px;color:var(--muted)}
+  .actions{display:inline-flex;gap:8px;white-space:nowrap}
+
+  /* Logs (smaller font) */
+  pre{background:#f7f9ff;color:#111827;border:1px solid var(--fieldBorder);border-radius:var(--radius);padding:12px;
+      font-size:12px;max-height:48vh;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  [data-theme="dark"] pre{background:#0b1020;color:#d1e3ff;border-color:var(--fieldBorder)}
+
+  /* Animations */
+  .slideRight{animation:slideRight .35s ease forwards}
+  @keyframes slideRight{to{opacity:0;transform:translateX(60%)}}
+
+  /* Super small phones: stack header */
+  @media (max-width:480px){
+    .topwrap{grid-template-columns:1fr}
+    .theme-toggle{justify-self:end}
+    .card{padding:12px}
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topwrap">
+      <div class="brand">
+        <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
+      </div>
+      <button id="themeBtn" class="theme-toggle" title="Toggle dark/light">Dark mode</button>
+    </div>
+  </div>
+  <div class="page-title">Team wizard</div>
+
+  <main class="container">
+    <!-- Connection -->
+    <section class="card collapsible" id="sec-conn">
+      <div class="head">
+        <h2>Connection</h2>
+        <div class="tools">
+          <button class="btn btn-ghost" data-toggle="#sec-conn" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-conn">Expand</button>
+        </div>
+      </div>
+      <div class="body">
+        <label class="required">Tenant URL</label>
+        <input id="baseUrl" placeholder="https://acme.beepleapp.com">
+        <label class="required">API token</label>
+        <input id="token" type="password" autocomplete="current-password" placeholder="API token">
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+          <button id="loadBtn" class="btn secondary">Load tenant data</button>
+          <button id="forgetBtn" class="btn btn-danger">Forget saved data</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Security notice -->
+    <div class="notice"><b>Security notice:</b> do not share your API token with anyone</div>
+
+    <!-- Create single team (expanded by default) -->
+    <section class="card collapsible" id="sec-single">
+      <div class="head">
+        <h2>Create single team</h2>
+        <div class="tools">
+          <button class="btn btn-ghost" data-toggle="#sec-single" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-single">Expand</button>
+        </div>
+      </div>
+      <div class="body">
+        <div id="projectBlock" class="hidden">
+          <label class="required">Project</label>
+          <select id="projectSelect"></select>
+        </div>
+
+        <div id="subprojectBlock" class="hidden">
+          <label class="required">Subproject</label>
+          <select id="subprojectSelect"></select>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Auto-generate name</label>
+            <select id="autoName">
+              <option value="yes" selected>Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div id="teamNameWrap" class="hidden">
+            <label>Team name</label>
+            <input id="teamName" placeholder="Team name">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label class="required">Volunteers needed</label>
+            <input id="volNeeded" type="number" min="0" value="1">
+          </div>
+          <div id="functionBlock" class="hidden">
+            <label class="required">Function</label>
+            <select id="functionSelect"></select>
+          </div>
+        </div>
+
+        <div id="addressBlock" class="hidden">
+          <label class="required">Work location</label>
+          <select id="addressSelect"></select>
+        </div>
+
+        <div class="row">
+          <div>
+            <label class="required">Shift start (local)</label>
+            <input id="shiftStart" type="datetime-local">
+          </div>
+          <div>
+            <label class="required">Shift end (local)</label>
+            <input id="shiftEnd" type="datetime-local">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label class="required">Draft mode</label>
+            <select id="draftMode">
+              <option value="yes" selected>Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+          <div id="compBlock" class="hidden">
+            <label>Team compensation</label>
+            <select id="compensationSelect"></select>
+          </div>
+        </div>
+
+        <label>Max travel distance (km)</label>
+        <input id="maxTravelKm" type="number" min="0">
+
+        <label>Extra practical info</label>
+        <textarea id="extraInfo" rows="3" placeholder="extra info"></textarea>
+
+        <!-- Advanced fields (collapsed by default) -->
+        <div class="collapsible" id="sec-advanced">
+          <div class="head">
+            <h2 style="font-size:16px;margin:12px 0 0 0;">Advanced fields</h2>
+            <div class="tools">
+              <button class="btn btn-ghost" data-toggle="#sec-advanced">Expand</button>
+              <button class="btn btn-ghost hidden" data-toggle="#sec-advanced" data-role="collapse">Collapse</button>
+            </div>
+          </div>
+          <div class="body">
+            <div class="row">
+              <div>
+                <label>Relative check-in start (HH:MM)</label>
+                <input id="relCheckinStart" placeholder="00:30">
+              </div>
+              <div>
+                <label>Relative check-in duration (HH:MM)</label>
+                <input id="relCheckinDuration" placeholder="00:15">
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label>Work location specification</label>
+                <input id="locationSpec" placeholder="At the entrance">
+              </div>
+              <div>
+                <label>Minimal age</label>
+                <input id="minimalAge" type="number" min="0" placeholder="18">
+              </div>
+            </div>
+            <label>Client experience required</label>
+            <select id="clientExperience">
+              <option value="">(not set)</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="queueSingleBtn" class="btn primary">Add team to the queue to preview</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI text to queue -->
+    <section class="card collapsible" id="sec-ai">
+      <div class="head">
+        <h2>Create teams from text with AI</h2>
+        <div class="tools">
+          <button class="btn btn-ghost" data-toggle="#sec-ai" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-ai">Expand</button>
+        </div>
+      </div>
+      <div class="body">
+        <label>Paste your text</label>
+        <textarea id="aiText" rows="8" placeholder="Example:
+Generate 7 teams next week for Check-in function at Antwerp Expo, 09:00-13:00 and 13:00-17:00, 3 volunteers each."></textarea>
+        <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="aiQueueBtn" class="btn primary">Add team(s) to the queue to preview</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Queue (expanded by default) -->
+    <section class="card collapsible" id="sec-queue">
+      <div class="head">
+        <h2>Preview queue</h2>
+        <div class="tools" style="gap:6px">
+          <button id="exportBtn" class="btn secondary" title="Download CSV that opens in Excel">Export teams as Excel for easy import</button>
+          <button class="btn btn-ghost" data-toggle="#sec-queue" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-queue">Expand</button>
+        </div>
+      </div>
+      <div class="body">
+        <div class="table-wrap">
+          <table id="queueTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Project</th>
+                <th>Subproject</th>
+                <th>Name</th>
+                <th>Shift</th>
+                <th>Vol.</th>
+                <th>Function</th>
+                <th>Address</th>
+                <th>Comp.</th>
+                <th>Draft</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="queueTbody">
+              <tr id="queueEmptyRow"><td class="table-note" colspan="11">No items in the queue yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:12px;">
+          <button id="createQueueBtn" class="btn primary">Create team(s) from queue</button>
+        </div>
+
+        <div id="queueSuccess" class="sub" style="margin-top:10px;"></div>
+      </div>
+    </section>
+
+    <!-- Created -->
+    <section class="card collapsible" id="sec-created">
+      <div class="head">
+        <h2>Created teams</h2>
+        <div class="tools">
+          <button class="btn btn-ghost" data-toggle="#sec-created" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-created">Expand</button>
+        </div>
+      </div>
+      <div class="body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Team ID</th>
+                <th>Project</th>
+                <th>Subproject</th>
+                <th>Name</th>
+                <th>Function</th>
+                <th>Address</th>
+                <th>Compensation</th>
+                <th>Shift</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="createdTbody">
+              <tr><td class="table-note" colspan="9">Nothing created yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="createSuccessList" class="sub" style="margin-top:10px;"></div>
+      </div>
+    </section>
+
+    <!-- Logs -->
+    <section class="card collapsible" id="sec-logs">
+      <div class="head">
+        <h2>Logs</h2>
+        <div class="tools">
+          <button class="btn btn-ghost" data-toggle="#sec-logs" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-logs">Expand</button>
+        </div>
+      </div>
+      <div class="body">
+        <pre id="log">Ready</pre>
+      </div>
+    </section>
+  </main>
+
+  <!-- Cookie banner -->
+  <div id="cookie" class="cookie hidden">
+    <div class="msg">This site uses cookies</div>
+    <div class="actions">
+      <button id="cookieOk" class="btn secondary">Ok</button>
+    </div>
+  </div>
+
+<script>
+const PROXY_URL = "proxy.php";
+
+/* --- state handles --- */
+const els = {
+  themeBtn:document.getElementById("themeBtn"),
+  baseUrl:document.getElementById("baseUrl"),
+  token:document.getElementById("token"),
+  loadBtn:document.getElementById("loadBtn"),
+  forgetBtn:document.getElementById("forgetBtn"),
+
+  projectBlock: document.getElementById("projectBlock"),
+  subprojectBlock: document.getElementById("subprojectBlock"),
+  functionBlock: document.getElementById("functionBlock"),
+  addressBlock: document.getElementById("addressBlock"),
+  compBlock: document.getElementById("compBlock"),
+
+  projectSelect: document.getElementById("projectSelect"),
+  subprojectSelect: document.getElementById("subprojectSelect"),
+  functionSelect: document.getElementById("functionSelect"),
+  addressSelect: document.getElementById("addressSelect"),
+  compensationSelect: document.getElementById("compensationSelect"),
+
+  autoName: document.getElementById("autoName"),
+  teamNameWrap: document.getElementById("teamNameWrap"),
+  teamName: document.getElementById("teamName"),
+
+  volNeeded: document.getElementById("volNeeded"),
+  shiftStart: document.getElementById("shiftStart"),
+  shiftEnd: document.getElementById("shiftEnd"),
+  draftMode: document.getElementById("draftMode"),
+  maxTravelKm: document.getElementById("maxTravelKm"),
+  extraInfo: document.getElementById("extraInfo"),
+
+  // Advanced
+  relCheckinStart: document.getElementById("relCheckinStart"),
+  relCheckinDuration: document.getElementById("relCheckinDuration"),
+  locationSpec: document.getElementById("locationSpec"),
+  minimalAge: document.getElementById("minimalAge"),
+  clientExperience: document.getElementById("clientExperience"),
+
+  queueSingleBtn: document.getElementById("queueSingleBtn"),
+
+  // AI & queue
+  aiText: document.getElementById("aiText"),
+  aiQueueBtn: document.getElementById("aiQueueBtn"),
+  queueTbody: document.getElementById("queueTbody"),
+  queueEmptyRow: document.getElementById("queueEmptyRow"),
+  createQueueBtn: document.getElementById("createQueueBtn"),
+  queueSuccess: document.getElementById("queueSuccess"),
+  exportBtn: document.getElementById("exportBtn"),
+
+  // created
+  createdTbody: document.getElementById("createdTbody"),
+  createSuccessList: document.getElementById("createSuccessList"),
+
+  // logs
+  log: document.getElementById("log"),
+
+  // cookie banner
+  cookie: document.getElementById("cookie"),
+  cookieOk: document.getElementById("cookieOk"),
+};
+
+const L=(...a)=>{ els.log.textContent += a.join(" ") + "\n"; els.log.scrollTop = els.log.scrollHeight; };
+const addGap=()=>{ els.log.textContent += "\n"; };
+const scrollLogs=()=>{ document.getElementById("sec-logs").scrollIntoView({behavior:"smooth", block:"end"}); };
+
+const stripOrigin=u=>{ try{ return new URL(u).origin; } catch { return u.split("/")[0]; } };
+const base = ()=> stripOrigin(els.baseUrl.value.trim());
+const tokenVal = ()=> (els.token.value||"").trim();
+
+const state = {
+  maps:{ projects:{}, subprojects:{}, functions:{}, addresses:{}, compensations:{} },
+  queue:[],
+  created:[]
+};
+
+/* cookies */
+function setCookie(k,v,days=365){ const exp=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)}; expires=${exp}; path=/; SameSite=Lax`; }
+function getCookie(k){ return document.cookie.split("; ").reduce((r,v)=>{ const p=v.split("="); return p[0]===k?decodeURIComponent(p[1]):r; }, ""); }
+function delCookie(k){ document.cookie = `${k}=; Max-Age=0; path=/; SameSite=Lax`; }
+function tenantKey(){ return (base()||getCookie("beeple_last_base")||"").replace(/^https?:\/\//,"").replace(/[^\w.-]/g,"_"); }
+function savePerTenant(key,val){ const tk=tenantKey(); if(!tk) return; setCookie(`beeple_${tk}_${key}`, val); }
+function loadPerTenant(key){ const tk=tenantKey(); return tk? getCookie(`beeple_${tk}_${key}`):""; }
+
+/* theme */
+function applyThemeButton(){ const t=document.documentElement.getAttribute("data-theme")||"light"; els.themeBtn.textContent = (t==="dark")?"Light mode":"Dark mode"; }
+els.themeBtn.addEventListener("click", ()=>{
+  const t = document.documentElement.getAttribute("data-theme")==="dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("theme", t);
+  applyThemeButton();
+});
+
+/* collapse helpers */
+function toggleSection(sectionEl, expand){
+  const expandBtn  = sectionEl.querySelector('button[data-toggle]:not([data-role="collapse"])');
+  const collapseBtn= sectionEl.querySelector('button[data-toggle][data-role="collapse"]');
+  if (expand === undefined) expand = sectionEl.classList.contains("collapsed");
+  if (expand){
+    sectionEl.classList.remove("collapsed");
+    if (expandBtn)  expandBtn.classList.add("hidden");
+    if (collapseBtn)collapseBtn.classList.remove("hidden");
+  }else{
+    sectionEl.classList.add("collapsed");
+    if (expandBtn)  expandBtn.classList.remove("hidden");
+    if (collapseBtn)collapseBtn.classList.add("hidden");
+  }
+}
+
+/* http via proxy */
+function extractErrText(e){
+  if (!e) return "Unknown error";
+  if (typeof e === "string") return e;
+  if (e.message) return e.message;
+  try{ return JSON.stringify(e); }catch{ return String(e); }
+}
+
+async function proxyGET(path){
+  const url = `${PROXY_URL}?base=${encodeURIComponent(base())}&path=${encodeURIComponent(path)}`;
+  try{
+    L("GET", path);
+    const res = await fetch(url, { headers:{ "X-Beeple-Token": tokenVal() }});
+    const txt = await res.text();
+    L("<-", res.status, res.statusText);
+    if (txt) L(txt.length>2000?txt.slice(0,2000)+" [truncated]":txt);
+    addGap();
+    if (!res.ok) throw new Error("HTTP "+res.status+" while GET "+path);
+    try{ return txt? JSON.parse(txt):{} }catch(e){ L("JSON parse error:", e.message); addGap(); return { raw:txt }; }
+  }catch(e){ const m=extractErrText(e); L("GET error:", m); addGap(); scrollLogs(); throw new Error(m); }
+}
+async function proxyPOST(path, payload){
+  const url = `${PROXY_URL}?base=${encodeURIComponent(base())}&path=${encodeURIComponent(path)}`;
+  const body = JSON.stringify(payload);
+  try{
+    L("POST", path); L("Payload:", body.length>2000?body.slice(0,2000)+" [truncated]":body);
+    const res = await fetch(url, { method:"POST", headers:{ "X-Beeple-Token": tokenVal(), "Content-Type":"application/json" }, body });
+    const txt = await res.text();
+    L("<-", res.status, res.statusText);
+    if (txt) L(txt.length>2000?txt.slice(0,2000)+" [truncated]":txt);
+    addGap();
+    if (!res.ok){
+      let reason = "HTTP "+res.status+" while POST "+path;
+      try { const j = JSON.parse(txt); if (j && j.error) reason = j.error; } catch {}
+      throw new Error(reason);
+    }
+    try{ return txt? JSON.parse(txt):{} }catch(e){ L("JSON parse error:", e.message); addGap(); return { raw:txt }; }
+  }catch(e){ const m=extractErrText(e); L("POST error:", m); addGap(); scrollLogs(); throw new Error(m); }
+}
+async function proxyDELETE(path){
+  const url = `${PROXY_URL}?base=${encodeURIComponent(base())}&path=${encodeURIComponent(path)}`;
+  try{
+    L("DELETE", path);
+    const res = await fetch(url, { method:"DELETE", headers:{ "X-Beeple-Token": tokenVal() }});
+    const txt = await res.text();
+    L("<-", res.status, res.statusText); if (txt) L(txt);
+    addGap();
+    if (!res.ok) throw new Error("HTTP "+res.status+" while DELETE "+path);
+    return true;
+  }catch(e){ const m=extractErrText(e); L("DELETE error:", m); addGap(); scrollLogs(); throw new Error(m); }
+}
+
+/* tenant load */
+async function loadTenant(){
+  if (!base() || !tokenVal()){ alert("Fill Tenant URL and API token"); return; }
+  setCookie("beeple_last_base", base());
+  savePerTenant("baseUrl", base());
+  savePerTenant("token", tokenVal());
+  try{
+    ["projectBlock","subprojectBlock","functionBlock","addressBlock","compBlock"].forEach(id=>els[id].classList.add("hidden"));
+
+    const pResp = await proxyGET("api/v1/admin/projects");
+    const projects = pResp.projects || [];
+    fillSelect(els.projectSelect, projects.map(p=>({value:p.id, label:(p.name||("Project #"+p.id))})));
+    state.maps.projects = Object.fromEntries(projects.map(p=>[String(p.id), p.name||("Project #"+p.id)]));
+    if (projects.length){ els.projectBlock.classList.remove("hidden"); }
+
+    const fResp = await proxyGET("api/v1/admin/functions");
+    const functions = (fResp.functions || fResp) || [];
+    fillSelect(els.functionSelect, functions.map(f=>({value:f.id, label:(f.name||("Function #"+f.id))})));
+    state.maps.functions = Object.fromEntries(functions.map(f=>[String(f.id), f.name||("Function #"+f.id)]));
+    if (functions.length){ els.functionBlock.classList.remove("hidden"); }
+
+    const aResp = await proxyGET("api/v1/admin/addresses");
+    const addresses = aResp.addresses || [];
+    fillSelect(els.addressSelect, addresses.map(a=>({value:a.id, label:(a.name || [a.street,a.number,a.city].filter(Boolean).join(" ") || ("Address #"+a.id))})));
+    state.maps.addresses = Object.fromEntries(addresses.map(a=>[String(a.id), (a.name || [a.street,a.number,a.city].filter(Boolean).join(" ") || ("Address #"+a.id))]));
+    if (addresses.length){ els.addressBlock.classList.remove("hidden"); }
+
+    const cResp = await proxyGET("api/v1/admin/team_compensations");
+    const comps = cResp.team_compensations || cResp || [];
+    const cOpts = [{value:"",label:"(none)"}].concat(comps.map(c=>({value:c.id,label:(c.name||("Comp #"+c.id))})));
+    fillSelect(els.compensationSelect, cOpts);
+    state.maps.compensations = Object.fromEntries(cOpts.map(o=>[String(o.value), o.label]));
+    els.compBlock.classList.remove("hidden");
+  }catch(e){
+    alert("Load failed: " + extractErrText(e));
+  }
+}
+
+/* subprojects after project; include past */
+async function loadSubprojectsForProject(pid){
+  if (!pid){ els.subprojectBlock.classList.add("hidden"); return; }
+  try{
+    const sResp = await proxyGET(`api/v1/admin/projects/${encodeURIComponent(pid)}/subprojects`);
+    const subs = sResp.subprojects || [];
+    if (subs.length){
+      fillSelect(els.subprojectSelect, subs.map(s=>({value:s.id, label:(s.name || ("Subproject #"+s.id))})));
+      state.maps.subprojects = Object.fromEntries(subs.map(s=>[String(s.id), s.name||("Subproject #"+s.id)]));
+      els.subprojectBlock.classList.remove("hidden");
+    }else{
+      els.subprojectBlock.classList.add("hidden");
+      state.maps.subprojects = {};
+    }
+  }catch(e){
+    L("Subproject load error:", extractErrText(e)); addGap();
+    els.subprojectBlock.classList.add("hidden");
+  }
+}
+
+/* helpers */
+function fillSelect(sel, items){ sel.innerHTML=""; items.forEach(it=>{ const o=document.createElement("option"); o.value=String(it.value); o.textContent=it.label; sel.appendChild(o); }); }
+
+function buildPayloadFromRow(row){
+  const published = (row.draft === "yes") ? false : true;
+  const team = {
+    auto_generate_name: row.autoName === "yes",
+    name: (row.autoName === "yes") ? undefined : (row.name || undefined),
+    volunteers_needed: row.volunteers? parseInt(row.volunteers,10): undefined,
+    function_id: row.functionId || undefined,
+    work_location_id: row.addressId || undefined,
+    team_compensation_id: row.compensationId || undefined,
+    published,
+    extra_practical_info: row.extra || undefined,
+    maximum_travel_distance: row.maxKm? Number(row.maxKm): undefined,
+
+    /* advanced */
+    relative_checkin_start: row.relStart || undefined,
+    relative_checkin_duration: row.relDuration || undefined,
+    work_location_specification: row.locSpec || undefined,
+    minimal_age: row.minAge? Number(row.minAge): undefined,
+    client_experience_required: (row.clientExp===""? undefined : (row.clientExp==="true")),
+    shifts_attributes: []
+  };
+  if (row.start && row.end){
+    team.shifts_attributes.push({ start_datetime:new Date(row.start).toISOString(), end_datetime:new Date(row.end).toISOString() });
+  }
+  Object.keys(team).forEach(k=>team[k]===undefined && delete team[k]);
+  return { team };
+}
+
+function currentFormRow(){
+  return {
+    projectId: els.projectSelect.value || "",
+    subprojectId: els.subprojectBlock.classList.contains("hidden") ? "" : (els.subprojectSelect.value||""),
+    projectName: state.maps.projects[els.projectSelect.value] || "",
+    subprojectName: state.maps.subprojects[els.subprojectSelect.value] || "",
+    autoName: els.autoName.value,
+    name: els.teamName.value,
+    volunteers: els.volNeeded.value,
+    functionId: els.functionSelect.value || "",
+    functionName: state.maps.functions[els.functionSelect.value] || "",
+    addressId: els.addressSelect.value || "",
+    addressName: state.maps.addresses[els.addressSelect.value] || "",
+    compensationId: els.compensationSelect.value || "",
+    compensationName: state.maps.compensations[els.compensationSelect.value] || "",
+    draft: els.draftMode.value,
+    start: els.shiftStart.value,
+    end: els.shiftEnd.value,
+    maxKm: els.maxTravelKm.value,
+    extra: els.extraInfo.value,
+
+    /* advanced */
+    relStart: els.relCheckinStart.value,
+    relDuration: els.relCheckinDuration.value,
+    locSpec: els.locationSpec.value,
+    minAge: els.minimalAge.value,
+    clientExp: els.clientExperience.value
+  };
+}
+
+/* renderers */
+function renderQueue(){
+  const tb = els.queueTbody;
+  tb.innerHTML="";
+  if (!state.queue.length){
+    els.queueEmptyRow.classList.remove("hidden");
+    tb.appendChild(els.queueEmptyRow);
+  }else{
+    els.queueEmptyRow.classList.add("hidden");
+    state.queue.forEach((q,i)=>{
+      const tr=document.createElement("tr");
+      const shift = (q.start && q.end) ? `${q.start} - ${q.end}` : "";
+      tr.innerHTML = `
+        <td>${i+1}</td>
+        <td>${q.projectName||""}</td>
+        <td>${q.subprojectName||""}</td>
+        <td>${q.autoName==="yes" ? "(auto)" : (q.name||"")}</td>
+        <td>${shift}</td>
+        <td>${q.volunteers||""}</td>
+        <td>${q.functionName||""}</td>
+        <td>${q.addressName||""}</td>
+        <td>${q.compensationName||""}</td>
+        <td>${q.draft}</td>
+        <td><span class="actions">
+             <button data-act="remove" data-idx="${i}" class="btn btn-ghost">Remove</button>
+           </span></td>`;
+      tb.appendChild(tr);
+    });
+  }
+}
+
+function renderCreated(){
+  const tb = els.createdTbody;
+  tb.innerHTML="";
+  if (!state.created.length){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="table-note" colspan="9">Nothing created yet.</td>`;
+    tb.appendChild(tr);
+  }else{
+    state.created.forEach(item=>{
+      const tr=document.createElement("tr");
+      const shift = (item.start && item.end) ? `${item.start} - ${item.end}` : "";
+      tr.setAttribute("data-id", item.id);
+      tr.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.projectName||""}</td>
+        <td>${item.subprojectName||""}</td>
+        <td>${item.name||"(auto)"}</td>
+        <td>${item.functionName||""}</td>
+        <td>${item.addressName||""}</td>
+        <td>${item.compensationName||""}</td>
+        <td>${shift}</td>
+        <td><span class="actions">
+             <button data-del="${item.id}" class="btn btn-ghost">Delete</button>
+           </span></td>`;
+      tb.appendChild(tr);
+    });
+  }
+}
+
+/* actions */
+async function createFromQueue(){
+  if (!state.queue.length){ alert("Queue is empty"); return; }
+  const successes=[];
+  for (let i=0;i<state.queue.length;i++){
+    const q = state.queue[i];
+    try{
+      const payload = buildPayloadFromRow(q);
+      const path = q.subprojectId
+        ? `api/v1/admin/subprojects/${encodeURIComponent(q.subprojectId)}/teams`
+        : `api/v1/admin/projects/${encodeURIComponent(q.projectId)}/teams`;
+      const res = await proxyPOST(path, payload);
+      const createdId = (res.team && res.team.id) || res.id || "(unknown)";
+      successes.push(`Created team ${createdId}`);
+      state.created.push({
+        id: createdId,
+        projectName:q.projectName, subprojectName:q.subprojectName,
+        name: (q.autoName==="yes" ? "(auto)" : (q.name||"(auto)")),
+        functionName:q.functionName, addressName:q.addressName,
+        compensationName:q.compensationName,
+        start:q.start, end:q.end
+      });
+      renderCreated();
+    }catch(err){
+      const m = extractErrText(err);
+      L("Queue item failed:", m); addGap();
+      alert("Create failed: " + m);
+    }
+  }
+  state.queue = [];
+  renderQueue();
+  els.queueSuccess.innerHTML = successes.length ? successes.map(s=>`• ${s}`).join("<br>") : "";
+}
+
+function queueSingleFromForm(){
+  const r = currentFormRow();
+  if (!r.projectId){ alert("Select a project"); return; }
+  if (els.subprojectBlock && !els.subprojectBlock.classList.contains("hidden") && !r.subprojectId){ alert("Select a subproject"); return; }
+  state.queue.push(r);
+  renderQueue();
+}
+
+/* AI */
+async function addAiSuggestionsToQueue(){
+  const text = (els.aiText.value||"").trim();
+  if (!text){ alert("Paste some text first"); return; }
+  try{
+    L("AI -> proxy.php?ai=1");
+    const res = await fetch(`${PROXY_URL}?ai=1`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ text })
+    });
+    const txt = await res.text();
+    let json = {};
+    try{ json = JSON.parse(txt||"{}"); }catch{}
+    if (!res.ok){
+      const msg = json.error || txt || ("HTTP "+res.status);
+      throw new Error(msg);
+    }
+    const teams = Array.isArray(json.teams) ? json.teams : [];
+    teams.forEach(t => {
+      const r = currentFormRow();
+      r.autoName = t.auto_name ? "yes" : "no";
+      r.name     = t.name || r.name;
+      r.volunteers = t.volunteers || r.volunteers;
+      r.draft    = (t.draft === "yes") ? "yes" : "no";
+      r.start    = t.start || r.start;
+      r.end      = t.end || r.end;
+      r.maxKm    = t.maxKm || r.maxKm;
+      r.extra    = t.extra || r.extra;
+
+      if (t.relative_checkin_start) r.relStart = t.relative_checkin_start;
+      if (t.relative_checkin_duration) r.relDuration = t.relative_checkin_duration;
+      if (t.work_location_specification) r.locSpec = t.work_location_specification;
+      if (t.minimal_age) r.minAge = t.minimal_age;
+      if (typeof t.client_experience_required !== "undefined") r.clientExp = String(t.client_experience_required);
+
+      // best-effort name → id resolution
+      if (t.project){
+        const pid = Object.keys(state.maps.projects).find(id => (state.maps.projects[id]||"").toLowerCase() === String(t.project).toLowerCase());
+        if (pid){ r.projectId=pid; r.projectName=state.maps.projects[pid]; }
+      }
+      if (t.subproject){
+        const sid = Object.keys(state.maps.subprojects).find(id => (state.maps.subprojects[id]||"").toLowerCase() === String(t.subproject).toLowerCase());
+        if (sid){ r.subprojectId=sid; r.subprojectName=state.maps.subprojects[sid]; }
+      }
+      if (t.function){
+        const fid = Object.keys(state.maps.functions).find(id => (state.maps.functions[id]||"").toLowerCase() === String(t.function).toLowerCase());
+        if (fid){ r.functionId=fid; r.functionName=state.maps.functions[fid]; }
+      }
+      if (t.address){
+        const aid = Object.keys(state.maps.addresses).find(id => (state.maps.addresses[id]||"").toLowerCase() === String(t.address).toLowerCase());
+        if (aid){ r.addressId=aid; r.addressName=state.maps.addresses[aid]; }
+      }
+      if (t.compensation){
+        const cid = Object.keys(state.maps.compensations).find(id => (state.maps.compensations[id]||"").toLowerCase() === String(t.compensation).toLowerCase());
+        if (cid){ r.compensationId=cid; r.compensationName=state.maps.compensations[cid]; }
+      }
+
+      state.queue.push(r);
+    });
+
+    renderQueue();
+    L(`AI queued ${teams.length} suggestion(s).`); addGap();
+  }catch(e){
+    const m=extractErrText(e);
+    L("AI error:", m); addGap(); scrollLogs();
+    alert("AI failed: " + m);
+  }
+}
+
+/* delete created */
+async function deleteCreated(id){
+  const btn = document.querySelector(`button[data-del="${id}"]`);
+  if (btn){ btn.textContent = "Deleting"; btn.disabled = true; }
+  try{
+    await proxyDELETE(`api/v1/admin/teams/${encodeURIComponent(id)}`);
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    if (row){ row.classList.add("slideRight"); setTimeout(()=>{ row.remove(); }, 360); }
+    state.created = state.created.filter(x=>String(x.id)!==String(id));
+    if (!state.created.length) renderCreated();
+  }catch(e){
+    if (btn){ btn.textContent = "Delete"; btn.disabled = false; }
+    alert("Delete failed: " + extractErrText(e));
+  }
+}
+
+/* export queue as CSV (Excel-compatible) */
+function exportQueueCSV(){
+  if (!state.queue.length){ alert("Queue is empty"); return; }
+  const headers = [
+    "project_id","project_name","subproject_id","subproject_name","auto_name","team_name",
+    "volunteers","function_id","function_name","address_id","address_name","compensation_id","compensation_name",
+    "draft","start","end","max_km","extra",
+    "relative_checkin_start","relative_checkin_duration","work_location_specification","minimal_age","client_experience_required"
+  ];
+  const rows = state.queue.map(q=>[
+    q.projectId, q.projectName, q.subprojectId, q.subprojectName, q.autoName, q.name,
+    q.volunteers, q.functionId, q.functionName, q.addressId, q.addressName, q.compensationId, q.compensationName,
+    q.draft, q.start, q.end, q.maxKm, q.extra,
+    q.relStart||"", q.relDuration||"", q.locSpec||"", q.minAge||"", q.clientExp||""
+  ]);
+  const csv = [headers.join(","), ...rows.map(r=>r.map(v=>{
+    const s = (v==null)? "": String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  }).join(","))].join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "beeple-teams-queue.csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+/* events */
+document.addEventListener("click", (ev)=>{
+  const t=ev.target;
+  if (t.matches('[data-toggle]')){
+    const sel=t.getAttribute("data-toggle");
+    const sec=document.querySelector(sel);
+    if (!sec) return;
+    const collapse = t.getAttribute("data-role")==="collapse";
+    toggleSection(sec, !collapse);
+  }
+  if (t.matches('#createQueueBtn')) createFromQueue();
+  if (t.matches('#queueSingleBtn')) queueSingleFromForm();
+  if (t.matches('#aiQueueBtn')) addAiSuggestionsToQueue();
+  if (t.matches('#queueTbody [data-act="remove"]')){
+    const idx=parseInt(t.getAttribute("data-idx"),10);
+    state.queue.splice(idx,1); renderQueue();
+  }
+});
+
+els.exportBtn.addEventListener("click", exportQueueCSV);
+document.getElementById("loadBtn").addEventListener("click", (e)=>{ e.preventDefault(); loadTenant(); });
+document.getElementById("forgetBtn").addEventListener("click", (e)=>{ e.preventDefault();
+  const tk = tenantKey();
+  document.cookie.split("; ").forEach(c=>{
+    const n=c.split("=")[0];
+    if (n.startsWith(`beeple_${tk}_`)) delCookie(n);
+  });
+  alert("Saved data cleared for this tenant key.");
+});
+document.getElementById("projectSelect").addEventListener("change", async ()=>{
+  savePerTenant("project", els.projectSelect.value||"");
+  await loadSubprojectsForProject(els.projectSelect.value);
+});
+document.getElementById("subprojectSelect").addEventListener("change", ()=> savePerTenant("subproject", els.subprojectSelect.value||""));
+document.getElementById("functionSelect").addEventListener("change", ()=> savePerTenant("function", els.functionSelect.value||""));
+document.getElementById("addressSelect").addEventListener("change", ()=> savePerTenant("address", els.addressSelect.value||""));
+document.getElementById("compensationSelect").addEventListener("change", ()=> savePerTenant("comp", els.compensationSelect.value||""));
+document.getElementById("autoName").addEventListener("change", ()=>{
+  els.teamNameWrap.classList.toggle("hidden", els.autoName.value==="yes");
+});
+document.getElementById("baseUrl").addEventListener("change", ()=>{
+  setCookie("beeple_last_base", base());
+  savePerTenant("baseUrl", base());
+});
+document.getElementById("token").addEventListener("change", ()=> savePerTenant("token", tokenVal()));
+document.getElementById("aiText").addEventListener("input", ()=> savePerTenant("aiText", els.aiText.value));
+
+/* init */
+(function init(){
+  const t = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", t);
+  applyThemeButton();
+
+  // defaults for shift: tomorrow 08:00-17:00
+  const pad=n=>String(n).padStart(2,"0");
+  const fmt=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const now=new Date(), s=new Date(now), e=new Date(now);
+  s.setDate(s.getDate()+1); s.setHours(8,0,0,0);
+  e.setDate(e.getDate()+1); e.setHours(17,0,0,0);
+  els.shiftStart.value = fmt(s);
+  els.shiftEnd.value   = fmt(e);
+
+  // cookie banner (show once)
+  if (!getCookie("beeple_cookie_ok")){
+    els.cookie.classList.remove("hidden");
+  }
+  els.cookieOk.addEventListener("click", ()=>{
+    setCookie("beeple_cookie_ok","1",365);
+    els.cookie.classList.add("hide");
+    setTimeout(()=> els.cookie.remove(), 360);
+  });
+
+  const lastBase = getCookie("beeple_last_base"); if (lastBase){ els.baseUrl.value = lastBase; }
+  const savedBase = loadPerTenant("baseUrl"); if (savedBase) els.baseUrl.value = savedBase;
+  const savedTok  = loadPerTenant("token");  if (savedTok)  els.token.value   = savedTok;
+  const aiSaved   = loadPerTenant("aiText"); if (aiSaved)   els.aiText.value  = aiSaved;
+
+  els.teamNameWrap.classList.toggle("hidden", els.autoName.value==="yes");
+})();
+</script>
+</body>
+</html>
