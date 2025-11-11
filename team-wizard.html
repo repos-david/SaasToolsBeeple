@@ -45,10 +45,13 @@
   }
   .brand{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;min-width:0}
   .brand img{height:26px;max-width:100%}
-  /* Title uses same font as buttons (inherit), but larger and centered below */
+  /* Title now inside top bar (second row, spans both columns) */
   .page-title{
-    width:min(100%,var(--wrap));margin:12px auto 0 auto;text-align:center;
+    /* moved inside .topbar */
+    margin:6px 0 0 0;
+    text-align:center;
     font-weight:800;font-size:var(--title-size); line-height:1.15;
+    grid-column:1 / -1;
   }
   .theme-toggle{
     border:1px solid var(--border);background:var(--accentSoft);color:#18224d;
@@ -160,9 +163,9 @@
         <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
       </div>
       <button id="themeBtn" class="theme-toggle" title="Toggle dark/light">Dark mode</button>
+      <div class="page-title">Team wizard</div>
     </div>
   </div>
-  <div class="page-title">Team wizard</div>
 
   <main class="container">
     <!-- Connection -->
