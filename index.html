@@ -8,7 +8,7 @@
 <style>
   :root{
     /* Beeple-ish light palette (lighter inputs/tables/buttons) */
-    --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
+    --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:rgb(38, 34, 97); --muted:#475569;
     --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --accentHover:#3450e4;
     --danger:#ef6b6b; --border:rgba(15,23,42,.10);
     --field:#ffffff; --fieldBorder:#e5e7eb; --tableHead:#eef2ff;
@@ -41,17 +41,15 @@
   .topbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--border)}
   .topwrap{
     width:min(100%,var(--wrap));margin:0 auto;padding:14px 12px;
-    display:grid;gap:8px;grid-template-columns:1fr auto;align-items:center
+    display:grid;gap:8px;grid-template-columns:auto 1fr auto;align-items:center
   }
-  .brand{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;min-width:0}
+  .brand{display:flex;align-items:center;min-width:0}
   .brand img{height:26px;max-width:100%}
-  /* Title now inside top bar (second row, spans both columns) */
   .page-title{
-    /* moved inside .topbar */
-    margin:6px 0 0 0;
+    font-weight:800;font-size:20px; line-height:1.15;
+    margin:0;
     text-align:center;
-    font-weight:800;font-size:var(--title-size); line-height:1.15;
-    grid-column:1 / -1;
+    color:var(--text);
   }
   .theme-toggle{
     border:1px solid var(--border);background:var(--accentSoft);color:#18224d;
@@ -83,7 +81,7 @@
   .btn{border:0;border-radius:var(--radius);padding:10px 16px;font-weight:700;cursor:pointer}
   .btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff}
   .btn.primary:hover{filter:brightness(1.02)}
-  .btn.secondary{background:#edf2ff;color:#0f172a;border:1px solid var(--border)}
+  .btn.secondary{background:#edf2ff;color:rgb(38, 34, 97);border:1px solid var(--border)}
   [data-theme="dark"] .btn.secondary{background:linear-gradient(180deg,#1f2937,#111827);color:#e5e7eb}
   .btn-danger{background:var(--danger);color:#fff}
   .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
@@ -94,7 +92,7 @@
 
   /* Notice (orange) */
   .notice{
-    padding:12px;border:1px dashed #f59e0b;border-radius:10px;background:rgba(245,158,11,.12);color:#92400e
+    padding:12px;border:1px dashed #f59e0b;border-radius:10px;background:rgba(245,158,11,.12);color:rgb(38, 34, 97)
   }
   .notice b{font-weight:800}
 
@@ -105,7 +103,7 @@
     background:rgba(255,255,255,.55);  /* more transparent */
     backdrop-filter: blur(12px) saturate(140%);
     border:1px solid var(--border);box-shadow:var(--shadow);border-radius:14px;
-    padding:14px;display:flex;gap:12px;align-items:center;z-index:30;color:#0f172a
+    padding:14px;display:flex;gap:12px;align-items:center;z-index:30;color:rgb(38, 34, 97)
   }
   [data-theme="dark"] .cookie{ background: rgba(15,23,42,.42); color:#e5e7eb; }
   .cookie.hide{transition:transform .35s ease, opacity .35s ease;transform:translate(-50%, 110%);opacity:0}
@@ -133,14 +131,14 @@
   }
   @media (max-width:480px){ table{ min-width:560px; } }
   th,td{padding:10px 12px;border-bottom:1px solid var(--fieldBorder);vertical-align:top}
-  th{background:var(--tableHead);color:#0b1740;text-align:left;font-weight:800}
+  th{background:var(--tableHead);color:rgb(38, 34, 97);text-align:left;font-weight:800}
   [data-theme="dark"] th{ color:#d9e3ff; }
   tr:last-child td{border-bottom:0}
   .table-note{padding:12px;color:var(--muted)}
   .actions{display:inline-flex;gap:8px;white-space:nowrap}
 
   /* Logs (smaller font) */
-  pre{background:#f7f9ff;color:#111827;border:1px solid var(--fieldBorder);border-radius:var(--radius);padding:12px;
+  pre{background:#f7f9ff;color:rgb(38, 34, 97);border:1px solid var(--fieldBorder);border-radius:var(--radius);padding:12px;
       font-size:12px;max-height:48vh;overflow:auto;white-space:pre-wrap;word-break:break-word}
   [data-theme="dark"] pre{background:#0b1020;color:#d1e3ff;border-color:var(--fieldBorder)}
 
@@ -162,8 +160,8 @@
       <div class="brand">
         <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
       </div>
-      <button id="themeBtn" class="theme-toggle" title="Toggle dark/light">Dark mode</button>
       <div class="page-title">Team wizard</div>
+      <button id="themeBtn" class="theme-toggle" title="Toggle dark/light">Dark mode</button>
     </div>
   </div>
 
@@ -274,7 +272,7 @@
         <textarea id="extraInfo" rows="3" placeholder="extra info"></textarea>
 
         <!-- Advanced fields (collapsed by default) -->
-        <div class="collapsible" id="sec-advanced">
+        <div class="collapsible collapsed" id="sec-advanced" style="margin-top:10px">
           <div class="head">
             <h2 style="font-size:16px;margin:12px 0 0 0;">Advanced fields</h2>
             <div class="tools">
@@ -338,13 +336,11 @@ Generate 7 teams next week for Check-in function at Antwerp Expo, 09:00-13:00 an
     </section>
 
     <!-- Queue (expanded by default) -->
-    <section class="card collapsible" id="sec-queue">
+    <section class="card" id="sec-queue">
       <div class="head">
         <h2>Preview queue</h2>
         <div class="tools" style="gap:6px">
           <button id="exportBtn" class="btn secondary" title="Download CSV that opens in Excel">Export teams as Excel for easy import</button>
-          <button class="btn btn-ghost" data-toggle="#sec-queue" data-role="collapse">Collapse</button>
-          <button class="btn btn-ghost hidden" data-toggle="#sec-queue">Expand</button>
         </div>
       </div>
       <div class="body">
@@ -380,13 +376,9 @@ Generate 7 teams next week for Check-in function at Antwerp Expo, 09:00-13:00 an
     </section>
 
     <!-- Created -->
-    <section class="card collapsible" id="sec-created">
+    <section class="card" id="sec-created">
       <div class="head">
         <h2>Created teams</h2>
-        <div class="tools">
-          <button class="btn btn-ghost" data-toggle="#sec-created" data-role="collapse">Collapse</button>
-          <button class="btn btn-ghost hidden" data-toggle="#sec-created">Expand</button>
-        </div>
       </div>
       <div class="body">
         <div class="table-wrap">
@@ -604,7 +596,6 @@ async function loadTenant(){
   if (!base() || !tokenVal()){ alert("Fill Tenant URL and API token"); return; }
   setCookie("beeple_last_base", base());
   savePerTenant("baseUrl", base());
-  savePerTenant("token", tokenVal());
   try{
     ["projectBlock","subprojectBlock","functionBlock","addressBlock","compBlock"].forEach(id=>els[id].classList.add("hidden"));
 
@@ -946,13 +937,17 @@ document.addEventListener("click", (ev)=>{
   if (t.matches('#createQueueBtn')) createFromQueue();
   if (t.matches('#queueSingleBtn')) queueSingleFromForm();
   if (t.matches('#aiQueueBtn')) addAiSuggestionsToQueue();
+  if (t.matches('#exportBtn')) exportQueueCSV();
   if (t.matches('#queueTbody [data-act="remove"]')){
     const idx=parseInt(t.getAttribute("data-idx"),10);
     state.queue.splice(idx,1); renderQueue();
   }
+  if (t.matches('[data-del]')){
+    const id=t.getAttribute("data-del");
+    deleteCreated(id);
+  }
 });
 
-els.exportBtn.addEventListener("click", exportQueueCSV);
 document.getElementById("loadBtn").addEventListener("click", (e)=>{ e.preventDefault(); loadTenant(); });
 document.getElementById("forgetBtn").addEventListener("click", (e)=>{ e.preventDefault();
   const tk = tenantKey();
@@ -977,7 +972,6 @@ document.getElementById("baseUrl").addEventListener("change", ()=>{
   setCookie("beeple_last_base", base());
   savePerTenant("baseUrl", base());
 });
-document.getElementById("token").addEventListener("change", ()=> savePerTenant("token", tokenVal()));
 document.getElementById("aiText").addEventListener("input", ()=> savePerTenant("aiText", els.aiText.value));
 
 /* init */
@@ -1007,7 +1001,6 @@ document.getElementById("aiText").addEventListener("input", ()=> savePerTenant("
 
   const lastBase = getCookie("beeple_last_base"); if (lastBase){ els.baseUrl.value = lastBase; }
   const savedBase = loadPerTenant("baseUrl"); if (savedBase) els.baseUrl.value = savedBase;
-  const savedTok  = loadPerTenant("token");  if (savedTok)  els.token.value   = savedTok;
   const aiSaved   = loadPerTenant("aiText"); if (aiSaved)   els.aiText.value  = aiSaved;
 
   els.teamNameWrap.classList.toggle("hidden", els.autoName.value==="yes");
