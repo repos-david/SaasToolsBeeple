@@ -6,152 +6,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
 <style>
-  :root{
-    /* Beeple-ish light palette (lighter inputs/tables/buttons) */
-    --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:rgb(38, 34, 97); --muted:#475569;
+  :root{ --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
     --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --accentHover:#3450e4;
-    --danger:#ef6b6b; --border:rgba(15,23,42,.10);
-    --field:#ffffff; --fieldBorder:#e5e7eb; --tableHead:#eef2ff;
-
-    --radius:12px; --radius-lg:14px;
-    /* deeper shade shifted right & down */
-    --shadow: 6px 10px 24px rgba(15,23,42,.10), 0 1px 0 rgba(15,23,42,.04);
-    /* Responsive container: never wider than screen, comfy on desktop */
-    --wrap: clamp(320px, 94vw, 980px);
-    /* Title font size */
-    --title-size: clamp(22px, 4.6vw, 34px);
+    --danger:#ef6b6b; --border:rgba(15,23,42,.10); --field:#ffffff; --fieldBorder:#e5e7eb; --tableHead:#eef2ff;
+    --radius:12px; --radius-lg:14px; --shadow: 6px 10px 24px rgba(15,23,42,.10), 0 1px 0 rgba(15,23,42,.04);
+    --wrap: clamp(320px, 94vw, 980px); --title-size: clamp(22px, 4.6vw, 34px);
   }
-  [data-theme="dark"]{
-    --bg:#0b1020; --bg2:#0e1428; --card:#0f1630; --text:#e8ecff; --muted:#b8c3ef;
+  [data-theme="dark"]{ --bg:#0b1020; --bg2:#0e1428; --card:#0f1630; --text:#e8ecff; --muted:#b8c3ef;
     --accent:#5aa2ff; --accent2:#7ec3ff; --accentSoft:#0e2244; --accentHover:#7fb6ff;
-    --danger:#e66d6d; --border:rgba(255,255,255,.14);
-    --field:#121b39; --fieldBorder:rgba(255,255,255,.18); --tableHead:#13224a;
-    --shadow: 10px 14px 28px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.04);
-  }
-
-  *{box-sizing:border-box}
-  html,body{height:100%; overflow-x:hidden}
-  body{
-    margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);
-    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-    transition:background .25s ease,color .25s ease;
-  }
-
-  /* Top */
+    --danger:#e66d6d; --border:rgba(255,255,255,.14); --field:#121b39; --fieldBorder:rgba(255,255,255,.18); --tableHead:#13224a;
+    --shadow: 10px 14px 28px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.04); }
+  *{box-sizing:border-box} html,body{height:100%; overflow-x:hidden}
+  body{ margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; transition:background .25s ease,color .25s ease; }
   .topbar{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--border)}
-  .topwrap{
-    width:min(100%,var(--wrap));margin:0 auto;padding:14px 12px;
-    display:grid;gap:8px;grid-template-columns:auto 1fr auto;align-items:center
-  }
-  .brand{display:flex;align-items:center;min-width:0}
+  .topwrap{ width:min(100%,var(--wrap));margin:0 auto;padding:14px 12px; display:grid;gap:8px;grid-template-columns:1fr auto;align-items:center }
+  .brand{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;min-width:0}
   .brand img{height:26px;max-width:100%}
-  .page-title{
-    font-weight:800;font-size:20px; line-height:1.15;
-    margin:0;
-    text-align:center;
-    color:var(--text);
-  }
-  .theme-toggle{
-    border:1px solid var(--border);background:var(--accentSoft);color:#18224d;
-    padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700
-  }
+  .page-title{ margin:6px 0 0 0; text-align:center; font-weight:800;font-size:var(--title-size); line-height:1.15; grid-column:1 / -1;}
+  .theme-toggle{ border:1px solid var(--border);background:var(--accentSoft);color:#18224d; padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700}
   [data-theme="dark"] .theme-toggle{ color:#dbe7ff; }
-
-  /* Layout */
   .container{ width:min(100%, var(--wrap)); margin:14px auto 22px auto; padding:0 12px; display:grid; gap:16px }
-  .card{
-    background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
-    padding:16px;box-shadow:var(--shadow)
-  }
-  .card h2{margin:0 0 12px 0;font-size:18px}
-  .sub{margin-top:2px;color:var(--muted);font-size:13px}
-
-  /* Controls (lighter) */
-  input,select,textarea,button{
-    width:100%;padding:10px 12px;border:1px solid var(--fieldBorder);border-radius:var(--radius);
-    background:var(--field);color:var(--text);
-    transition:border-color .15s ease, background-color .2s ease, box-shadow .15s ease, transform .06s ease;
-  }
+  .card{ background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg); padding:16px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 12px 0;font-size:18px} .sub{margin-top:2px;color:var(--muted);font-size:13px}
+  input,select,textarea,button{ width:100%;padding:10px 12px;border:1px solid var(--fieldBorder);border-radius:var(--radius);
+    background:var(--field);color:var(--text); transition:border-color .15s ease, background-color .2s ease, box-shadow .15s ease; }
   input::placeholder,textarea::placeholder{color:var(--muted);opacity:.65}
   input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,107,255,.15);outline:none}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   @media(max-width:860px){.row,.row-3{grid-template-columns:1fr}}
-
   .btn{border:0;border-radius:var(--radius);padding:10px 16px;font-weight:700;cursor:pointer}
   .btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#fff}
   .btn.primary:hover{filter:brightness(1.02)}
-  .btn.secondary{background:#edf2ff;color:rgb(38, 34, 97);border:1px solid var(--border)}
+  .btn.secondary{background:#edf2ff;color:#0f172a;border:1px solid var(--border)}
   [data-theme="dark"] .btn.secondary{background:linear-gradient(180deg,#1f2937,#111827);color:#e5e7eb}
   .btn-danger{background:var(--danger);color:#fff}
-  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
-
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:#888}
   label{font-weight:600;font-size:13px;margin:12px 0 6px;display:block;color:var(--muted)}
   .required::after{content:" *";color:var(--accent)}
   .hidden{display:none}
-
-  /* Notice (orange) */
-  .notice{
-    padding:12px;border:1px dashed #f59e0b;border-radius:10px;background:rgba(245,158,11,.12);color:rgb(38, 34, 97)
-  }
+  .notice{ padding:12px;border:1px dashed #f59e0b;border-radius:10px;background:rgba(245,158,11,.12);color:#92400e }
   .notice b{font-weight:800}
-
-  /* Cookie banner (glassier) */
-  .cookie{
-    position:fixed;left:50%;transform:translateX(-50%);bottom:18px;
-    width:min(96vw, 640px);
-    background:rgba(255,255,255,.55);  /* more transparent */
-    backdrop-filter: blur(12px) saturate(140%);
-    border:1px solid var(--border);box-shadow:var(--shadow);border-radius:14px;
-    padding:14px;display:flex;gap:12px;align-items:center;z-index:30;color:rgb(38, 34, 97)
-  }
+  .cookie{ position:fixed;left:50%;transform:translateX(-50%);bottom:18px; width:min(96vw, 640px);
+    background:rgba(255,255,255,.55); backdrop-filter: blur(12px) saturate(140%); border:1px solid var(--border);box-shadow:var(--shadow);border-radius:14px;
+    padding:14px;display:flex;gap:12px;align-items:center;z-index:30;color:#0f172a }
   [data-theme="dark"] .cookie{ background: rgba(15,23,42,.42); color:#e5e7eb; }
   .cookie.hide{transition:transform .35s ease, opacity .35s ease;transform:translate(-50%, 110%);opacity:0}
   .cookie .msg{flex:1;word-break:break-word}
   .cookie .actions{display:flex;gap:10px}
   .cookie .actions .btn{min-width:96px}
-  @media(max-width:480px){
-    .cookie{flex-direction:column;align-items:stretch}
-    .cookie .actions .btn{width:100%}
-  }
-
-  /* Collapse */
+  @media(max-width:480px){ .cookie{flex-direction:column;align-items:stretch} .cookie .actions .btn{width:100%} }
   .collapsible .head{display:flex;justify-content:space-between;align-items:center}
   .collapsible .tools{display:flex;gap:8px}
   .collapsible .body{margin-top:12px}
   .collapsed .body{display:none}
-
-  /* Tables (no page overflow; lighter) */
   .table-wrap{width:100%;overflow-x:auto}
-  table{
-    width:100%;
-    min-width:720px;
-    border-collapse:separate;border-spacing:0;border:1px solid var(--fieldBorder);border-radius:12px;overflow:hidden;
-    background:var(--field)
-  }
+  table{ width:100%; min-width:720px; border-collapse:separate;border-spacing:0;border:1px solid var(--fieldBorder);border-radius:12px;overflow:hidden; background:var(--field) }
   @media (max-width:480px){ table{ min-width:560px; } }
   th,td{padding:10px 12px;border-bottom:1px solid var(--fieldBorder);vertical-align:top}
-  th{background:var(--tableHead);color:rgb(38, 34, 97);text-align:left;font-weight:800}
-  [data-theme="dark"] th{ color:#d9e3ff; }
-  tr:last-child td{border-bottom:0}
+  th{background:var(--tableHead);color:#0b1740;text-align:left;font-weight:800}
+  [data-theme="dark"] th{ color:#d9e3ff; } tr:last-child td{border-bottom:0}
   .table-note{padding:12px;color:var(--muted)}
-  .actions{display:inline-flex;gap:8px;white-space:nowrap}
-
-  /* Logs (smaller font) */
-  pre{background:#f7f9ff;color:rgb(38, 34, 97);border:1px solid var(--fieldBorder);border-radius:var(--radius);padding:12px;
+  pre{background:#f7f9ff;color:#111827;border:1px solid var(--fieldBorder);border-radius:var(--radius);padding:12px;
       font-size:12px;max-height:48vh;overflow:auto;white-space:pre-wrap;word-break:break-word}
   [data-theme="dark"] pre{background:#0b1020;color:#d1e3ff;border-color:var(--fieldBorder)}
-
-  /* Animations */
   .slideRight{animation:slideRight .35s ease forwards}
   @keyframes slideRight{to{opacity:0;transform:translateX(60%)}}
-
-  /* Super small phones: stack header */
-  @media (max-width:480px){
-    .topwrap{grid-template-columns:1fr}
-    .theme-toggle{justify-self:end}
-    .card{padding:12px}
-  }
+  @media (max-width:480px){ .topwrap{grid-template-columns:1fr} .theme-toggle{justify-self:end} .card{padding:12px} }
+  .info-list{margin:8px 0 0 18px; padding:0}
+  .info-list li{margin:4px 0}
 </style>
 </head>
 <body>
@@ -160,8 +84,8 @@
       <div class="brand">
         <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
       </div>
-      <div class="page-title">Team wizard</div>
       <button id="themeBtn" class="theme-toggle" title="Toggle dark/light">Dark mode</button>
+      <div class="page-title">Team wizard</div>
     </div>
   </div>
 
@@ -190,7 +114,7 @@
     <!-- Security notice -->
     <div class="notice"><b>Security notice:</b> do not share your API token with anyone</div>
 
-    <!-- Create single team (expanded by default) -->
+    <!-- Create single team -->
     <section class="card collapsible" id="sec-single">
       <div class="head">
         <h2>Create single team</h2>
@@ -271,8 +195,8 @@
         <label>Extra practical info</label>
         <textarea id="extraInfo" rows="3" placeholder="extra info"></textarea>
 
-        <!-- Advanced fields (collapsed by default) -->
-        <div class="collapsible collapsed" id="sec-advanced" style="margin-top:10px">
+        <!-- Advanced -->
+        <div class="collapsible" id="sec-advanced">
           <div class="head">
             <h2 style="font-size:16px;margin:12px 0 0 0;">Advanced fields</h2>
             <div class="tools">
@@ -328,19 +252,39 @@
       <div class="body">
         <label>Paste your text</label>
         <textarea id="aiText" rows="8" placeholder="Example:
-Generate 7 teams next week for Check-in function at Antwerp Expo, 09:00-13:00 and 13:00-17:00, 3 volunteers each."></textarea>
+Generate 7 teams next week for Check-in at Antwerp Expo, 09:00-13:00 and 13:00-17:00, 3 volunteers each."></textarea>
         <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
           <button id="aiQueueBtn" class="btn primary">Add team(s) to the queue to preview</button>
         </div>
       </div>
     </section>
 
-    <!-- Queue (expanded by default) -->
-    <section class="card" id="sec-queue">
+    <!-- AI notes & questions -->
+    <section class="card collapsible" id="sec-ai-feedback">
+      <div class="head">
+        <h2>AI notes & questions</h2>
+        <div class="tools">
+          <button class="btn btn-ghost" data-toggle="#sec-ai-feedback" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-ai-feedback">Expand</button>
+        </div>
+      </div>
+      <div class="body">
+        <div><b>Notes</b></div>
+        <ul id="aiNotes" class="info-list"></ul>
+        <div style="margin-top:10px;"><b>Questions</b></div>
+        <ul id="aiQuestions" class="info-list"></ul>
+        <div class="sub">Answer questions by editing your text prompt or filling missing fields before creating.</div>
+      </div>
+    </section>
+
+    <!-- Queue -->
+    <section class="card collapsible" id="sec-queue">
       <div class="head">
         <h2>Preview queue</h2>
         <div class="tools" style="gap:6px">
           <button id="exportBtn" class="btn secondary" title="Download CSV that opens in Excel">Export teams as Excel for easy import</button>
+          <button class="btn btn-ghost" data-toggle="#sec-queue" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-queue">Expand</button>
         </div>
       </div>
       <div class="body">
@@ -366,19 +310,21 @@ Generate 7 teams next week for Check-in function at Antwerp Expo, 09:00-13:00 an
             </tbody>
           </table>
         </div>
-
         <div style="margin-top:12px;">
           <button id="createQueueBtn" class="btn primary">Create team(s) from queue</button>
         </div>
-
         <div id="queueSuccess" class="sub" style="margin-top:10px;"></div>
       </div>
     </section>
 
     <!-- Created -->
-    <section class="card" id="sec-created">
+    <section class="card collapsible" id="sec-created">
       <div class="head">
         <h2>Created teams</h2>
+        <div class="tools">
+          <button class="btn btn-ghost" data-toggle="#sec-created" data-role="collapse">Collapse</button>
+          <button class="btn btn-ghost hidden" data-toggle="#sec-created">Expand</button>
+        </div>
       </div>
       <div class="body">
         <div class="table-wrap">
@@ -429,7 +375,8 @@ Generate 7 teams next week for Check-in function at Antwerp Expo, 09:00-13:00 an
   </div>
 
 <script>
-const PROXY_URL = "proxy.php";
+const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
+const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
 
 /* --- state handles --- */
 const els = {
@@ -474,6 +421,8 @@ const els = {
   // AI & queue
   aiText: document.getElementById("aiText"),
   aiQueueBtn: document.getElementById("aiQueueBtn"),
+  aiNotes: document.getElementById("aiNotes"),
+  aiQuestions: document.getElementById("aiQuestions"),
   queueTbody: document.getElementById("queueTbody"),
   queueEmptyRow: document.getElementById("queueEmptyRow"),
   createQueueBtn: document.getElementById("createQueueBtn"),
@@ -502,6 +451,7 @@ const tokenVal = ()=> (els.token.value||"").trim();
 
 const state = {
   maps:{ projects:{}, subprojects:{}, functions:{}, addresses:{}, compensations:{} },
+  context:{ projects:[], subprojects:[], functions:[], addresses:[], team_compensations:[] },
   queue:[],
   created:[]
 };
@@ -539,6 +489,14 @@ function toggleSection(sectionEl, expand){
   }
 }
 
+/* --- DEBUG: pretty dump of the outgoing request we make to proxy.php --- */
+function debugDumpToProxy(method, url, headersObj, body) {
+  if (!DEBUG) return;
+  const hdrLines = Object.entries(headersObj||{}).map(([k,v])=>`${k}: ${v}`).join("\n");
+  const line1 = `${method} ${url} HTTP/1.1`;
+  L(line1 + "\n" + hdrLines + "\n\n" + (body || ""));
+}
+
 /* http via proxy */
 function extractErrText(e){
   if (!e) return "Unknown error";
@@ -547,11 +505,18 @@ function extractErrText(e){
   try{ return JSON.stringify(e); }catch{ return String(e); }
 }
 
+function proxyUrl(path){
+  const u = `${PROXY_URL}?base=${encodeURIComponent(base())}&path=${encodeURIComponent(path)}${DEBUG ? '&debug=1' : ''}`;
+  return u;
+}
+
 async function proxyGET(path){
-  const url = `${PROXY_URL}?base=${encodeURIComponent(base())}&path=${encodeURIComponent(path)}`;
+  const url = proxyUrl(path);
+  const headers = { "X-Beeple-Token": tokenVal() };
   try{
+    if (DEBUG) debugDumpToProxy("GET", url, headers, "");
     L("GET", path);
-    const res = await fetch(url, { headers:{ "X-Beeple-Token": tokenVal() }});
+    const res = await fetch(url, { headers });
     const txt = await res.text();
     L("<-", res.status, res.statusText);
     if (txt) L(txt.length>2000?txt.slice(0,2000)+" [truncated]":txt);
@@ -560,12 +525,15 @@ async function proxyGET(path){
     try{ return txt? JSON.parse(txt):{} }catch(e){ L("JSON parse error:", e.message); addGap(); return { raw:txt }; }
   }catch(e){ const m=extractErrText(e); L("GET error:", m); addGap(); scrollLogs(); throw new Error(m); }
 }
+
 async function proxyPOST(path, payload){
-  const url = `${PROXY_URL}?base=${encodeURIComponent(base())}&path=${encodeURIComponent(path)}`;
+  const url = proxyUrl(path);
   const body = JSON.stringify(payload);
+  const headers = { "X-Beeple-Token": tokenVal(), "Content-Type":"application/json" };
   try{
+    if (DEBUG) debugDumpToProxy("POST", url, headers, body);
     L("POST", path); L("Payload:", body.length>2000?body.slice(0,2000)+" [truncated]":body);
-    const res = await fetch(url, { method:"POST", headers:{ "X-Beeple-Token": tokenVal(), "Content-Type":"application/json" }, body });
+    const res = await fetch(url, { method:"POST", headers, body });
     const txt = await res.text();
     L("<-", res.status, res.statusText);
     if (txt) L(txt.length>2000?txt.slice(0,2000)+" [truncated]":txt);
@@ -578,11 +546,14 @@ async function proxyPOST(path, payload){
     try{ return txt? JSON.parse(txt):{} }catch(e){ L("JSON parse error:", e.message); addGap(); return { raw:txt }; }
   }catch(e){ const m=extractErrText(e); L("POST error:", m); addGap(); scrollLogs(); throw new Error(m); }
 }
+
 async function proxyDELETE(path){
-  const url = `${PROXY_URL}?base=${encodeURIComponent(base())}&path=${encodeURIComponent(path)}`;
+  const url = proxyUrl(path);
+  const headers = { "X-Beeple-Token": tokenVal() };
   try{
+    if (DEBUG) debugDumpToProxy("DELETE", url, headers, "");
     L("DELETE", path);
-    const res = await fetch(url, { method:"DELETE", headers:{ "X-Beeple-Token": tokenVal() }});
+    const res = await fetch(url, { method:"DELETE", headers });
     const txt = await res.text();
     L("<-", res.status, res.statusText); if (txt) L(txt);
     addGap();
@@ -591,11 +562,12 @@ async function proxyDELETE(path){
   }catch(e){ const m=extractErrText(e); L("DELETE error:", m); addGap(); scrollLogs(); throw new Error(m); }
 }
 
-/* tenant load */
+/* tenant load (gathers full tenant_context) */
 async function loadTenant(){
   if (!base() || !tokenVal()){ alert("Fill Tenant URL and API token"); return; }
   setCookie("beeple_last_base", base());
   savePerTenant("baseUrl", base());
+  savePerTenant("token", tokenVal());
   try{
     ["projectBlock","subprojectBlock","functionBlock","addressBlock","compBlock"].forEach(id=>els[id].classList.add("hidden"));
 
@@ -603,18 +575,32 @@ async function loadTenant(){
     const projects = pResp.projects || [];
     fillSelect(els.projectSelect, projects.map(p=>({value:p.id, label:(p.name||("Project #"+p.id))})));
     state.maps.projects = Object.fromEntries(projects.map(p=>[String(p.id), p.name||("Project #"+p.id)]));
+    state.context.projects = projects.map(p=>({ id:String(p.id), name:(p.name||("Project #"+p.id)) }));
     if (projects.length){ els.projectBlock.classList.remove("hidden"); }
+
+    // Fetch subprojects for all projects
+    const allSubs = [];
+    for (const p of projects){
+      try{
+        const sResp = await proxyGET(`api/v1/admin/projects/${encodeURIComponent(p.id)}/subprojects`);
+        const subs = sResp.subprojects || [];
+        subs.forEach(s=> allSubs.push({ id:String(s.id), name:(s.name||("Subproject #"+s.id)), project_id:String(p.id) }));
+      }catch(e){ L("Subprojects fetch error for project", p.id, ":", extractErrText(e)); }
+    }
+    state.context.subprojects = allSubs;
 
     const fResp = await proxyGET("api/v1/admin/functions");
     const functions = (fResp.functions || fResp) || [];
     fillSelect(els.functionSelect, functions.map(f=>({value:f.id, label:(f.name||("Function #"+f.id))})));
     state.maps.functions = Object.fromEntries(functions.map(f=>[String(f.id), f.name||("Function #"+f.id)]));
+    state.context.functions = functions.map(f=>({ id:String(f.id), name:(f.name||("Function #"+f.id)) }));
     if (functions.length){ els.functionBlock.classList.remove("hidden"); }
 
     const aResp = await proxyGET("api/v1/admin/addresses");
     const addresses = aResp.addresses || [];
     fillSelect(els.addressSelect, addresses.map(a=>({value:a.id, label:(a.name || [a.street,a.number,a.city].filter(Boolean).join(" ") || ("Address #"+a.id))})));
     state.maps.addresses = Object.fromEntries(addresses.map(a=>[String(a.id), (a.name || [a.street,a.number,a.city].filter(Boolean).join(" ") || ("Address #"+a.id))]));
+    state.context.addresses = addresses.map(a=>({ id:String(a.id), name:(a.name || [a.street,a.number,a.city].filter(Boolean).join(" ") || ("Address #"+a.id)) }));
     if (addresses.length){ els.addressBlock.classList.remove("hidden"); }
 
     const cResp = await proxyGET("api/v1/admin/team_compensations");
@@ -622,13 +608,15 @@ async function loadTenant(){
     const cOpts = [{value:"",label:"(none)"}].concat(comps.map(c=>({value:c.id,label:(c.name||("Comp #"+c.id))})));
     fillSelect(els.compensationSelect, cOpts);
     state.maps.compensations = Object.fromEntries(cOpts.map(o=>[String(o.value), o.label]));
+    state.context.team_compensations = comps.map(c=>({ id:String(c.id), name:(c.name||("Comp #"+c.id)) }));
     els.compBlock.classList.remove("hidden");
+
+    L("Tenant context ready. Projects:", state.context.projects.length, "Subprojects:", state.context.subprojects.length);
   }catch(e){
     alert("Load failed: " + extractErrText(e));
   }
 }
 
-/* subprojects after project; include past */
 async function loadSubprojectsForProject(pid){
   if (!pid){ els.subprojectBlock.classList.add("hidden"); return; }
   try{
@@ -663,8 +651,6 @@ function buildPayloadFromRow(row){
     published,
     extra_practical_info: row.extra || undefined,
     maximum_travel_distance: row.maxKm? Number(row.maxKm): undefined,
-
-    /* advanced */
     relative_checkin_start: row.relStart || undefined,
     relative_checkin_duration: row.relDuration || undefined,
     work_location_specification: row.locSpec || undefined,
@@ -673,7 +659,13 @@ function buildPayloadFromRow(row){
     shifts_attributes: []
   };
   if (row.start && row.end){
-    team.shifts_attributes.push({ start_datetime:new Date(row.start).toISOString(), end_datetime:new Date(row.end).toISOString() });
+    const s = new Date(row.start);
+    const e = new Date(row.end);
+    if (!isNaN(s) && !isNaN(e)) {
+      team.shifts_attributes.push({ start_datetime:s.toISOString(), end_datetime:e.toISOString() });
+    } else {
+      team.shifts_attributes.push({ start_datetime:row.start, end_datetime:row.end });
+    }
   }
   Object.keys(team).forEach(k=>team[k]===undefined && delete team[k]);
   return { team };
@@ -699,8 +691,6 @@ function currentFormRow(){
     end: els.shiftEnd.value,
     maxKm: els.maxTravelKm.value,
     extra: els.extraInfo.value,
-
-    /* advanced */
     relStart: els.relCheckinStart.value,
     relDuration: els.relCheckinDuration.value,
     locSpec: els.locationSpec.value,
@@ -769,6 +759,11 @@ function renderCreated(){
   }
 }
 
+function renderAiFeedback(notes=[], questions=[]){
+  els.aiNotes.innerHTML = notes.length ? notes.map(n=>`<li>${escapeHtml(n)}</li>`).join("") : `<li>(none)</li>`;
+  els.aiQuestions.innerHTML = questions.length ? questions.map(q=>`<li><b>${escapeHtml(q.field||'')}</b>: ${escapeHtml(q.message||'')}</li>`).join("") : `<li>(none)</li>`;
+}
+
 /* actions */
 async function createFromQueue(){
   if (!state.queue.length){ alert("Queue is empty"); return; }
@@ -811,17 +806,18 @@ function queueSingleFromForm(){
   renderQueue();
 }
 
-/* AI */
+/* AI (sending tenant_context, timezone) */
 async function addAiSuggestionsToQueue(){
   const text = (els.aiText.value||"").trim();
   if (!text){ alert("Paste some text first"); return; }
   try{
-    L("AI -> proxy.php?ai=1");
-    const res = await fetch(`${PROXY_URL}?ai=1`, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ text })
-    });
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Brussels";
+    const body = JSON.stringify({ text, timezone, tenant_context: state.context });
+    const url = `${PROXY_URL}?ai=1${DEBUG ? '&debug=1' : ''}`;
+    if (DEBUG) debugDumpToProxy("POST", url, { "Content-Type":"application/json" }, body);
+
+    L("AI -> proxy.php?ai=1"); L("Payload:", body.length>2000?body.slice(0,2000)+" [truncated]":body);
+    const res = await fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body });
     const txt = await res.text();
     let json = {};
     try{ json = JSON.parse(txt||"{}"); }catch{}
@@ -829,51 +825,56 @@ async function addAiSuggestionsToQueue(){
       const msg = json.error || txt || ("HTTP "+res.status);
       throw new Error(msg);
     }
+
     const teams = Array.isArray(json.teams) ? json.teams : [];
-    teams.forEach(t => {
+    const notes = Array.isArray(json.notes) ? json.notes : [];
+    const questions = Array.isArray(json.questions) ? json.questions : [];
+
+    teams.forEach(t=>{
+      const team = t.team || t;
       const r = currentFormRow();
-      r.autoName = t.auto_name ? "yes" : "no";
-      r.name     = t.name || r.name;
-      r.volunteers = t.volunteers || r.volunteers;
-      r.draft    = (t.draft === "yes") ? "yes" : "no";
-      r.start    = t.start || r.start;
-      r.end      = t.end || r.end;
-      r.maxKm    = t.maxKm || r.maxKm;
-      r.extra    = t.extra || r.extra;
 
-      if (t.relative_checkin_start) r.relStart = t.relative_checkin_start;
-      if (t.relative_checkin_duration) r.relDuration = t.relative_checkin_duration;
-      if (t.work_location_specification) r.locSpec = t.work_location_specification;
-      if (t.minimal_age) r.minAge = t.minimal_age;
-      if (typeof t.client_experience_required !== "undefined") r.clientExp = String(t.client_experience_required);
+      const projId = t._project_id ? String(t._project_id) : r.projectId;
+      const subId  = t._subproject_id ? String(t._subproject_id) : r.subprojectId;
 
-      // best-effort name → id resolution
-      if (t.project){
-        const pid = Object.keys(state.maps.projects).find(id => (state.maps.projects[id]||"").toLowerCase() === String(t.project).toLowerCase());
-        if (pid){ r.projectId=pid; r.projectName=state.maps.projects[pid]; }
+      if (projId){ r.projectId = projId; r.projectName = state.maps.projects[projId] || r.projectName; }
+      if (subId){ r.subprojectId = subId; r.subprojectName = state.maps.subprojects[subId] || r.subprojectName; }
+
+      r.autoName = team.auto_generate_name ? "yes" : "no";
+      r.name     = team.name || r.name;
+      r.volunteers = team.volunteers_needed ?? r.volunteers;
+
+      if (team.function_id){ r.functionId = String(team.function_id); r.functionName = state.maps.functions[r.functionId] || r.functionName; }
+      if (team.work_location_id){ r.addressId = String(team.work_location_id); r.addressName = state.maps.addresses[r.addressId] || r.addressName; }
+      if (team.team_compensation_id || team.team_compensation_id === "") {
+        r.compensationId = String(team.team_compensation_id || "");
+        r.compensationName = state.maps.compensations[r.compensationId] || r.compensationName;
       }
-      if (t.subproject){
-        const sid = Object.keys(state.maps.subprojects).find(id => (state.maps.subprojects[id]||"").toLowerCase() === String(t.subproject).toLowerCase());
-        if (sid){ r.subprojectId=sid; r.subprojectName=state.maps.subprojects[sid]; }
+
+      r.draft = team.published===false ? "yes" : "no";
+
+      if (Array.isArray(team.shifts_attributes) && team.shifts_attributes.length){
+        const s0 = team.shifts_attributes[0];
+        r.start = s0.start_datetime || r.start;
+        r.end   = s0.end_datetime || r.end;
       }
-      if (t.function){
-        const fid = Object.keys(state.maps.functions).find(id => (state.maps.functions[id]||"").toLowerCase() === String(t.function).toLowerCase());
-        if (fid){ r.functionId=fid; r.functionName=state.maps.functions[fid]; }
-      }
-      if (t.address){
-        const aid = Object.keys(state.maps.addresses).find(id => (state.maps.addresses[id]||"").toLowerCase() === String(t.address).toLowerCase());
-        if (aid){ r.addressId=aid; r.addressName=state.maps.addresses[aid]; }
-      }
-      if (t.compensation){
-        const cid = Object.keys(state.maps.compensations).find(id => (state.maps.compensations[id]||"").toLowerCase() === String(t.compensation).toLowerCase());
-        if (cid){ r.compensationId=cid; r.compensationName=state.maps.compensations[cid]; }
-      }
+
+      r.maxKm = team.maximum_travel_distance ?? r.maxKm;
+      r.extra = team.extra_practical_info || r.extra;
+      r.relStart = team.relative_checkin_start || r.relStart;
+      r.relDuration = team.relative_checkin_duration || r.relDuration;
+      r.locSpec = team.work_location_specification || r.locSpec;
+      r.minAge = team.minimal_age ?? r.minAge;
+      if (typeof team.client_experience_required !== "undefined") r.clientExp = String(!!team.client_experience_required);
 
       state.queue.push(r);
     });
 
     renderQueue();
-    L(`AI queued ${teams.length} suggestion(s).`); addGap();
+    renderAiFeedback(notes, questions);
+
+    L(`AI resolved ${teams.length} team(s). Notes:${notes.length} Questions:${questions.length}`); addGap();
+    if (questions.length){ alert("The AI has follow-up questions. See 'AI notes & questions'."); }
   }catch(e){
     const m=extractErrText(e);
     L("AI error:", m); addGap(); scrollLogs();
@@ -897,7 +898,7 @@ async function deleteCreated(id){
   }
 }
 
-/* export queue as CSV (Excel-compatible) */
+/* export queue as CSV */
 function exportQueueCSV(){
   if (!state.queue.length){ alert("Queue is empty"); return; }
   const headers = [
@@ -924,6 +925,9 @@ function exportQueueCSV(){
   setTimeout(()=>URL.revokeObjectURL(url), 1000);
 }
 
+/* utils */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+
 /* events */
 document.addEventListener("click", (ev)=>{
   const t=ev.target;
@@ -937,17 +941,12 @@ document.addEventListener("click", (ev)=>{
   if (t.matches('#createQueueBtn')) createFromQueue();
   if (t.matches('#queueSingleBtn')) queueSingleFromForm();
   if (t.matches('#aiQueueBtn')) addAiSuggestionsToQueue();
-  if (t.matches('#exportBtn')) exportQueueCSV();
   if (t.matches('#queueTbody [data-act="remove"]')){
     const idx=parseInt(t.getAttribute("data-idx"),10);
     state.queue.splice(idx,1); renderQueue();
   }
-  if (t.matches('[data-del]')){
-    const id=t.getAttribute("data-del");
-    deleteCreated(id);
-  }
 });
-
+els.exportBtn.addEventListener("click", exportQueueCSV);
 document.getElementById("loadBtn").addEventListener("click", (e)=>{ e.preventDefault(); loadTenant(); });
 document.getElementById("forgetBtn").addEventListener("click", (e)=>{ e.preventDefault();
   const tk = tenantKey();
@@ -972,6 +971,7 @@ document.getElementById("baseUrl").addEventListener("change", ()=>{
   setCookie("beeple_last_base", base());
   savePerTenant("baseUrl", base());
 });
+document.getElementById("token").addEventListener("change", ()=> savePerTenant("token", tokenVal()));
 document.getElementById("aiText").addEventListener("input", ()=> savePerTenant("aiText", els.aiText.value));
 
 /* init */
@@ -1001,9 +1001,18 @@ document.getElementById("aiText").addEventListener("input", ()=> savePerTenant("
 
   const lastBase = getCookie("beeple_last_base"); if (lastBase){ els.baseUrl.value = lastBase; }
   const savedBase = loadPerTenant("baseUrl"); if (savedBase) els.baseUrl.value = savedBase;
+  const savedTok  = loadPerTenant("token");  if (savedTok)  els.token.value   = savedTok;
   const aiSaved   = loadPerTenant("aiText"); if (aiSaved)   els.aiText.value  = aiSaved;
 
   els.teamNameWrap.classList.toggle("hidden", els.autoName.value==="yes");
+
+  // expand useful sections
+  toggleSection(document.getElementById("sec-single"), true);
+  toggleSection(document.getElementById("sec-queue"), true);
+  toggleSection(document.getElementById("sec-ai"), true);
+  toggleSection(document.getElementById("sec-ai-feedback"), true);
+
+  if (DEBUG) L("Debug mode is ON. Outgoing requests to proxy.php (incl. token) will be logged below.");
 })();
 </script>
 </body>
