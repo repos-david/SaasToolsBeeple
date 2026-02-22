@@ -683,7 +683,7 @@ async function apiGET(path, queryObj){
       .map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
     if(params) qs = "&" + params;
   }
-  const res = await fetch(proxyUrl(path) + qs, { headers:{"X-Beeple-Token": TOKEN} });
+  const res = await fetch(proxyUrl(path) + qs, { headers:{"Token": TOKEN} });
   const txt = await res.text();
   let json = {};
   try { json = JSON.parse(txt); } catch {}
@@ -697,7 +697,7 @@ async function apiGET(path, queryObj){
 async function apiPOST(path, payload){
   const res = await fetch(proxyUrl(path), {
     method:"POST",
-    headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
+    headers:{"Token": TOKEN, "Content-Type":"application/json"},
     body: JSON.stringify(payload)
   });
   const txt = await res.text();
@@ -714,7 +714,7 @@ async function apiPOST(path, payload){
 async function apiDELETEorPOST(method, path, payload){
   const res = await fetch(proxyUrl(path), {
     method,
-    headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
+    headers:{"Token": TOKEN, "Content-Type":"application/json"},
     body: payload ? JSON.stringify(payload) : undefined
   });
   const txt = await res.text();
