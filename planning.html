@@ -374,6 +374,14 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
       <div class="breadcrumb" id="breadcrumb"></div>
       <h1 class="section-title" id="viewProjectTitle"></h1>
       <p class="section-sub" id="viewProjectSub"></p>
+      <div id="teamDateBar" class="hidden" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">Teams from</label>
+        <input id="teamDateFrom" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
+        <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">to</label>
+        <input id="teamDateTo" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
+        <button class="btn secondary btn-sm" id="teamDateApply">Apply</button>
+        <button class="btn btn-sm" id="teamDateReset" style="color:var(--muted);">Reset</button>
+      </div>
       <div id="subprojectGrid" class="card-grid"></div>
     </div>
 
@@ -834,6 +842,7 @@ async function selectProject(project){
   });
   closeSidebar();
   showView("viewProject");
+  initDateBar();
 
   const title = document.getElementById("viewProjectTitle");
   const sub   = document.getElementById("viewProjectSub");
@@ -890,6 +899,7 @@ async function selectSubproject(sub){
   state.selectedSubproject = sub;
   state.selectedTeam       = null;
   showView("viewProject");
+  initDateBar();
 
   const project = state.selectedProject;
   const title   = document.getElementById("viewProjectTitle");
@@ -914,13 +924,53 @@ async function selectSubproject(sub){
 }
 
 /* ================================================================
+   DATE BAR (teams view)
+   ================================================================ */
+function isoDate(d){ return d.toISOString().slice(0,10); }
+function defaultDateFrom(){ const d=new Date(); d.setDate(d.getDate()-7); return isoDate(d); }
+function defaultDateTo(){ const d=new Date(); d.setMonth(d.getMonth()+1); return isoDate(d); }
+
+let _dateBatInited = false;
+function initDateBar(){
+  const bar  = document.getElementById("teamDateBar");
+  const from = document.getElementById("teamDateFrom");
+  const to   = document.getElementById("teamDateTo");
+  /* Set defaults only on first open; preserve user values on subproject nav */
+  if(!from.value) from.value = defaultDateFrom();
+  if(!to.value)   to.value   = defaultDateTo();
+  bar.style.display = "flex";
+  bar.classList.remove("hidden");
+  if(_dateBatInited) return;
+  _dateBatInited = true;
+  document.getElementById("teamDateApply").addEventListener("click", () => reloadCurrentTeamGrid());
+  document.getElementById("teamDateReset").addEventListener("click", () => {
+    from.value = defaultDateFrom();
+    to.value   = defaultDateTo();
+    reloadCurrentTeamGrid();
+  });
+}
+
+function reloadCurrentTeamGrid(){
+  const grid = document.getElementById("subprojectGrid");
+  const p = state.selectedProject;
+  const s = state.selectedSubproject;
+  if(!p) return;
+  grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
+  loadTeamsIntoGrid(grid, p.id, s ? s.id : null).catch(e => {
+    grid.innerHTML = `<div class="alert alert-error">Error loading teams: ${escHtml(e.message)}</div>`;
+  });
+}
+
+/* ================================================================
    LOAD TEAMS INTO A GRID
    ================================================================ */
 async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const path = subprojectId
     ? `api/v1/admin/subprojects/${subprojectId}/teams`
     : `api/v1/admin/projects/${projectId}/teams`;
-  const data  = await apiGET(path);
+  const fromVal = document.getElementById("teamDateFrom").value || defaultDateFrom();
+  const toVal   = document.getElementById("teamDateTo").value   || defaultDateTo();
+  const data  = await apiGET(path, { start_date: fromVal, end_date: toVal });
   const teams = data.teams || [];
   if(!teams.length){
     grid.innerHTML = `<div class="empty"><p>No teams found.</p></div>`;
