@@ -1098,7 +1098,7 @@ async function searchCollaborators(page){
   Object.keys(query).forEach(k => query[k]===undefined && delete query[k]);
 
   try {
-    const data   = await apiGET("api/v1/admin/volunteers", query);
+    const data   = await apiGET("api/v1/admin/collaborators", query);
     const collabs = data.volunteers || data.collaborators || [];
     const meta    = data.meta || {};
     state.collabTotal = meta.total_count || collabs.length;
@@ -1248,7 +1248,7 @@ document.getElementById("inviteSearchBtn").addEventListener("click", async () =>
   const container = document.getElementById("inviteResults");
   container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
   try {
-    const data    = await apiGET("api/v1/admin/volunteers", {
+    const data    = await apiGET("api/v1/admin/collaborators", {
       search: q,
       department_id: state.departmentId || undefined,
       archived: undefined
