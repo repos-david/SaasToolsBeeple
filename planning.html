@@ -47,7 +47,7 @@ body {
 .topbar .title {
   font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center;
 }
-/* Hamburger + back buttons */
+/* icon buttons */
 .icon-btn {
   width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
   background:var(--accentSoft); cursor:pointer; display:flex; align-items:center;
@@ -55,6 +55,39 @@ body {
 }
 [data-theme="dark"] .icon-btn { color:var(--accent2); }
 .icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* sidebar toggle only visible on mobile */
+#sidebarToggleBtn { display:none; }
+@media(max-width:700px){ #sidebarToggleBtn { display:flex; } }
+/* NAV MENU */
+.nav-menu {
+  position:fixed; top:55px; left:0; z-index:25;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:0 0 var(--radius-lg) 0;
+  box-shadow:var(--shadow);
+  min-width:210px;
+  transform:translateX(-110%);
+  transition:transform .25s ease;
+}
+.nav-menu.open { transform:translateX(0); }
+.nav-item {
+  display:block; padding:14px 20px; font-weight:600; font-size:15px;
+  color:var(--text); text-decoration:none; cursor:pointer;
+  border-bottom:1px solid var(--border);
+}
+.nav-item:hover { background:var(--accentSoft); }
+.nav-item.active { color:var(--accent); background:var(--accentSoft); border-left:3px solid var(--accent); }
+button.nav-item {
+  width:100%; text-align:left; background:none; border:none;
+  border-bottom:1px solid var(--border);
+  font-family:inherit; font-size:15px; font-weight:600; padding:14px 20px;
+  color:var(--text); cursor:pointer;
+}
+button.nav-item:hover { background:var(--accentSoft); }
+button.nav-item.danger { color:var(--danger); }
+.nav-overlay {
+  display:none; position:fixed; inset:0; z-index:24; background:rgba(0,0,0,.3);
+}
+.nav-overlay.show { display:block; }
 /* LAYOUT */
 .layout { display:flex; min-height:calc(100vh - 55px); }
 /* SIDEBAR */
@@ -63,7 +96,6 @@ body {
   background:var(--card); border-right:1px solid var(--border);
   display:flex; flex-direction:column;
   transition:transform .3s ease;
-  /* on mobile it slides in from left */
   position:relative;
 }
 @media(max-width:700px) {
@@ -168,7 +200,7 @@ body {
 .tab {
   padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;
   border-radius:8px 8px 0 0; border:none; background:transparent; color:var(--muted);
-  transition:color .15s;
+  transition:color .15s; font-family:inherit;
 }
 .tab.active { color:var(--accent); background:var(--accentSoft); }
 .tab-pane { display:none; }
@@ -302,35 +334,44 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 .cookie.hide { transition:transform .35s,opacity .35s; transform:translate(-50%,130%); opacity:0; }
 .cookie .msg { flex:1; font-size:14px; }
 .cookie .btn { width:auto; min-width:64px; min-height:36px; }
+
+/* DEBUG BANNER */
+.debug-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--radius); padding:8px 14px; font-size:13px; color:#92400e; margin:12px 16px 0; }
+[data-theme="dark"] .debug-banner { background:#451a03; color:#fbbf24; border-color:#b45309; }
 </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <!-- Hamburger: only visible on mobile to open sidebar -->
-  <button class="icon-btn" id="hamburgerBtn" title="Toggle sidebar" aria-label="Toggle project list">
+  <!-- Hamburger: opens navigation menu -->
+  <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 
   <div class="brand">
-    <a href="index.html" title="Back to Team Wizard">
-      <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
-    </a>
+    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
   </div>
 
   <div class="title">Team Planner</div>
 
-  <!-- Back to Team Wizard -->
-  <a href="index.html" class="icon-btn" title="Back to Team Wizard" style="text-decoration:none;">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-  </a>
-
-  <!-- Theme toggle -->
-  <button class="icon-btn" id="themeBtn" title="Toggle dark/light mode">
-    <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  <!-- Projects sidebar toggle — only visible on mobile -->
+  <button class="icon-btn" id="sidebarToggleBtn" title="Toggle project list" aria-label="Toggle project list">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
   </button>
 </div>
+
+<!-- NAV MENU -->
+<nav id="navMenu" class="nav-menu" aria-label="Main navigation">
+  <a href="create.html" class="nav-item">Team creation</a>
+  <a href="planning.html" class="nav-item active">Planning</a>
+  <button id="logoutBtn" class="nav-item danger">Log out</button>
+  <button id="themeBtn" class="nav-item">Dark mode</button>
+</nav>
+<div id="navOverlay" class="nav-overlay"></div>
+
+<!-- Debug banner -->
+<div id="debugBanner" class="debug-banner hidden">Debug mode active — full API responses shown in logs.</div>
 
 <!-- SIDEBAR OVERLAY (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -346,7 +387,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     </div>
     <div class="proj-list" id="projList">
       <div class="empty" style="padding:30px 16px;">
-        <div id="projListMsg">Load your tenant first →</div>
+        <div id="projListMsg">Loading…</div>
       </div>
     </div>
   </aside>
@@ -357,12 +398,11 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <!-- NOT CONNECTED STATE -->
     <div id="viewNotConnected">
       <div class="alert alert-warn">
-        <strong>Not connected.</strong> You need to load your Beeple tenant first.
-        <a href="index.html" style="color:inherit;font-weight:700;">Go to Team Wizard →</a>
+        <strong>Not connected.</strong> Please <a href="index.html" style="color:inherit;font-weight:700;">log in first →</a>
       </div>
     </div>
 
-    <!-- PROJECT LIST VIEW (on desktop, main area shows project list too; on mobile only sidebar) -->
+    <!-- PROJECT LIST VIEW -->
     <div id="viewProjects" class="hidden">
       <h1 class="section-title">All Projects</h1>
       <p class="section-sub">Select a project from the sidebar to browse subprojects and teams.</p>
@@ -510,7 +550,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
             <div id="enrolResults" class="result-feed mt16"></div>
           </div>
 
-          <!-- TAB: invite (send invitation without searching) -->
+          <!-- TAB: invite -->
           <div class="tab-pane" id="tab-invite">
             <p style="font-size:13px;color:var(--muted);margin-top:0;">
               Search a collaborator by name and send them an invitation for this team.
@@ -518,6 +558,19 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
             <div>
               <label>Name search</label>
               <input id="inviteSearch" type="search" placeholder="Search collaborator…" autocomplete="off">
+            </div>
+            <div class="form-row" style="margin-top:10px;">
+              <div>
+                <label class="required">Contract type</label>
+                <select id="inviteContractType">
+                  <option value="volunteer">Volunteer</option>
+                  <option value="interim">Interim</option>
+                  <option value="intern">Intern</option>
+                  <option value="contractual">Contractual</option>
+                  <option value="freelancer">Freelancer</option>
+                  <option value="collaborator">Collaborator</option>
+                </select>
+              </div>
             </div>
             <div class="btn-row">
               <button id="inviteSearchBtn" class="btn secondary btn-sm">Search</button>
@@ -528,6 +581,13 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
         </div><!-- team-panel-body -->
       </div><!-- team-panel -->
+
+      <!-- Debug log (shown only when debug=Y) -->
+      <div id="debugLogWrap" class="log-wrap hidden">
+        <h4 style="margin:16px 0 4px;font-size:13px;color:var(--muted);">Debug log</h4>
+        <pre class="log" id="debugLog"></pre>
+      </div>
+
     </div><!-- viewTeam -->
 
   </main>
@@ -541,70 +601,64 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
 <script>
 /* ================================================================
-   CONFIG — same proxy used by Team Wizard
+   CONFIG
    ================================================================ */
-const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
-const DEBUG     = new URLSearchParams(location.search).get("debug") === "1";
+const PROXY_URL  = "https://coraligo.com/team-wizard/proxy.php";
+const debugParam = new URLSearchParams(location.search).get("debug");
+const DEBUG      = debugParam === "1" || debugParam === "Y" || debugParam === "y";
 
 /* ================================================================
-   COOKIE HELPERS (copied from index.html for standalone use)
+   AUTH — read from sessionStorage (set by login page)
    ================================================================ */
-function setCookie(k,v,days=365){const e=new Date(Date.now()+days*864e5).toUTCString();document.cookie=`${k}=${encodeURIComponent(v)};expires=${e};path=/;SameSite=Lax`;}
-function getCookie(k){return document.cookie.split("; ").reduce((r,v)=>{const[n,...rest]=v.split("=");return n===k?decodeURIComponent(rest.join("=")):r;},"");}
+const BASE  = localStorage.getItem("bwBase")   || "";
+const TOKEN = sessionStorage.getItem("bwToken") || "";
 
-/* ================================================================
-   RESTORE CONNECTION FROM COOKIES (set by Team Wizard page)
-   ================================================================ */
-function originOf(u){try{return new URL(u).origin;}catch{return u;}}
-const lastBase = getCookie("beeple_last_base");
-const tenantKey = (base) => (base||"").replace(/^https?:\/\//,"").replace(/[^\w.-]/g,"_");
-const tk = tenantKey(lastBase);
-const savedBase  = tk ? getCookie(`beeple_${tk}_baseUrl`)  : "";
-const savedToken = tk ? getCookie(`beeple_${tk}_token`)    : "";
-const BASE  = originOf(savedBase  || lastBase || "");
-const TOKEN = savedToken || "";
-
-/* ================================================================
-   STATE
-   ================================================================ */
-const state = {
-  projects:     [],
-  functions:    [],
-  selectedProject: null,
-  selectedSubproject: null,
-  selectedTeam: null,
-  collabPage:   1,
-  collabTotal:  0,
-  selectedCollab: null,
-  departmentId: null
-};
+if(!BASE || !TOKEN){
+  window.location.replace("index.html");
+}
 
 /* ================================================================
    THEME
    ================================================================ */
 function syncTheme(){
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
-  document.getElementById("themeIcon").innerHTML = dark
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'  /* moon */
-    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'; /* sun */
+  document.getElementById("themeBtn").textContent = dark ? "Light mode" : "Dark mode";
 }
-document.getElementById("themeBtn").addEventListener("click",()=>{
-  const next = document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
-  document.documentElement.setAttribute("data-theme",next);
-  localStorage.setItem("theme",next);
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
   syncTheme();
 });
 
 /* ================================================================
-   SIDEBAR TOGGLE (mobile)
+   NAV MENU (hamburger)
+   ================================================================ */
+const navMenu    = document.getElementById("navMenu");
+const navOverlay = document.getElementById("navOverlay");
+document.getElementById("hamburgerBtn").addEventListener("click", () => {
+  navMenu.classList.toggle("open");
+  navOverlay.classList.toggle("show");
+});
+navOverlay.addEventListener("click", () => {
+  navMenu.classList.remove("open");
+  navOverlay.classList.remove("show");
+});
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem("bwToken");
+  window.location.replace("index.html");
+});
+
+/* ================================================================
+   SIDEBAR TOGGLE (mobile only, separate from nav menu)
    ================================================================ */
 const sidebarEl  = document.getElementById("sidebar");
 const overlayEl  = document.getElementById("sidebarOverlay");
-document.getElementById("hamburgerBtn").addEventListener("click",()=>{
+document.getElementById("sidebarToggleBtn").addEventListener("click", () => {
   sidebarEl.classList.toggle("open");
   overlayEl.classList.toggle("show");
 });
-overlayEl.addEventListener("click",()=>{
+overlayEl.addEventListener("click", () => {
   sidebarEl.classList.remove("open");
   overlayEl.classList.remove("show");
 });
@@ -614,37 +668,50 @@ function closeSidebar(){
 }
 
 /* ================================================================
+   COOKIE HELPERS (for cookie banner only)
+   ================================================================ */
+function setCookie(k,v,days=365){ const e=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${e};path=/;SameSite=Lax`; }
+function getCookie(k){ return document.cookie.split("; ").reduce((r,v)=>{ const[n,...rest]=v.split("="); return n===k?decodeURIComponent(rest.join("=")):r; },""); }
+
+/* ================================================================
+   STATE
+   ================================================================ */
+const state = {
+  projects:        [],
+  functions:       [],
+  selectedProject: null,
+  selectedSubproject: null,
+  selectedTeam:    null,
+  collabPage:      1,
+  collabTotal:     0,
+  selectedCollab:  null,
+  departmentId:    null
+};
+
+/* ================================================================
    UTILS
    ================================================================ */
-function escHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m]));}
+function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
 
-/* Parse API error response into a human-readable string.
-   Beeple returns { errors: { field: ["msg",...] } } or { error: "msg" } */
 function parseApiErrors(json){
   if(!json) return "Unknown error.";
   if(json.errors){
-    if(Array.isArray(json.errors) && json.errors.length===0) return null; /* no errors */
+    if(Array.isArray(json.errors) && json.errors.length===0) return null;
     const errs = json.errors;
     if(typeof errs === "object" && !Array.isArray(errs)){
-      return Object.entries(errs).map(([k,v])=>{
+      return Object.entries(errs).map(([k,v]) => {
         const msgs = Array.isArray(v) ? v.join(", ") : String(v);
-        return k==="base" ? msgs : `<b>${escHtml(k)}</b>: ${escHtml(msgs)}`;
+        return k === "base" ? msgs : `<b>${escHtml(k)}</b>: ${escHtml(msgs)}`;
       }).join("<br>");
     }
-    if(Array.isArray(errs)) return errs.map(e=>escHtml(String(e))).join("<br>");
+    if(Array.isArray(errs)) return errs.map(e => escHtml(String(e))).join("<br>");
   }
   if(json.error) return escHtml(json.error);
   return null;
 }
 
-function initials(fn,ln){
-  return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase()||"?";
-}
-
-function fmtDate(d){
-  if(!d) return "—";
-  return new Date(d).toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"});
-}
+function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase()||"?"; }
+function fmtDate(d){ if(!d)return"—"; return new Date(d).toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"}); }
 
 function fmtShift(team){
   if(!team) return "—";
@@ -661,11 +728,17 @@ function fmtShift(team){
   return "—";
 }
 
-/* Show/hide page views */
 function showView(id){
-  ["viewNotConnected","viewProjects","viewProject","viewTeam"].forEach(v=>{
+  ["viewNotConnected","viewProjects","viewProject","viewTeam"].forEach(v => {
     document.getElementById(v).classList.toggle("hidden", v!==id);
   });
+}
+
+/* Debug log helper */
+function dLog(...args){
+  if(!DEBUG) return;
+  const el = document.getElementById("debugLog");
+  if(el) el.textContent += args.join(" ") + "\n";
 }
 
 /* ================================================================
@@ -683,46 +756,54 @@ async function apiGET(path, queryObj){
       .map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
     if(params) qs = "&" + params;
   }
+  dLog("GET", path, qs);
   const res = await fetch(proxyUrl(path) + qs, { headers:{"X-Beeple-Token": TOKEN} });
   const txt = await res.text();
+  if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
   let json = {};
   try { json = JSON.parse(txt); } catch {}
   if(!res.ok){
     const msg = parseApiErrors(json) || ("HTTP " + res.status);
-    throw new Error(msg);
+    const detail = DEBUG ? ` [${txt.slice(0,300)}]` : "";
+    throw new Error(msg + detail);
   }
   return json;
 }
 
 async function apiPOST(path, payload){
+  dLog("POST", path, JSON.stringify(payload).slice(0,200));
   const res = await fetch(proxyUrl(path), {
     method:"POST",
     headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
     body: JSON.stringify(payload)
   });
   const txt = await res.text();
+  if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
   let json = {};
   try { json = JSON.parse(txt); } catch {}
-  /* Beeple may return 200 but with errors array populated */
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
-    throw new Error(apiErr || "HTTP " + res.status);
+    const detail = DEBUG ? ` [${txt.slice(0,300)}]` : "";
+    throw new Error((apiErr || "HTTP " + res.status) + detail);
   }
   return json;
 }
 
 async function apiDELETEorPOST(method, path, payload){
+  dLog(method, path);
   const res = await fetch(proxyUrl(path), {
     method,
     headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
     body: payload ? JSON.stringify(payload) : undefined
   });
   const txt = await res.text();
+  if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
   let json = {};
   try { json = JSON.parse(txt); } catch {}
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
-    throw new Error(apiErr || "HTTP " + res.status);
+    const detail = DEBUG ? ` [${txt.slice(0,300)}]` : "";
+    throw new Error((apiErr || "HTTP " + res.status) + detail);
   }
   return json;
 }
@@ -737,11 +818,9 @@ function makeAlert(type, html){
   return d;
 }
 
-/* Append a result entry to a feed container */
 function appendResult(container, type, html){
   const el = makeAlert(type, html);
-  container.prepend(el); /* newest first */
-  /* Keep feed to last 20 */
+  container.prepend(el);
   while(container.children.length > 20) container.lastChild.remove();
 }
 
@@ -761,8 +840,8 @@ async function loadProjects(){
       `<span style="color:var(--danger);">Error: ${escHtml(e.message)}</span>`;
     showView("viewNotConnected");
     document.getElementById("viewNotConnected").innerHTML =
-      makeAlert("error", `<b>Could not load projects:</b> ${e.message}`).outerHTML +
-      `<p>Check your connection settings in <a href="index.html">Team Wizard</a>.</p>`;
+      makeAlert("error", `<b>Could not load projects:</b> ${escHtml(e.message)}`).outerHTML +
+      `<p>Check your connection settings. <a href="index.html">Log in again →</a></p>`;
   }
 }
 
@@ -828,15 +907,14 @@ document.getElementById("projSearch").addEventListener("input", function(){
 });
 
 /* ================================================================
-   SELECT PROJECT → show subprojects or teams
+   SELECT PROJECT
    ================================================================ */
 async function selectProject(project){
-  state.selectedProject   = project;
+  state.selectedProject    = project;
   state.selectedSubproject = null;
-  state.selectedTeam      = null;
-  state.departmentId      = project.department ? project.department.id : null;
+  state.selectedTeam       = null;
+  state.departmentId       = project.department ? project.department.id : null;
 
-  /* Highlight in sidebar */
   document.querySelectorAll(".proj-item").forEach(el => {
     el.classList.toggle("active", el.dataset.id === String(project.id));
   });
@@ -851,7 +929,7 @@ async function selectProject(project){
   grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
 
   setBreadcrumb("viewProject", [
-    { label:"Projects", action: ()=>{ showView("viewProjects"); clearActiveProject(); } },
+    { label:"Projects", action: () => { showView("viewProjects"); clearActiveProject(); } },
     { label: project.name }
   ]);
 
@@ -901,18 +979,18 @@ async function selectSubproject(sub){
   showView("viewProject");
   initDateBar();
 
-  const project = state.selectedProject;
-  const title   = document.getElementById("viewProjectTitle");
-  const subtitle= document.getElementById("viewProjectSub");
-  const grid    = document.getElementById("subprojectGrid");
+  const project  = state.selectedProject;
+  const title    = document.getElementById("viewProjectTitle");
+  const subtitle = document.getElementById("viewProjectSub");
+  const grid     = document.getElementById("subprojectGrid");
 
   title.textContent    = sub.name;
   subtitle.textContent = `Subproject of "${project.name}"`;
   grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading teams…</p></div>`;
 
   setBreadcrumb("viewProject", [
-    { label:"Projects",         action: ()=>{ showView("viewProjects"); clearActiveProject(); } },
-    { label: project.name,      action: ()=> selectProject(project) },
+    { label:"Projects",    action: () => { showView("viewProjects"); clearActiveProject(); } },
+    { label: project.name, action: () => selectProject(project) },
     { label: sub.name }
   ]);
 
@@ -924,7 +1002,7 @@ async function selectSubproject(sub){
 }
 
 /* ================================================================
-   DATE BAR (teams view)
+   DATE BAR
    ================================================================ */
 function isoDate(d){ return d.toISOString().slice(0,10); }
 function defaultDateFrom(){ const d=new Date(); d.setDate(d.getDate()-7); return isoDate(d); }
@@ -935,7 +1013,6 @@ function initDateBar(){
   const bar  = document.getElementById("teamDateBar");
   const from = document.getElementById("teamDateFrom");
   const to   = document.getElementById("teamDateTo");
-  /* Set defaults only on first open; preserve user values on subproject nav */
   if(!from.value) from.value = defaultDateFrom();
   if(!to.value)   to.value   = defaultDateTo();
   bar.style.display = "flex";
@@ -997,26 +1074,28 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
 }
 
 /* ================================================================
-   SELECT TEAM → show team detail panel
+   SELECT TEAM
    ================================================================ */
 async function selectTeam(team){
   state.selectedTeam   = team;
   state.selectedCollab = null;
   showView("viewTeam");
 
+  /* Show debug log area when debug mode is on */
+  document.getElementById("debugLogWrap").classList.toggle("hidden", !DEBUG);
+  if(DEBUG) document.getElementById("debugLog").textContent = "";
+
   const project = state.selectedProject;
   const sub     = state.selectedSubproject;
 
-  /* Breadcrumb */
   const crumbs = [
-    { label:"Projects", action: ()=>{ showView("viewProjects"); clearActiveProject(); } },
-    { label: project.name, action: ()=> selectProject(project) }
+    { label:"Projects", action: () => { showView("viewProjects"); clearActiveProject(); } },
+    { label: project.name, action: () => selectProject(project) }
   ];
-  if(sub) crumbs.push({ label: sub.name, action: ()=> selectSubproject(sub) });
+  if(sub) crumbs.push({ label: sub.name, action: () => selectSubproject(sub) });
   crumbs.push({ label: team.name || "(team)" });
   setBreadcrumb("viewTeam", crumbs);
 
-  /* Header */
   document.getElementById("teamTitle").textContent = team.name || "(auto-named)";
   document.getElementById("teamChips").innerHTML =
     `<span class="chip chip-${team.published?"green":"grey"}">${team.published?"Published":"Draft"}</span>
@@ -1027,25 +1106,19 @@ async function selectTeam(team){
      team.address  ? "📍 " + escHtml(team.address.name||team.address.city||"") : ""
     ].filter(Boolean).join(" &nbsp;·&nbsp; ");
 
-  /* Reset tabs to Enrolments */
   switchTab("enrolments");
 
-  /* Clear old state */
-  document.getElementById("enrolResults").innerHTML = "";
+  document.getElementById("enrolResults").innerHTML    = "";
   document.getElementById("inviteResultLog").innerHTML = "";
+  document.getElementById("inviteResults").innerHTML   = "";
   document.getElementById("enrolForm").classList.add("hidden");
   state.selectedCollab = null;
 
-  /* Populate function filter with master data if available */
-  const fFunc = document.getElementById("fFunction");
-  /* Already populated by global function list */
-
-  /* Load enrolments */
   loadEnrolments(team.id);
 }
 
 /* ================================================================
-   LOAD ENROLMENTS FOR TEAM
+   LOAD ENROLMENTS
    ================================================================ */
 async function loadEnrolments(teamId){
   const feed = document.getElementById("enrolmentsFeed");
@@ -1086,7 +1159,7 @@ async function loadEnrolments(teamId){
 }
 
 /* ================================================================
-   CANCEL ENROLMENT — delegated click handler
+   CANCEL ENROLMENT
    ================================================================ */
 document.addEventListener("click", async function(ev){
   const btn = ev.target.closest("[data-cancel-enrol]");
@@ -1095,12 +1168,11 @@ document.addEventListener("click", async function(ev){
   if(!confirm("Cancel this enrolment?")) return;
   btn.disabled = true; btn.textContent = "…";
   try {
-    /* POST /api/v1/admin/enrolments/{id}/cancel */
     await apiDELETEorPOST("POST", `api/v1/admin/enrolments/${enrolId}/cancel`, {});
     const row = btn.closest(".enrol-item");
     if(row){
       row.style.opacity = ".4";
-      row.querySelectorAll("button").forEach(b=>b.disabled=true);
+      row.querySelectorAll("button").forEach(b => b.disabled = true);
       row.querySelector(".enrol-info").innerHTML += '<span class="chip chip-red" style="margin-left:6px;">Cancelled</span>';
     }
     btn.textContent = "Cancelled";
@@ -1133,7 +1205,6 @@ async function searchCollaborators(page){
   container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
   pagDiv.innerHTML = "";
 
-  /* Build query — use project's department_id if available */
   const query = {
     search:        document.getElementById("fSearch").value.trim()    || undefined,
     function_id:   document.getElementById("fFunction").value         || undefined,
@@ -1144,11 +1215,10 @@ async function searchCollaborators(page){
     department_id: state.departmentId                                  || undefined,
     page
   };
-  /* Remove undefined */
   Object.keys(query).forEach(k => query[k]===undefined && delete query[k]);
 
   try {
-    const data   = await apiGET("api/v1/admin/collaborators", query);
+    const data    = await apiGET("api/v1/admin/collaborators", query);
     const collabs = data.volunteers || data.collaborators || [];
     const meta    = data.meta || {};
     state.collabTotal = meta.total_count || collabs.length;
@@ -1184,7 +1254,6 @@ async function searchCollaborators(page){
     });
     container.appendChild(list);
 
-    /* Pagination */
     const totalPages = Math.ceil(state.collabTotal / perPage);
     if(totalPages > 1){
       renderPagination(pagDiv, page, totalPages, searchCollaborators);
@@ -1261,12 +1330,10 @@ document.getElementById("confirmEnrolBtn").addEventListener("click", async () =>
     appendResult(resultFeed, "success",
       `<b>${action}:</b> ${escHtml(state.selectedCollab.name)} → Team "${escHtml(state.selectedTeam.name||"")}" (enrolment #${escHtml(String(enrolId))})`);
 
-    /* Reset form */
     state.selectedCollab = null;
     document.getElementById("enrolForm").classList.add("hidden");
     document.getElementById("contractType").value = "";
 
-    /* Reload enrolments tab */
     loadEnrolments(state.selectedTeam.id);
 
   } catch(e) {
@@ -1285,12 +1352,12 @@ document.getElementById("fSearch").addEventListener("keydown", e => { if(e.key==
 document.getElementById("clearFiltersBtn").addEventListener("click", () => {
   ["fSearch","fMinAge"].forEach(id => document.getElementById(id).value = "");
   ["fFunction","fLanguage","fArchived","fBlocked"].forEach(id => document.getElementById(id).selectedIndex = 0);
-  document.getElementById("collabResults").innerHTML = "";
+  document.getElementById("collabResults").innerHTML    = "";
   document.getElementById("collabPagination").innerHTML = "";
 });
 
 /* ================================================================
-   INVITE SEARCH (simple name search, then invite button per result)
+   INVITE SEARCH
    ================================================================ */
 document.getElementById("inviteSearchBtn").addEventListener("click", async () => {
   const q = document.getElementById("inviteSearch").value.trim();
@@ -1299,9 +1366,9 @@ document.getElementById("inviteSearchBtn").addEventListener("click", async () =>
   container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
   try {
     const data    = await apiGET("api/v1/admin/collaborators", {
-      search: q,
+      search:        q,
       department_id: state.departmentId || undefined,
-      archived: undefined
+      archived:      undefined
     });
     const collabs = data.volunteers || data.collaborators || [];
     if(!collabs.length){
@@ -1319,7 +1386,9 @@ document.getElementById("inviteSearchBtn").addEventListener("click", async () =>
           <div class="collab-meta">${c.email ? escHtml(c.email) : ""}</div>
         </div>
         <div class="collab-actions">
-          <button class="btn btn-success btn-sm" data-invite-collab="${escHtml(String(c.id))}" data-invite-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Invite</button>
+          <button class="btn btn-success btn-sm"
+                  data-invite-collab="${escHtml(String(c.id))}"
+                  data-invite-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Invite</button>
         </div>`;
       list.appendChild(card);
     });
@@ -1329,24 +1398,25 @@ document.getElementById("inviteSearchBtn").addEventListener("click", async () =>
   }
 });
 
-/* Handle "Invite" button */
+/* Handle "Invite" button — now includes contract_type */
 document.addEventListener("click", async function(ev){
   const btn = ev.target.closest("[data-invite-collab]");
   if(!btn) return;
   if(!state.selectedTeam){ alert("No team selected."); return; }
 
-  const collabId   = btn.dataset.inviteCollab;
-  const collabName = btn.dataset.inviteName;
-  const log        = document.getElementById("inviteResultLog");
+  const collabId       = btn.dataset.inviteCollab;
+  const collabName     = btn.dataset.inviteName;
+  const contractType   = document.getElementById("inviteContractType").value;
+  const log            = document.getElementById("inviteResultLog");
 
   btn.disabled = true; btn.textContent = "…";
   try {
-    /* Beeple invitation: POST enrolment with invitation:true */
     const res = await apiPOST("api/v1/admin/enrolments", {
       enrolment: {
-        volunteer_id: collabId,
-        team_id:      state.selectedTeam.id,
-        invitation:   true
+        volunteer_id:  collabId,
+        team_id:       state.selectedTeam.id,
+        contract_type: contractType,
+        invitation:    true
       }
     });
     const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
@@ -1409,6 +1479,9 @@ async function loadFunctions(){
   document.documentElement.setAttribute("data-theme", t);
   syncTheme();
 
+  /* Debug */
+  if(DEBUG) document.getElementById("debugBanner").classList.remove("hidden");
+
   /* Cookie banner */
   if(!getCookie("beeple_cookie_ok")){
     document.getElementById("cookie").classList.remove("hidden");
@@ -1419,15 +1492,7 @@ async function loadFunctions(){
     setTimeout(() => document.getElementById("cookie").classList.add("hidden"), 380);
   });
 
-  /* Check if we have a connection */
-  if(!BASE || !TOKEN){
-    showView("viewNotConnected");
-    document.getElementById("projListMsg").innerHTML =
-      `<span style="color:var(--warn);">Please <a href="index.html">connect first</a>.</span>`;
-    return;
-  }
-
-  /* Load everything */
+  /* Load projects */
   loadProjects();
   loadFunctions();
 })();
