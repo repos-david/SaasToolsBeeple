@@ -6,9 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
 <style>
-/* ================================================================
-   VARIABLES
-   ================================================================ */
 :root {
   --bg:#f0f4ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
   --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --danger:#ef6b6b;
@@ -25,13 +22,11 @@
   --border:rgba(255,255,255,.14); --field:#121b39; --fieldBorder:rgba(255,255,255,.18);
   --tableHead:#13224a; --shadow:0 8px 28px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.04);
 }
-/* RESET */
 *,*::before,*::after { box-sizing:border-box; max-width:100%; }
 html { overflow-x:clip; }
 body {
   margin:0; overflow-x:clip;
-  background:var(--bg);
-  color:var(--text);
+  background:var(--bg); color:var(--text);
   font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   font-size:15px; line-height:1.55;
   -webkit-text-size-adjust:100%; text-size-adjust:100%;
@@ -40,33 +35,58 @@ body {
 .topbar {
   position:sticky; top:0; z-index:30;
   background:var(--card); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:12px;
-  padding:10px 16px;
+  display:flex; align-items:center; gap:12px; padding:10px 16px;
 }
 .topbar .brand img { height:22px; width:auto; display:block; }
-.topbar .title {
-  font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center;
-}
-/* Hamburger + back buttons */
+.topbar .title { font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center; }
 .icon-btn {
   width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
   background:var(--accentSoft); cursor:pointer; display:flex; align-items:center;
-  justify-content:center; flex-shrink:0; color:var(--accent); font-size:18px;
+  justify-content:center; flex-shrink:0; color:var(--accent);
 }
 [data-theme="dark"] .icon-btn { color:var(--accent2); }
 .icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* sidebar toggle only visible on mobile */
+.sidebar-toggle-btn { display:none; }
+@media(max-width:700px){ .sidebar-toggle-btn { display:flex; } }
+/* NAV MENU PANEL */
+.menu-overlay { display:none; position:fixed; inset:0; z-index:49; background:rgba(0,0,0,.4); }
+.menu-overlay.show { display:block; }
+.menu-panel {
+  position:fixed; top:0; right:0; bottom:0; width:min(260px,80vw);
+  background:var(--card); border-left:1px solid var(--border);
+  z-index:50; transform:translateX(100%); transition:transform .3s ease;
+  display:flex; flex-direction:column; box-shadow:-4px 0 20px rgba(0,0,0,.15);
+}
+.menu-panel.open { transform:translateX(0); }
+.menu-panel-header {
+  padding:16px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.menu-panel-header span { font-weight:800; font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.menu-item {
+  display:flex; align-items:center; gap:12px; padding:15px 16px;
+  cursor:pointer; border-bottom:1px solid var(--border);
+  text-decoration:none; color:var(--text); font-weight:600; font-size:15px;
+  transition:background .15s; background:transparent;
+  border-left:none; border-right:none; border-top:none;
+  font-family:inherit; width:100%; text-align:left;
+}
+.menu-item:hover { background:var(--accentSoft); }
+.menu-item.active { color:var(--accent); background:var(--accentSoft); }
+[data-theme="dark"] .menu-item.active { color:var(--accent2); }
+.menu-item svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.menu-spacer { flex:1; }
+.menu-divider { height:1px; background:var(--border); }
 /* LAYOUT */
 .layout { display:flex; min-height:calc(100vh - 55px); }
 /* SIDEBAR */
 .sidebar {
   width:var(--sidebar); flex-shrink:0;
   background:var(--card); border-right:1px solid var(--border);
-  display:flex; flex-direction:column;
-  transition:transform .3s ease;
-  /* on mobile it slides in from left */
-  position:relative;
+  display:flex; flex-direction:column; transition:transform .3s ease; position:relative;
 }
-@media(max-width:700px) {
+@media(max-width:700px){
   .sidebar {
     position:fixed; left:0; top:55px; bottom:0; z-index:20;
     transform:translateX(-100%); box-shadow:4px 0 20px rgba(0,0,0,.15);
@@ -74,133 +94,65 @@ body {
   .sidebar.open { transform:translateX(0); }
   .sidebar-overlay { display:block; }
 }
-.sidebar-overlay {
-  display:none; position:fixed; inset:0; z-index:19;
-  background:rgba(0,0,0,.4);
-}
+.sidebar-overlay { display:none; position:fixed; inset:0; z-index:19; background:rgba(0,0,0,.4); }
 .sidebar-overlay.show { display:block; }
-.sidebar-header {
-  padding:16px; font-weight:800; font-size:13px; letter-spacing:.06em;
-  color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border);
-}
-.sidebar-search {
-  padding:10px 12px; border-bottom:1px solid var(--border);
-}
-.sidebar-search input {
-  width:100%; padding:8px 12px; border:1px solid var(--fieldBorder);
-  border-radius:var(--radius); background:var(--field); color:var(--text);
-  font-size:14px; -webkit-appearance:none; appearance:none;
-}
+.sidebar-header { padding:16px; font-weight:800; font-size:13px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border); }
+.sidebar-search { padding:10px 12px; border-bottom:1px solid var(--border); }
+.sidebar-search input { width:100%; padding:8px 12px; border:1px solid var(--fieldBorder); border-radius:var(--radius); background:var(--field); color:var(--text); font-size:14px; -webkit-appearance:none; appearance:none; }
 .sidebar-search input:focus { outline:none; border-color:var(--accent); }
 .proj-list { flex:1; overflow-y:auto; }
-.proj-item {
-  display:flex; align-items:center; gap:10px; padding:12px 16px;
-  cursor:pointer; border-bottom:1px solid var(--border);
-  transition:background .15s;
-}
+.proj-item { display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .15s; }
 .proj-item:hover { background:var(--accentSoft); }
 .proj-item.active { background:var(--accentSoft); border-left:3px solid var(--accent); }
-.proj-dot {
-  width:10px; height:10px; border-radius:50%; flex-shrink:0;
-}
+.proj-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
 .proj-name { font-weight:600; font-size:14px; flex:1; min-width:0; }
 .proj-name small { display:block; font-weight:400; font-size:12px; color:var(--muted); margin-top:1px; }
-.proj-badge {
-  font-size:11px; font-weight:700; padding:2px 6px; border-radius:6px;
-  background:var(--accentSoft); color:var(--accent);
-}
-/* MAIN CONTENT */
+.proj-badge { font-size:11px; font-weight:700; padding:2px 6px; border-radius:6px; background:var(--accentSoft); color:var(--accent); }
+/* MAIN */
 .main { flex:1; min-width:0; padding:20px 16px 40px; }
 /* BREADCRUMB */
-.breadcrumb {
-  display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted);
-  margin-bottom:16px; flex-wrap:wrap;
-}
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; }
 .breadcrumb a { color:var(--accent); cursor:pointer; text-decoration:none; }
 .breadcrumb a:hover { text-decoration:underline; }
-.breadcrumb span { color:var(--muted); }
 /* SECTION TITLE */
 .section-title { font-size:20px; font-weight:800; margin:0 0 4px; }
-.section-sub  { color:var(--muted); font-size:13px; margin:0 0 16px; }
+.section-sub { color:var(--muted); font-size:13px; margin:0 0 16px; }
 /* CARDS GRID */
-.card-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-  gap:12px;
-}
-/* CARD */
-.card {
-  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
-  padding:14px; box-shadow:var(--shadow); cursor:pointer; transition:transform .15s,box-shadow .15s;
-  min-width:0;
-}
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow); cursor:pointer; transition:transform .15s,box-shadow .15s; min-width:0; }
 .card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(15,23,42,.12); }
-.card.static { cursor:default; }
-.card.static:hover { transform:none; box-shadow:var(--shadow); }
 .card h3 { margin:0 0 6px; font-size:15px; }
 .card .meta { font-size:12px; color:var(--muted); }
-.card .meta span { margin-right:10px; }
-/* STATUS CHIPS */
-.chip {
-  display:inline-block; font-size:11px; font-weight:700; padding:2px 8px;
-  border-radius:20px; margin-right:4px;
-}
+/* CHIPS */
+.chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:4px; }
 .chip-green  { background:var(--successSoft); color:var(--success); }
 .chip-yellow { background:var(--warnSoft);    color:var(--warn); }
 .chip-red    { background:#fee2e2;             color:#dc2626; }
 .chip-blue   { background:var(--accentSoft);   color:var(--accent); }
-.chip-grey   { background:#f1f5f9; color:#64748b; }
-/* TEAM DETAIL PANEL */
-.team-panel {
-  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow); overflow:hidden;
-}
-.team-panel-header {
-  padding:16px 18px; border-bottom:1px solid var(--border);
-  display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap;
-}
+.chip-grey   { background:#f1f5f9;             color:#64748b; }
+/* TEAM PANEL */
+.team-panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow); overflow:hidden; }
+.team-panel-header { padding:16px 18px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; }
 .team-panel-header h2 { margin:0; font-size:18px; flex:1; }
 .team-panel-body { padding:18px; }
 /* TABS */
-.tabs {
-  display:flex; gap:4px; border-bottom:2px solid var(--border); margin-bottom:18px; flex-wrap:wrap;
-}
-.tab {
-  padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;
-  border-radius:8px 8px 0 0; border:none; background:transparent; color:var(--muted);
-  transition:color .15s;
-}
+.tabs { display:flex; gap:4px; border-bottom:2px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+.tab { padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer; border-radius:8px 8px 0 0; border:none; background:transparent; color:var(--muted); transition:color .15s; font-family:inherit; }
 .tab.active { color:var(--accent); background:var(--accentSoft); }
 .tab-pane { display:none; }
 .tab-pane.active { display:block; }
 /* FORM */
-input,select,textarea {
-  display:block; width:100%; padding:10px 12px;
-  border:1px solid var(--fieldBorder); border-radius:var(--radius);
-  background:var(--field); color:var(--text);
-  font-family:inherit; font-size:16px; line-height:1.4;
-  transition:border-color .15s,box-shadow .15s;
-  -webkit-appearance:none; appearance:none;
-}
+input,select,textarea { display:block; width:100%; padding:10px 12px; border:1px solid var(--fieldBorder); border-radius:var(--radius); background:var(--field); color:var(--text); font-family:inherit; font-size:16px; line-height:1.4; transition:border-color .15s,box-shadow .15s; -webkit-appearance:none; appearance:none; }
 input::placeholder,textarea::placeholder { color:var(--muted); opacity:.6; }
 input:focus,select:focus,textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
-select {
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; cursor:pointer;
-}
+select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; cursor:pointer; }
 label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
 label:first-child { margin-top:0; }
 .required::after { content:" *"; color:var(--accent); }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-@media(max-width:560px) { .form-row { grid-template-columns:1fr; } }
+@media(max-width:560px){ .form-row { grid-template-columns:1fr; } }
 /* BUTTONS */
-.btn {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:auto; border:none; border-radius:var(--radius);
-  padding:10px 18px; font-family:inherit; font-size:14px; font-weight:700;
-  line-height:1.2; cursor:pointer; min-height:42px; white-space:nowrap;
-  transition:filter .15s,opacity .15s;
-}
+.btn { display:inline-flex; align-items:center; justify-content:center; width:auto; border:none; border-radius:var(--radius); padding:10px 18px; font-family:inherit; font-size:14px; font-weight:700; line-height:1.2; cursor:pointer; min-height:42px; white-space:nowrap; transition:filter .15s,opacity .15s; }
 .btn.primary { background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; }
 .btn.primary:hover { filter:brightness(1.08); }
 .btn.secondary { background:#edf2ff; color:#0f172a; border:1px solid var(--border); }
@@ -210,44 +162,28 @@ label:first-child { margin-top:0; }
 .btn-success { background:var(--success); color:#fff; }
 .btn-sm { padding:6px 12px; font-size:13px; min-height:32px; }
 .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
-@media(max-width:440px) { .btn-row { flex-direction:column; } .btn-row .btn { width:100%; } }
-/* FILTERS BAR */
-.filters {
-  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
-  padding:14px 16px; margin-bottom:16px; box-shadow:var(--shadow);
-}
+@media(max-width:440px){ .btn-row{flex-direction:column;} .btn-row .btn{width:100%;} }
+/* FILTERS */
+.filters { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:16px; box-shadow:var(--shadow); }
 .filters h4 { margin:0 0 10px; font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
-.filter-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:10px; }
-.filter-grid input, .filter-grid select { font-size:14px; padding:8px 10px; }
+.filter-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+.filter-grid input,.filter-grid select { font-size:14px; padding:8px 10px; }
 .filter-grid select { padding-right:32px; }
-/* COLLABORATOR LIST */
+/* COLLAB LIST */
 .collab-list { display:grid; gap:10px; }
-.collab-card {
-  background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius);
-  padding:12px 14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-}
-.collab-avatar {
-  width:40px; height:40px; border-radius:50%; background:var(--accentSoft);
-  display:flex; align-items:center; justify-content:center;
-  font-weight:800; font-size:14px; color:var(--accent); flex-shrink:0;
-}
+.collab-card { background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:12px 14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.collab-avatar { width:40px; height:40px; border-radius:50%; background:var(--accentSoft); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:var(--accent); flex-shrink:0; }
 .collab-info { flex:1; min-width:0; }
 .collab-name { font-weight:700; font-size:14px; }
 .collab-meta { font-size:12px; color:var(--muted); margin-top:2px; }
 .collab-actions { display:flex; gap:6px; flex-wrap:wrap; }
 /* ENROLMENT LIST */
 .enrol-list { display:grid; gap:8px; }
-.enrol-item {
-  background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius);
-  padding:10px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-}
+.enrol-item { background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .enrol-info { flex:1; min-width:0; font-size:13px; }
 .enrol-name { font-weight:700; font-size:14px; }
-/* ALERT BOXES */
-.alert {
-  padding:12px 14px; border-radius:var(--radius); font-size:14px;
-  margin-bottom:12px; word-break:break-word;
-}
+/* ALERTS */
+.alert { padding:12px 14px; border-radius:var(--radius); font-size:14px; margin-bottom:12px; word-break:break-word; }
 .alert-error   { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
 .alert-success { background:var(--successSoft); border:1px solid #86efac; color:#166534; }
 .alert-info    { background:var(--accentSoft); border:1px solid var(--accent2); color:var(--accent); }
@@ -255,10 +191,8 @@ label:first-child { margin-top:0; }
 [data-theme="dark"] .alert-error   { color:#fca5a5; }
 [data-theme="dark"] .alert-success { color:#86efac; }
 [data-theme="dark"] .alert-warn    { color:#fbbf24; }
-/* EMPTY STATE */
-.empty {
-  text-align:center; padding:40px 20px; color:var(--muted);
-}
+/* EMPTY */
+.empty { text-align:center; padding:40px 20px; color:var(--muted); }
 .empty svg { width:48px; height:48px; stroke:var(--muted); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
 /* TABLE */
 .table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:var(--radius); }
@@ -268,71 +202,75 @@ th { background:var(--tableHead); color:#0b1740; text-align:left; font-weight:70
 [data-theme="dark"] th { color:#d9e3ff; }
 tr:last-child td { border-bottom:0; }
 /* LOG */
-.log-wrap { margin-top:12px; }
-pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px; font-size:11px; max-height:160px; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; }
+pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px; font-size:11px; max-height:260px; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; }
 [data-theme="dark"] pre.log { background:#070e1f; color:#c7dbff; }
 /* SPINNER */
-.spinner {
-  display:inline-block; width:18px; height:18px; border:2px solid var(--fieldBorder);
-  border-top-color:var(--accent); border-radius:50%;
-  animation:spin .7s linear infinite; vertical-align:middle;
-}
+.spinner { display:inline-block; width:18px; height:18px; border:2px solid var(--fieldBorder); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg); } }
+/* RESULT FEED */
+.result-feed { display:grid; gap:8px; max-height:280px; overflow-y:auto; }
+/* PAGINATION */
+.pagination { display:flex; gap:6px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+.page-btn { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:13px; font-weight:600; cursor:pointer; min-height:34px; }
+.page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.page-btn:disabled { opacity:.4; cursor:default; }
+/* DEBUG PANEL */
+.debug-panel { margin:16px; padding:14px; background:var(--field); border:2px dashed var(--warn); border-radius:var(--radius-lg); }
+.debug-panel h4 { margin:0 0 8px; color:var(--warn); font-size:13px; text-transform:uppercase; letter-spacing:.05em; }
 /* UTILITY */
 .hidden { display:none !important; }
 .mt8 { margin-top:8px; }
 .mt16 { margin-top:16px; }
-
-/* RESULT FEED */
-.result-feed { display:grid; gap:8px; max-height:280px; overflow-y:auto; }
-
-/* PAGINATION */
-.pagination { display:flex; gap:6px; align-items:center; margin-top:12px; flex-wrap:wrap; }
-.page-btn {
-  padding:6px 12px; border-radius:8px; border:1px solid var(--border);
-  background:var(--card); color:var(--text); font-size:13px; font-weight:600;
-  cursor:pointer; min-height:34px;
-}
-.page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
-.page-btn:disabled { opacity:.4; cursor:default; }
-
-/* Cookie banner */
-.cookie { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); width:min(92vw,520px); background:rgba(255,255,255,.8); backdrop-filter:blur(14px); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:14px; padding:14px; display:flex; align-items:center; gap:12px; z-index:40; color:#0f172a; }
-[data-theme="dark"] .cookie { background:rgba(11,16,32,.85); color:#e5e7eb; }
-.cookie.hide { transition:transform .35s,opacity .35s; transform:translate(-50%,130%); opacity:0; }
-.cookie .msg { flex:1; font-size:14px; }
-.cookie .btn { width:auto; min-width:64px; min-height:36px; }
 </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <!-- Hamburger: only visible on mobile to open sidebar -->
-  <button class="icon-btn" id="hamburgerBtn" title="Toggle sidebar" aria-label="Toggle project list">
+  <button class="icon-btn" id="menuBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
-
   <div class="brand">
-    <a href="index.html" title="Back to Team Wizard">
-      <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
-    </a>
+    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
   </div>
-
   <div class="title">Team Planner</div>
-
-  <!-- Back to Team Wizard -->
-  <a href="index.html" class="icon-btn" title="Back to Team Wizard" style="text-decoration:none;">
-    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-  </a>
-
-  <!-- Theme toggle -->
-  <button class="icon-btn" id="themeBtn" title="Toggle dark/light mode">
-    <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  <!-- separate button to toggle the project sidebar on mobile -->
+  <button class="icon-btn sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle project list" aria-label="Toggle project list">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1"/><line x1="14" y1="7" x2="21" y2="7"/><line x1="14" y1="12" x2="21" y2="12"/><line x1="14" y1="17" x2="21" y2="17"/></svg>
   </button>
 </div>
 
-<!-- SIDEBAR OVERLAY (mobile) -->
+<!-- NAV MENU OVERLAY + PANEL -->
+<div class="menu-overlay" id="menuOverlay"></div>
+<div class="menu-panel" id="menuPanel">
+  <div class="menu-panel-header">
+    <span>Menu</span>
+    <button class="icon-btn" id="menuCloseBtn" title="Close">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <a class="menu-item" href="teams.html">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Team creation
+  </a>
+  <a class="menu-item active" href="planning.html">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Planning
+  </a>
+  <div class="menu-spacer"></div>
+  <div class="menu-divider"></div>
+  <button class="menu-item" id="themeMenuBtn">
+    <svg id="themeMenuIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <span id="themeMenuLabel">Dark mode</span>
+  </button>
+  <div class="menu-divider"></div>
+  <button class="menu-item" id="logoutBtn" style="color:var(--danger);">
+    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Log out
+  </button>
+</div>
+
+<!-- SIDEBAR OVERLAY (mobile, for project list) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- LAYOUT -->
@@ -346,7 +284,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     </div>
     <div class="proj-list" id="projList">
       <div class="empty" style="padding:30px 16px;">
-        <div id="projListMsg">Load your tenant first →</div>
+        <div id="projListMsg">Loading…</div>
       </div>
     </div>
   </aside>
@@ -354,15 +292,15 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   <!-- MAIN -->
   <main class="main" id="main">
 
-    <!-- NOT CONNECTED STATE -->
-    <div id="viewNotConnected">
+    <!-- NOT CONNECTED -->
+    <div id="viewNotConnected" class="hidden">
       <div class="alert alert-warn">
-        <strong>Not connected.</strong> You need to load your Beeple tenant first.
-        <a href="index.html" style="color:inherit;font-weight:700;">Go to Team Wizard →</a>
+        <strong>Not connected.</strong>
+        <a href="index.html" style="color:inherit;font-weight:700;">Go to login →</a>
       </div>
     </div>
 
-    <!-- PROJECT LIST VIEW (on desktop, main area shows project list too; on mobile only sidebar) -->
+    <!-- PROJECT LIST VIEW -->
     <div id="viewProjects" class="hidden">
       <h1 class="section-title">All Projects</h1>
       <p class="section-sub">Select a project from the sidebar to browse subprojects and teams.</p>
@@ -388,7 +326,6 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <!-- TEAM DETAIL VIEW -->
     <div id="viewTeam" class="hidden">
       <div class="breadcrumb" id="breadcrumbTeam"></div>
-
       <div class="team-panel">
         <div class="team-panel-header">
           <div style="flex:1;min-width:0;">
@@ -400,15 +337,13 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
           </div>
         </div>
         <div class="team-panel-body">
-
-          <!-- TABS -->
           <div class="tabs">
             <button class="tab active" data-tab="enrolments">Enrolments</button>
             <button class="tab" data-tab="enroll">Enroll someone</button>
             <button class="tab" data-tab="invite">Invite someone</button>
           </div>
 
-          <!-- TAB: current enrolments -->
+          <!-- TAB: enrolments -->
           <div class="tab-pane active" id="tab-enrolments">
             <div id="enrolmentsFeed">
               <div class="empty"><div class="spinner"></div><p>Loading…</p></div>
@@ -417,24 +352,12 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
           <!-- TAB: enroll -->
           <div class="tab-pane" id="tab-enroll">
-            <p style="font-size:13px;color:var(--muted);margin-top:0;">
-              Search collaborators from this project's department and directly enrol them in the team.
-            </p>
-
-            <!-- FILTERS -->
+            <p style="font-size:13px;color:var(--muted);margin-top:0;">Search collaborators and directly enrol them in the team.</p>
             <div class="filters">
               <h4>Filter collaborators</h4>
               <div class="filter-grid">
-                <div>
-                  <label>Name search</label>
-                  <input id="fSearch" type="search" placeholder="John…" autocomplete="off">
-                </div>
-                <div>
-                  <label>Function</label>
-                  <select id="fFunction">
-                    <option value="">All functions</option>
-                  </select>
-                </div>
+                <div><label>Name search</label><input id="fSearch" type="search" placeholder="John…" autocomplete="off"></div>
+                <div><label>Function</label><select id="fFunction"><option value="">All functions</option></select></div>
                 <div>
                   <label>Language</label>
                   <select id="fLanguage">
@@ -445,36 +368,17 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
                     <option value="de">German</option>
                   </select>
                 </div>
-                <div>
-                  <label>Show archived</label>
-                  <select id="fArchived">
-                    <option value="false">Active only</option>
-                    <option value="true">Include archived</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Show blocked</label>
-                  <select id="fBlocked">
-                    <option value="false">Not blocked</option>
-                    <option value="true">Include blocked</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Min age</label>
-                  <input id="fMinAge" type="number" inputmode="numeric" min="16" max="99" placeholder="Any">
-                </div>
+                <div><label>Show archived</label><select id="fArchived"><option value="false">Active only</option><option value="true">Include archived</option></select></div>
+                <div><label>Show blocked</label><select id="fBlocked"><option value="false">Not blocked</option><option value="true">Include blocked</option></select></div>
+                <div><label>Min age</label><input id="fMinAge" type="number" inputmode="numeric" min="16" max="99" placeholder="Any"></div>
               </div>
               <div class="btn-row">
                 <button id="searchCollabBtn" class="btn primary btn-sm">Search</button>
                 <button id="clearFiltersBtn" class="btn secondary btn-sm">Clear</button>
               </div>
             </div>
-
-            <!-- RESULTS -->
             <div id="collabResults"></div>
             <div id="collabPagination" class="pagination"></div>
-
-            <!-- ENROL FORM (shown when a collaborator is selected) -->
             <div id="enrolForm" class="hidden" style="margin-top:16px;">
               <div style="background:var(--accentSoft);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;">
                 Enrolling: <strong id="enrolTargetName"></strong>
@@ -505,106 +409,110 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
                 <button id="cancelEnrolSelectBtn" class="btn secondary">Cancel</button>
               </div>
             </div>
-
-            <!-- RESULT LOG -->
             <div id="enrolResults" class="result-feed mt16"></div>
           </div>
 
-          <!-- TAB: invite (send invitation without searching) -->
+          <!-- TAB: invite -->
           <div class="tab-pane" id="tab-invite">
-            <p style="font-size:13px;color:var(--muted);margin-top:0;">
-              Search a collaborator by name and send them an invitation for this team.
-            </p>
-            <div>
-              <label>Name search</label>
-              <input id="inviteSearch" type="search" placeholder="Search collaborator…" autocomplete="off">
-            </div>
-            <div class="btn-row">
-              <button id="inviteSearchBtn" class="btn secondary btn-sm">Search</button>
-            </div>
+            <p style="font-size:13px;color:var(--muted);margin-top:0;">Search a collaborator by name and send them an invitation for this team.</p>
+            <div><label>Name search</label><input id="inviteSearch" type="search" placeholder="Search collaborator…" autocomplete="off"></div>
+            <div class="btn-row"><button id="inviteSearchBtn" class="btn secondary btn-sm">Search</button></div>
             <div id="inviteResults" class="mt16"></div>
+            <!-- invite contract type (required by the API) -->
+            <div id="inviteContractWrap" class="hidden" style="margin-top:12px;">
+              <label class="required">Contract type for invitation</label>
+              <select id="inviteContractType" style="max-width:280px;">
+                <option value="">(select)</option>
+                <option value="interim">Interim</option>
+                <option value="intern">Intern</option>
+                <option value="contractual">Contractual</option>
+                <option value="freelancer">Freelancer</option>
+                <option value="collaborator">Collaborator</option>
+                <option value="volunteer">Volunteer</option>
+              </select>
+            </div>
             <div id="inviteResultLog" class="result-feed mt16"></div>
           </div>
 
-        </div><!-- team-panel-body -->
-      </div><!-- team-panel -->
-    </div><!-- viewTeam -->
+        </div>
+      </div>
+    </div>
+
+    <!-- DEBUG PANEL (only shown when ?debug=Y) -->
+    <div id="debugSection" class="hidden" style="margin-top:24px;">
+      <div class="debug-panel">
+        <h4>Debug log</h4>
+        <pre class="log" id="debugLog" style="max-height:400px;"></pre>
+        <button class="btn secondary btn-sm" id="debugClearBtn" style="margin-top:8px;">Clear log</button>
+      </div>
+    </div>
 
   </main>
-</div><!-- layout -->
-
-<!-- COOKIE BANNER -->
-<div id="cookie" class="cookie hidden">
-  <div class="msg">This page uses cookies to remember your connection.</div>
-  <div><button id="cookieOk" class="btn secondary">OK</button></div>
 </div>
 
 <script>
-/* ================================================================
-   CONFIG — same proxy used by Team Wizard
-   ================================================================ */
 const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
-const DEBUG     = new URLSearchParams(location.search).get("debug") === "1";
+const DEBUG     = (new URLSearchParams(location.search).get("debug") || "").toUpperCase() === "Y"
+                  || new URLSearchParams(location.search).get("debug") === "1";
 
-/* ================================================================
-   COOKIE HELPERS (copied from index.html for standalone use)
-   ================================================================ */
-function setCookie(k,v,days=365){const e=new Date(Date.now()+days*864e5).toUTCString();document.cookie=`${k}=${encodeURIComponent(v)};expires=${e};path=/;SameSite=Lax`;}
-function getCookie(k){return document.cookie.split("; ").reduce((r,v)=>{const[n,...rest]=v.split("=");return n===k?decodeURIComponent(rest.join("=")):r;},"");}
+/* Read credentials from storage — token in sessionStorage (cleared on browser close),
+   base URL in localStorage (permanent). */
+function originOf(u){ try{ return new URL(u).origin; }catch{ return u; } }
+const BASE  = originOf(localStorage.getItem("beeple_base") || "");
+const TOKEN = sessionStorage.getItem("beeple_token") || "";
 
-/* ================================================================
-   RESTORE CONNECTION FROM COOKIES (set by Team Wizard page)
-   ================================================================ */
-function originOf(u){try{return new URL(u).origin;}catch{return u;}}
-const lastBase = getCookie("beeple_last_base");
-const tenantKey = (base) => (base||"").replace(/^https?:\/\//,"").replace(/[^\w.-]/g,"_");
-const tk = tenantKey(lastBase);
-const savedBase  = tk ? getCookie(`beeple_${tk}_baseUrl`)  : "";
-const savedToken = tk ? getCookie(`beeple_${tk}_token`)    : "";
-const BASE  = originOf(savedBase  || lastBase || "");
-const TOKEN = savedToken || "";
-
-/* ================================================================
-   STATE
-   ================================================================ */
+/* STATE */
 const state = {
-  projects:     [],
-  functions:    [],
-  selectedProject: null,
-  selectedSubproject: null,
-  selectedTeam: null,
-  collabPage:   1,
-  collabTotal:  0,
-  selectedCollab: null,
-  departmentId: null
+  projects:[], functions:[],
+  selectedProject:null, selectedSubproject:null, selectedTeam:null,
+  collabPage:1, collabTotal:0, selectedCollab:null, departmentId:null
 };
 
-/* ================================================================
-   THEME
-   ================================================================ */
+/* DEBUG LOGGING */
+function dlog(msg){
+  if(!DEBUG) return;
+  const pre = document.getElementById("debugLog");
+  if(pre){ pre.textContent += msg + "\n"; pre.scrollTop = pre.scrollHeight; }
+}
+
+/* THEME */
 function syncTheme(){
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
-  document.getElementById("themeIcon").innerHTML = dark
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'  /* moon */
-    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'; /* sun */
+  const moonPath = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  const sunPath  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  document.getElementById("themeMenuIcon").innerHTML = dark ? moonPath : sunPath;
+  document.getElementById("themeMenuLabel").textContent = dark ? "Light mode" : "Dark mode";
 }
-document.getElementById("themeBtn").addEventListener("click",()=>{
-  const next = document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
-  document.documentElement.setAttribute("data-theme",next);
-  localStorage.setItem("theme",next);
+
+/* NAV MENU */
+const menuPanel   = document.getElementById("menuPanel");
+const menuOverlay = document.getElementById("menuOverlay");
+function openMenu(){ menuPanel.classList.add("open"); menuOverlay.classList.add("show"); }
+function closeMenu(){ menuPanel.classList.remove("open"); menuOverlay.classList.remove("show"); }
+document.getElementById("menuBtn").addEventListener("click", openMenu);
+document.getElementById("menuCloseBtn").addEventListener("click", closeMenu);
+menuOverlay.addEventListener("click", closeMenu);
+
+document.getElementById("themeMenuBtn").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
   syncTheme();
 });
 
-/* ================================================================
-   SIDEBAR TOGGLE (mobile)
-   ================================================================ */
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem("beeple_token");
+  window.location.href = "index.html";
+});
+
+/* SIDEBAR TOGGLE (mobile — separate from nav menu) */
 const sidebarEl  = document.getElementById("sidebar");
 const overlayEl  = document.getElementById("sidebarOverlay");
-document.getElementById("hamburgerBtn").addEventListener("click",()=>{
+document.getElementById("sidebarToggleBtn").addEventListener("click", () => {
   sidebarEl.classList.toggle("open");
   overlayEl.classList.toggle("show");
 });
-overlayEl.addEventListener("click",()=>{
+overlayEl.addEventListener("click", () => {
   sidebarEl.classList.remove("open");
   overlayEl.classList.remove("show");
 });
@@ -613,19 +521,16 @@ function closeSidebar(){
   overlayEl.classList.remove("show");
 }
 
-/* ================================================================
-   UTILS
-   ================================================================ */
-function escHtml(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m]));}
+/* UTILS */
+function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
 
-/* Parse API error response into a human-readable string.
-   Beeple returns { errors: { field: ["msg",...] } } or { error: "msg" } */
-function parseApiErrors(json){
+function parseApiErrors(json, rawText){
+  if(!json && rawText) return escHtml(rawText.slice(0, 300));
   if(!json) return "Unknown error.";
   if(json.errors){
-    if(Array.isArray(json.errors) && json.errors.length===0) return null; /* no errors */
+    if(Array.isArray(json.errors) && json.errors.length===0) return null;
     const errs = json.errors;
-    if(typeof errs === "object" && !Array.isArray(errs)){
+    if(typeof errs==="object" && !Array.isArray(errs)){
       return Object.entries(errs).map(([k,v])=>{
         const msgs = Array.isArray(v) ? v.join(", ") : String(v);
         return k==="base" ? msgs : `<b>${escHtml(k)}</b>: ${escHtml(msgs)}`;
@@ -637,9 +542,7 @@ function parseApiErrors(json){
   return null;
 }
 
-function initials(fn,ln){
-  return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase()||"?";
-}
+function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase()||"?"; }
 
 function fmtDate(d){
   if(!d) return "—";
@@ -653,24 +556,21 @@ function fmtShift(team){
     const start = s.start_datetime ? new Date(s.start_datetime) : null;
     const end   = s.end_datetime   ? new Date(s.end_datetime)   : null;
     if(start && end){
-      return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"}) + " " +
-             start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}) + " – " +
+      return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+
+             start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})+" – "+
              end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
     }
   }
   return "—";
 }
 
-/* Show/hide page views */
 function showView(id){
   ["viewNotConnected","viewProjects","viewProject","viewTeam"].forEach(v=>{
     document.getElementById(v).classList.toggle("hidden", v!==id);
   });
 }
 
-/* ================================================================
-   HTTP via PROXY
-   ================================================================ */
+/* HTTP VIA PROXY */
 function proxyUrl(path, extra=""){
   return `${PROXY_URL}?base=${encodeURIComponent(BASE)}&path=${encodeURIComponent(path)}${extra}${DEBUG?"&debug=1":""}`;
 }
@@ -679,124 +579,119 @@ async function apiGET(path, queryObj){
   let qs = "";
   if(queryObj){
     const params = Object.entries(queryObj)
-      .filter(([,v]) => v !== "" && v !== null && v !== undefined)
-      .map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
-    if(params) qs = "&" + params;
+      .filter(([,v])=>v!==""&&v!==null&&v!==undefined)
+      .map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+    if(params) qs = "&"+params;
   }
-  const res = await fetch(proxyUrl(path) + qs, { headers:{"X-Beeple-Token": TOKEN} });
+  dlog(`→ GET ${path}${qs}`);
+  const res = await fetch(proxyUrl(path)+qs, {headers:{"X-Beeple-Token":TOKEN}});
   const txt = await res.text();
+  dlog(`← ${res.status} ${res.statusText}`);
   let json = {};
-  try { json = JSON.parse(txt); } catch {}
+  try{ json = JSON.parse(txt); }catch{}
   if(!res.ok){
-    const msg = parseApiErrors(json) || ("HTTP " + res.status);
+    dlog(`  ERROR body: ${txt.slice(0,500)}`);
+    const msg = parseApiErrors(json, txt) || ("HTTP "+res.status);
     throw new Error(msg);
   }
+  if(DEBUG) dlog(`  body: ${txt.slice(0,300)}${txt.length>300?"…":""}`);
   return json;
 }
 
 async function apiPOST(path, payload){
+  const body = JSON.stringify(payload);
+  dlog(`→ POST ${path}`);
+  if(DEBUG) dlog(`  payload: ${body.slice(0,300)}`);
   const res = await fetch(proxyUrl(path), {
-    method:"POST",
-    headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
-    body: JSON.stringify(payload)
+    method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body
   });
   const txt = await res.text();
+  dlog(`← ${res.status} ${res.statusText}`);
   let json = {};
-  try { json = JSON.parse(txt); } catch {}
-  /* Beeple may return 200 but with errors array populated */
-  const apiErr = parseApiErrors(json);
-  if(!res.ok || (apiErr && apiErr.length)){
-    throw new Error(apiErr || "HTTP " + res.status);
+  try{ json = JSON.parse(txt); }catch{}
+  if(!res.ok || (json.errors && (Array.isArray(json.errors)?json.errors.length:Object.keys(json.errors).length))){
+    dlog(`  ERROR body: ${txt.slice(0,500)}`);
+  } else {
+    if(DEBUG) dlog(`  body: ${txt.slice(0,300)}${txt.length>300?"…":""}`);
+  }
+  const apiErr = parseApiErrors(json, txt);
+  if(!res.ok || (apiErr && apiErr.length && !(Array.isArray(json.errors)&&json.errors.length===0))){
+    throw new Error(apiErr || "HTTP "+res.status);
   }
   return json;
 }
 
 async function apiDELETEorPOST(method, path, payload){
+  dlog(`→ ${method} ${path}`);
   const res = await fetch(proxyUrl(path), {
-    method,
-    headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
+    method, headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"},
     body: payload ? JSON.stringify(payload) : undefined
   });
   const txt = await res.text();
+  dlog(`← ${res.status} ${res.statusText}`);
   let json = {};
-  try { json = JSON.parse(txt); } catch {}
-  const apiErr = parseApiErrors(json);
-  if(!res.ok || (apiErr && apiErr.length)){
-    throw new Error(apiErr || "HTTP " + res.status);
+  try{ json = JSON.parse(txt); }catch{}
+  const apiErr = parseApiErrors(json, txt);
+  if(!res.ok || (apiErr && apiErr.length && !(Array.isArray(json.errors)&&json.errors.length===0))){
+    dlog(`  ERROR body: ${txt.slice(0,500)}`);
+    throw new Error(apiErr || "HTTP "+res.status);
   }
   return json;
 }
 
-/* ================================================================
-   ALERT BUILDER
-   ================================================================ */
+/* ALERT / RESULT HELPERS */
 function makeAlert(type, html){
   const d = document.createElement("div");
-  d.className = `alert alert-${type}`;
-  d.innerHTML = html;
-  return d;
+  d.className = `alert alert-${type}`; d.innerHTML = html; return d;
 }
-
-/* Append a result entry to a feed container */
 function appendResult(container, type, html){
   const el = makeAlert(type, html);
-  container.prepend(el); /* newest first */
-  /* Keep feed to last 20 */
+  container.prepend(el);
   while(container.children.length > 20) container.lastChild.remove();
 }
 
-/* ================================================================
-   LOAD PROJECTS + POPULATE SIDEBAR
-   ================================================================ */
+/* LOAD PROJECTS */
 async function loadProjects(){
   document.getElementById("projListMsg").textContent = "Loading…";
-  try {
+  try{
     const data = await apiGET("api/v1/admin/projects");
     state.projects = data.projects || [];
     renderSidebar(state.projects);
     renderProjectGrid(state.projects);
     showView("viewProjects");
-  } catch(e) {
+  }catch(e){
     document.getElementById("projListMsg").innerHTML =
       `<span style="color:var(--danger);">Error: ${escHtml(e.message)}</span>`;
+    const nc = document.getElementById("viewNotConnected");
+    nc.classList.remove("hidden");
+    nc.innerHTML = makeAlert("error",`<b>Could not load projects:</b> ${e.message}`).outerHTML+
+      `<p>Check your login: <a href="index.html">go to login</a>.</p>`;
     showView("viewNotConnected");
-    document.getElementById("viewNotConnected").innerHTML =
-      makeAlert("error", `<b>Could not load projects:</b> ${e.message}`).outerHTML +
-      `<p>Check your connection settings in <a href="index.html">Team Wizard</a>.</p>`;
   }
 }
 
 function renderSidebar(projects){
   const list = document.getElementById("projList");
   list.innerHTML = "";
-  if(!projects.length){
-    list.innerHTML = `<div class="empty" style="padding:20px 16px;">No projects found.</div>`;
-    return;
-  }
-  projects.forEach(p => {
+  if(!projects.length){ list.innerHTML=`<div class="empty" style="padding:20px 16px;">No projects found.</div>`; return; }
+  projects.forEach(p=>{
     const el = document.createElement("div");
-    el.className = "proj-item";
-    el.dataset.id = p.id;
-    const color = p.color_code || "#4e6bff";
+    el.className = "proj-item"; el.dataset.id = p.id;
+    const color = p.color_code||"#4e6bff";
     el.innerHTML = `
       <span class="proj-dot" style="background:${escHtml(color)};"></span>
-      <div class="proj-name">
-        ${escHtml(p.name)}
-        <small>${p.department ? escHtml(p.department.name) : ""}</small>
-      </div>
+      <div class="proj-name">${escHtml(p.name)}<small>${p.department?escHtml(p.department.name):""}</small></div>
       <span class="proj-badge">${p.registrations_count||0}/${p.volunteers_needed||0}</span>`;
-    el.addEventListener("click", () => selectProject(p));
+    el.addEventListener("click", ()=>selectProject(p));
     list.appendChild(el);
   });
 }
 
 function renderProjectGrid(projects){
-  const grid = document.getElementById("projectGrid");
-  grid.innerHTML = "";
-  projects.forEach(p => {
-    const color = p.color_code || "#4e6bff";
-    const el = document.createElement("div");
-    el.className = "card";
+  const grid = document.getElementById("projectGrid"); grid.innerHTML = "";
+  projects.forEach(p=>{
+    const color = p.color_code||"#4e6bff";
+    const el = document.createElement("div"); el.className = "card";
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
         <span class="proj-dot" style="background:${escHtml(color)};width:14px;height:14px;"></span>
@@ -804,183 +699,117 @@ function renderProjectGrid(projects){
       </div>
       <div class="meta">
         <span>📅 ${fmtDate(p.start_date)} – ${fmtDate(p.end_date)}</span><br>
-        ${p.department ? `<span>🏢 ${escHtml(p.department.name)}</span>` : ""}
-        ${p.customer   ? `<span>👤 ${escHtml(p.customer.name)}</span>`   : ""}
+        ${p.department?`<span>🏢 ${escHtml(p.department.name)}</span>`:""}
+        ${p.customer  ?`<span>👤 ${escHtml(p.customer.name)}</span>`  :""}
       </div>
       <div style="margin-top:8px;">
-        <span class="chip chip-${p.published ? "green":"grey"}">${p.published?"Published":"Draft"}</span>
+        <span class="chip chip-${p.published?"green":"grey"}">${p.published?"Published":"Draft"}</span>
         <span class="chip chip-blue">${p.registrations_count||0}/${p.volunteers_needed||0} enrolled</span>
-        ${p.subprojects_enabled ? '<span class="chip chip-yellow">Subprojects</span>' : ""}
+        ${p.subprojects_enabled?'<span class="chip chip-yellow">Subprojects</span>':""}
       </div>`;
-    el.addEventListener("click", () => selectProject(p));
+    el.addEventListener("click",()=>selectProject(p));
     grid.appendChild(el);
   });
 }
 
-/* ================================================================
-   PROJECT SIDEBAR SEARCH FILTER
-   ================================================================ */
-document.getElementById("projSearch").addEventListener("input", function(){
+document.getElementById("projSearch").addEventListener("input",function(){
   const q = this.value.toLowerCase();
-  document.querySelectorAll(".proj-item").forEach(el => {
-    el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
+  document.querySelectorAll(".proj-item").forEach(el=>{
+    el.style.display = el.textContent.toLowerCase().includes(q)?"":"none";
   });
 });
 
-/* ================================================================
-   SELECT PROJECT → show subprojects or teams
-   ================================================================ */
 async function selectProject(project){
-  state.selectedProject   = project;
-  state.selectedSubproject = null;
-  state.selectedTeam      = null;
-  state.departmentId      = project.department ? project.department.id : null;
-
-  /* Highlight in sidebar */
-  document.querySelectorAll(".proj-item").forEach(el => {
-    el.classList.toggle("active", el.dataset.id === String(project.id));
-  });
-  closeSidebar();
-  showView("viewProject");
-  initDateBar();
-
-  const title = document.getElementById("viewProjectTitle");
-  const sub   = document.getElementById("viewProjectSub");
-  const grid  = document.getElementById("subprojectGrid");
-  title.textContent = project.name;
+  state.selectedProject=project; state.selectedSubproject=null; state.selectedTeam=null;
+  state.departmentId = project.department?project.department.id:null;
+  document.querySelectorAll(".proj-item").forEach(el=>el.classList.toggle("active",el.dataset.id===String(project.id)));
+  closeSidebar(); showView("viewProject"); initDateBar();
+  document.getElementById("viewProjectTitle").textContent = project.name;
+  const grid = document.getElementById("subprojectGrid");
   grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
-
-  setBreadcrumb("viewProject", [
-    { label:"Projects", action: ()=>{ showView("viewProjects"); clearActiveProject(); } },
-    { label: project.name }
+  setBreadcrumb("viewProject",[
+    {label:"Projects", action:()=>{showView("viewProjects"); clearActiveProject();}},
+    {label:project.name}
   ]);
-
-  try {
+  try{
     if(project.subprojects_enabled){
-      sub.textContent = "This project uses subprojects. Select one to see its teams.";
+      document.getElementById("viewProjectSub").textContent = "This project uses subprojects.";
       const data = await apiGET(`api/v1/admin/projects/${project.id}/subprojects`);
-      const subs = data.subprojects || [];
-      if(!subs.length){
-        grid.innerHTML = `<div class="empty"><p>No subprojects found.</p></div>`;
-        return;
-      }
+      const subs = data.subprojects||[];
+      if(!subs.length){ grid.innerHTML=`<div class="empty"><p>No subprojects found.</p></div>`; return; }
       grid.innerHTML = "";
-      subs.forEach(s => {
-        const el = document.createElement("div");
-        el.className = "card";
-        el.innerHTML = `
-          <h3>${escHtml(s.name)}</h3>
-          <div class="meta">
-            <span>${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span>
-          </div>
-          <div style="margin-top:8px;">
-            <span class="chip chip-blue">${s.registrations_count||0}/${s.volunteers_needed||0}</span>
-          </div>`;
-        el.addEventListener("click", () => selectSubproject(s));
-        grid.appendChild(el);
+      subs.forEach(s=>{
+        const el=document.createElement("div"); el.className="card";
+        el.innerHTML=`<h3>${escHtml(s.name)}</h3><div class="meta"><span>${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span></div><div style="margin-top:8px;"><span class="chip chip-blue">${s.registrations_count||0}/${s.volunteers_needed||0}</span></div>`;
+        el.addEventListener("click",()=>selectSubproject(s)); grid.appendChild(el);
       });
-    } else {
-      sub.textContent = "All teams in this project:";
+    }else{
+      document.getElementById("viewProjectSub").textContent = "All teams in this project:";
       await loadTeamsIntoGrid(grid, project.id, null);
     }
-  } catch(e) {
-    grid.innerHTML = `<div class="alert alert-error">Error loading: ${escHtml(e.message)}</div>`;
-  }
+  }catch(e){ grid.innerHTML=`<div class="alert alert-error">Error loading: ${escHtml(e.message)}</div>`; }
 }
 
-function clearActiveProject(){
-  document.querySelectorAll(".proj-item").forEach(el => el.classList.remove("active"));
-}
+function clearActiveProject(){ document.querySelectorAll(".proj-item").forEach(el=>el.classList.remove("active")); }
 
-/* ================================================================
-   SELECT SUBPROJECT
-   ================================================================ */
 async function selectSubproject(sub){
-  state.selectedSubproject = sub;
-  state.selectedTeam       = null;
-  showView("viewProject");
-  initDateBar();
-
-  const project = state.selectedProject;
-  const title   = document.getElementById("viewProjectTitle");
-  const subtitle= document.getElementById("viewProjectSub");
-  const grid    = document.getElementById("subprojectGrid");
-
-  title.textContent    = sub.name;
-  subtitle.textContent = `Subproject of "${project.name}"`;
-  grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading teams…</p></div>`;
-
-  setBreadcrumb("viewProject", [
-    { label:"Projects",         action: ()=>{ showView("viewProjects"); clearActiveProject(); } },
-    { label: project.name,      action: ()=> selectProject(project) },
-    { label: sub.name }
+  state.selectedSubproject=sub; state.selectedTeam=null;
+  showView("viewProject"); initDateBar();
+  const project=state.selectedProject;
+  document.getElementById("viewProjectTitle").textContent = sub.name;
+  document.getElementById("viewProjectSub").textContent = `Subproject of "${project.name}"`;
+  const grid=document.getElementById("subprojectGrid");
+  grid.innerHTML=`<div class="empty"><div class="spinner"></div><p>Loading teams…</p></div>`;
+  setBreadcrumb("viewProject",[
+    {label:"Projects", action:()=>{showView("viewProjects"); clearActiveProject();}},
+    {label:project.name, action:()=>selectProject(project)},
+    {label:sub.name}
   ]);
-
-  try {
-    await loadTeamsIntoGrid(grid, project.id, sub.id);
-  } catch(e) {
-    grid.innerHTML = `<div class="alert alert-error">Error loading teams: ${escHtml(e.message)}</div>`;
-  }
+  try{ await loadTeamsIntoGrid(grid,project.id,sub.id); }
+  catch(e){ grid.innerHTML=`<div class="alert alert-error">Error loading teams: ${escHtml(e.message)}</div>`; }
 }
 
-/* ================================================================
-   DATE BAR (teams view)
-   ================================================================ */
+/* DATE BAR */
 function isoDate(d){ return d.toISOString().slice(0,10); }
 function defaultDateFrom(){ const d=new Date(); d.setDate(d.getDate()-7); return isoDate(d); }
 function defaultDateTo(){ const d=new Date(); d.setMonth(d.getMonth()+1); return isoDate(d); }
-
-let _dateBatInited = false;
+let _dateBarInited=false;
 function initDateBar(){
-  const bar  = document.getElementById("teamDateBar");
-  const from = document.getElementById("teamDateFrom");
-  const to   = document.getElementById("teamDateTo");
-  /* Set defaults only on first open; preserve user values on subproject nav */
-  if(!from.value) from.value = defaultDateFrom();
-  if(!to.value)   to.value   = defaultDateTo();
-  bar.style.display = "flex";
-  bar.classList.remove("hidden");
-  if(_dateBatInited) return;
-  _dateBatInited = true;
-  document.getElementById("teamDateApply").addEventListener("click", () => reloadCurrentTeamGrid());
-  document.getElementById("teamDateReset").addEventListener("click", () => {
-    from.value = defaultDateFrom();
-    to.value   = defaultDateTo();
-    reloadCurrentTeamGrid();
+  const bar=document.getElementById("teamDateBar");
+  const from=document.getElementById("teamDateFrom");
+  const to=document.getElementById("teamDateTo");
+  if(!from.value) from.value=defaultDateFrom();
+  if(!to.value) to.value=defaultDateTo();
+  bar.style.display="flex"; bar.classList.remove("hidden");
+  if(_dateBarInited) return; _dateBarInited=true;
+  document.getElementById("teamDateApply").addEventListener("click",()=>reloadCurrentTeamGrid());
+  document.getElementById("teamDateReset").addEventListener("click",()=>{
+    from.value=defaultDateFrom(); to.value=defaultDateTo(); reloadCurrentTeamGrid();
   });
 }
-
 function reloadCurrentTeamGrid(){
-  const grid = document.getElementById("subprojectGrid");
-  const p = state.selectedProject;
-  const s = state.selectedSubproject;
+  const grid=document.getElementById("subprojectGrid");
+  const p=state.selectedProject; const s=state.selectedSubproject;
   if(!p) return;
-  grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
-  loadTeamsIntoGrid(grid, p.id, s ? s.id : null).catch(e => {
-    grid.innerHTML = `<div class="alert alert-error">Error loading teams: ${escHtml(e.message)}</div>`;
+  grid.innerHTML=`<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
+  loadTeamsIntoGrid(grid,p.id,s?s.id:null).catch(e=>{
+    grid.innerHTML=`<div class="alert alert-error">Error: ${escHtml(e.message)}</div>`;
   });
 }
 
-/* ================================================================
-   LOAD TEAMS INTO A GRID
-   ================================================================ */
 async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const path = subprojectId
-    ? `api/v1/admin/subprojects/${subprojectId}/teams`
-    : `api/v1/admin/projects/${projectId}/teams`;
-  const fromVal = document.getElementById("teamDateFrom").value || defaultDateFrom();
-  const toVal   = document.getElementById("teamDateTo").value   || defaultDateTo();
-  const data  = await apiGET(path, { start_date: fromVal, end_date: toVal });
-  const teams = data.teams || [];
-  if(!teams.length){
-    grid.innerHTML = `<div class="empty"><p>No teams found.</p></div>`;
-    return;
-  }
-  grid.innerHTML = "";
-  teams.forEach(t => {
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerHTML = `
+    ?`api/v1/admin/subprojects/${subprojectId}/teams`
+    :`api/v1/admin/projects/${projectId}/teams`;
+  const fromVal=document.getElementById("teamDateFrom").value||defaultDateFrom();
+  const toVal=document.getElementById("teamDateTo").value||defaultDateTo();
+  const data=await apiGET(path,{start_date:fromVal, end_date:toVal});
+  const teams=data.teams||[];
+  if(!teams.length){ grid.innerHTML=`<div class="empty"><p>No teams found.</p></div>`; return; }
+  grid.innerHTML="";
+  teams.forEach(t=>{
+    const el=document.createElement("div"); el.className="card";
+    el.innerHTML=`
       <h3>${escHtml(t.name||"(auto-named)")}</h3>
       <div class="meta">
         <div>${fmtShift(t)}</div>
@@ -988,193 +817,134 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
           <span class="chip chip-${t.published?"green":"grey"}">${t.published?"Published":"Draft"}</span>
           <span class="chip chip-blue">${t.registrations_count||0}/${t.volunteers_needed||0} filled</span>
         </div>
-        ${t.function ? `<div style="margin-top:4px;">⚙ ${escHtml(t.function.name)}</div>` : ""}
-        ${t.address  ? `<div>📍 ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
+        ${t.function?`<div style="margin-top:4px;">⚙ ${escHtml(t.function.name)}</div>`:""}
+        ${t.address ?`<div>📍 ${escHtml(t.address.name||t.address.city||"")}</div>`:""}
       </div>`;
-    el.addEventListener("click", () => selectTeam(t));
-    grid.appendChild(el);
+    el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
   });
 }
 
-/* ================================================================
-   SELECT TEAM → show team detail panel
-   ================================================================ */
 async function selectTeam(team){
-  state.selectedTeam   = team;
-  state.selectedCollab = null;
+  state.selectedTeam=team; state.selectedCollab=null;
   showView("viewTeam");
-
-  const project = state.selectedProject;
-  const sub     = state.selectedSubproject;
-
-  /* Breadcrumb */
-  const crumbs = [
-    { label:"Projects", action: ()=>{ showView("viewProjects"); clearActiveProject(); } },
-    { label: project.name, action: ()=> selectProject(project) }
+  const project=state.selectedProject; const sub=state.selectedSubproject;
+  const crumbs=[
+    {label:"Projects", action:()=>{showView("viewProjects"); clearActiveProject();}},
+    {label:project.name, action:()=>selectProject(project)}
   ];
-  if(sub) crumbs.push({ label: sub.name, action: ()=> selectSubproject(sub) });
-  crumbs.push({ label: team.name || "(team)" });
+  if(sub) crumbs.push({label:sub.name, action:()=>selectSubproject(sub)});
+  crumbs.push({label:team.name||"(team)"});
   setBreadcrumb("viewTeam", crumbs);
-
-  /* Header */
-  document.getElementById("teamTitle").textContent = team.name || "(auto-named)";
+  document.getElementById("teamTitle").textContent = team.name||"(auto-named)";
   document.getElementById("teamChips").innerHTML =
     `<span class="chip chip-${team.published?"green":"grey"}">${team.published?"Published":"Draft"}</span>
      <span class="chip chip-blue">${team.registrations_count||0}/${team.volunteers_needed||0} filled</span>`;
   document.getElementById("teamMeta").innerHTML =
     [fmtShift(team),
-     team.function ? "⚙ " + escHtml(team.function.name) : "",
-     team.address  ? "📍 " + escHtml(team.address.name||team.address.city||"") : ""
-    ].filter(Boolean).join(" &nbsp;·&nbsp; ");
-
-  /* Reset tabs to Enrolments */
+     team.function?"⚙ "+escHtml(team.function.name):"",
+     team.address ?"📍 "+escHtml(team.address.name||team.address.city||""):""]
+    .filter(Boolean).join(" &nbsp;·&nbsp; ");
   switchTab("enrolments");
-
-  /* Clear old state */
-  document.getElementById("enrolResults").innerHTML = "";
-  document.getElementById("inviteResultLog").innerHTML = "";
+  document.getElementById("enrolResults").innerHTML="";
+  document.getElementById("inviteResultLog").innerHTML="";
   document.getElementById("enrolForm").classList.add("hidden");
-  state.selectedCollab = null;
-
-  /* Populate function filter with master data if available */
-  const fFunc = document.getElementById("fFunction");
-  /* Already populated by global function list */
-
-  /* Load enrolments */
+  document.getElementById("inviteContractWrap").classList.add("hidden");
+  document.getElementById("inviteResults").innerHTML="";
+  state.selectedCollab=null;
   loadEnrolments(team.id);
 }
 
-/* ================================================================
-   LOAD ENROLMENTS FOR TEAM
-   ================================================================ */
 async function loadEnrolments(teamId){
-  const feed = document.getElementById("enrolmentsFeed");
-  feed.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading enrolments…</p></div>`;
-  try {
-    const data   = await apiGET(`api/v1/admin/teams/${teamId}/enrolments`);
-    const enrols = data.enrolments || [];
-    if(!enrols.length){
-      feed.innerHTML = `<div class="empty"><p>No enrolments yet for this team.</p></div>`;
-      return;
-    }
-    feed.innerHTML = `<div class="enrol-list" id="enrolListInner"></div>`;
-    const list = document.getElementById("enrolListInner");
-    enrols.forEach(e => {
-      const c   = e.collaborator || {};
-      const row = document.createElement("div");
-      row.className = "enrol-item";
-      row.dataset.enrolId = e.id;
-      row.innerHTML = `
+  const feed=document.getElementById("enrolmentsFeed");
+  feed.innerHTML=`<div class="empty"><div class="spinner"></div><p>Loading enrolments…</p></div>`;
+  try{
+    const data=await apiGET(`api/v1/admin/teams/${teamId}/enrolments`);
+    const enrols=data.enrolments||[];
+    if(!enrols.length){ feed.innerHTML=`<div class="empty"><p>No enrolments yet.</p></div>`; return; }
+    feed.innerHTML=`<div class="enrol-list" id="enrolListInner"></div>`;
+    const list=document.getElementById("enrolListInner");
+    enrols.forEach(e=>{
+      const c=e.collaborator||{};
+      const row=document.createElement("div"); row.className="enrol-item"; row.dataset.enrolId=e.id;
+      row.innerHTML=`
         <div class="collab-avatar">${escHtml(initials(c.first_name,c.last_name))}</div>
         <div class="enrol-info">
           <div class="enrol-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
           <div style="font-size:12px;color:var(--muted);">
-            ${e.contract_type ? `<span class="chip chip-grey">${escHtml(e.contract_type)}</span>` : ""}
-            ${e.confirmed ? '<span class="chip chip-green">Confirmed</span>' : '<span class="chip chip-yellow">Unconfirmed</span>'}
-            ${e.cancelled ? '<span class="chip chip-red">Cancelled</span>' : ""}
-            ${c.email ? `<span>${escHtml(c.email)}</span>` : ""}
+            ${e.contract_type?`<span class="chip chip-grey">${escHtml(e.contract_type)}</span>`:""}
+            ${e.confirmed?'<span class="chip chip-green">Confirmed</span>':'<span class="chip chip-yellow">Unconfirmed</span>'}
+            ${e.cancelled?'<span class="chip chip-red">Cancelled</span>':""}
+            ${c.email?`<span>${escHtml(c.email)}</span>`:""}
           </div>
         </div>
-        <div>
-          <button class="btn btn-sm btn-danger" data-cancel-enrol="${escHtml(String(e.id))}">Cancel</button>
-        </div>`;
+        <div><button class="btn btn-sm btn-danger" data-cancel-enrol="${escHtml(String(e.id))}">Cancel</button></div>`;
       list.appendChild(row);
     });
-  } catch(ex) {
-    feed.innerHTML = `<div class="alert alert-error"><b>Could not load enrolments:</b> ${escHtml(ex.message)}</div>`;
+  }catch(ex){
+    feed.innerHTML=`<div class="alert alert-error"><b>Could not load enrolments:</b> ${escHtml(ex.message)}</div>`;
   }
 }
 
-/* ================================================================
-   CANCEL ENROLMENT — delegated click handler
-   ================================================================ */
+/* CANCEL ENROLMENT */
 document.addEventListener("click", async function(ev){
-  const btn = ev.target.closest("[data-cancel-enrol]");
-  if(!btn) return;
-  const enrolId = btn.dataset.cancelEnrol;
+  const btn=ev.target.closest("[data-cancel-enrol]"); if(!btn) return;
+  const enrolId=btn.dataset.cancelEnrol;
   if(!confirm("Cancel this enrolment?")) return;
-  btn.disabled = true; btn.textContent = "…";
-  try {
-    /* POST /api/v1/admin/enrolments/{id}/cancel */
-    await apiDELETEorPOST("POST", `api/v1/admin/enrolments/${enrolId}/cancel`, {});
-    const row = btn.closest(".enrol-item");
-    if(row){
-      row.style.opacity = ".4";
-      row.querySelectorAll("button").forEach(b=>b.disabled=true);
-      row.querySelector(".enrol-info").innerHTML += '<span class="chip chip-red" style="margin-left:6px;">Cancelled</span>';
-    }
-    btn.textContent = "Cancelled";
-  } catch(e) {
-    btn.disabled = false; btn.textContent = "Cancel";
-    alert("Cancel failed: " + e.message);
-  }
+  btn.disabled=true; btn.textContent="…";
+  try{
+    await apiDELETEorPOST("POST",`api/v1/admin/enrolments/${enrolId}/cancel`,{});
+    const row=btn.closest(".enrol-item");
+    if(row){ row.style.opacity=".4"; row.querySelectorAll("button").forEach(b=>b.disabled=true); }
+    btn.textContent="Cancelled";
+  }catch(e){ btn.disabled=false; btn.textContent="Cancel"; alert("Cancel failed: "+e.message); }
 });
 
-/* ================================================================
-   TABS
-   ================================================================ */
+/* TABS */
 function switchTab(name){
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab===name));
-  document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id==="tab-"+name));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));
+  document.querySelectorAll(".tab-pane").forEach(p=>p.classList.toggle("active",p.id==="tab-"+name));
 }
-document.querySelectorAll(".tab").forEach(btn => {
-  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-});
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>switchTab(btn.dataset.tab)));
 
-/* ================================================================
-   SEARCH COLLABORATORS
-   ================================================================ */
+/* SEARCH COLLABORATORS */
 async function searchCollaborators(page){
-  page = page || 1;
-  state.collabPage = page;
-
-  const container = document.getElementById("collabResults");
-  const pagDiv    = document.getElementById("collabPagination");
-  container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
-  pagDiv.innerHTML = "";
-
-  /* Build query — use project's department_id if available */
-  const query = {
-    search:        document.getElementById("fSearch").value.trim()    || undefined,
-    function_id:   document.getElementById("fFunction").value         || undefined,
-    language:      document.getElementById("fLanguage").value         || undefined,
-    archived:      document.getElementById("fArchived").value === "true" ? true : undefined,
-    blocked:       document.getElementById("fBlocked").value  === "true" ? true : undefined,
-    minimum_age:   document.getElementById("fMinAge").value            || undefined,
-    department_id: state.departmentId                                  || undefined,
+  page=page||1; state.collabPage=page;
+  const container=document.getElementById("collabResults");
+  const pagDiv=document.getElementById("collabPagination");
+  container.innerHTML=`<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
+  pagDiv.innerHTML="";
+  const query={
+    search:       document.getElementById("fSearch").value.trim()||undefined,
+    function_id:  document.getElementById("fFunction").value||undefined,
+    language:     document.getElementById("fLanguage").value||undefined,
+    archived:     document.getElementById("fArchived").value==="true"?true:undefined,
+    blocked:      document.getElementById("fBlocked").value==="true"?true:undefined,
+    minimum_age:  document.getElementById("fMinAge").value||undefined,
+    department_id:state.departmentId||undefined,
     page
   };
-  /* Remove undefined */
-  Object.keys(query).forEach(k => query[k]===undefined && delete query[k]);
-
-  try {
-    const data   = await apiGET("api/v1/admin/collaborators", query);
-    const collabs = data.volunteers || data.collaborators || [];
-    const meta    = data.meta || {};
-    state.collabTotal = meta.total_count || collabs.length;
-    const perPage = meta.per_page || 20;
-
-    if(!collabs.length){
-      container.innerHTML = `<div class="empty"><p>No collaborators found matching your filters.</p></div>`;
-      return;
-    }
-
-    container.innerHTML = "";
-    const list = document.createElement("div");
-    list.className = "collab-list";
-    collabs.forEach(c => {
-      const card = document.createElement("div");
-      card.className = "collab-card";
-      card.innerHTML = `
+  Object.keys(query).forEach(k=>query[k]===undefined&&delete query[k]);
+  try{
+    const data=await apiGET("api/v1/admin/collaborators",query);
+    const collabs=data.volunteers||data.collaborators||[];
+    const meta=data.meta||{};
+    state.collabTotal=meta.total_count||collabs.length;
+    const perPage=meta.per_page||20;
+    if(!collabs.length){ container.innerHTML=`<div class="empty"><p>No collaborators found.</p></div>`; return; }
+    container.innerHTML="";
+    const list=document.createElement("div"); list.className="collab-list";
+    collabs.forEach(c=>{
+      const card=document.createElement("div"); card.className="collab-card";
+      card.innerHTML=`
         <div class="collab-avatar">${escHtml(initials(c.first_name,c.last_name))}</div>
         <div class="collab-info">
           <div class="collab-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
           <div class="collab-meta">
-            ${c.email ? escHtml(c.email) : ""}
-            ${c.function ? " · " + escHtml(c.function.name) : ""}
-            ${c.language ? " · " + escHtml(c.language.toUpperCase()) : ""}
-            ${c.blocked  ? ' <span class="chip chip-red">Blocked</span>' : ""}
-            ${c.archived ? ' <span class="chip chip-grey">Archived</span>' : ""}
+            ${c.email?escHtml(c.email):""}
+            ${c.function?" · "+escHtml(c.function.name):""}
+            ${c.language?" · "+escHtml(c.language.toUpperCase()):""}
+            ${c.blocked?'<span class="chip chip-red">Blocked</span>':""}
+            ${c.archived?'<span class="chip chip-grey">Archived</span>':""}
           </div>
         </div>
         <div class="collab-actions">
@@ -1183,251 +953,169 @@ async function searchCollaborators(page){
       list.appendChild(card);
     });
     container.appendChild(list);
-
-    /* Pagination */
-    const totalPages = Math.ceil(state.collabTotal / perPage);
-    if(totalPages > 1){
-      renderPagination(pagDiv, page, totalPages, searchCollaborators);
-    }
-
-  } catch(e) {
-    container.innerHTML = `<div class="alert alert-error"><b>Search failed:</b> ${escHtml(e.message)}</div>`;
+    const totalPages=Math.ceil(state.collabTotal/perPage);
+    if(totalPages>1) renderPagination(pagDiv,page,totalPages,searchCollaborators);
+  }catch(e){
+    container.innerHTML=`<div class="alert alert-error"><b>Search failed:</b> ${escHtml(e.message)}</div>`;
   }
 }
 
 function renderPagination(container, current, total, callback){
-  container.innerHTML = "";
-  const prev = document.createElement("button");
-  prev.className = "page-btn"; prev.textContent = "← Prev"; prev.disabled = current <= 1;
-  prev.addEventListener("click", () => callback(current-1));
-  container.appendChild(prev);
-
-  const info = document.createElement("span");
-  info.style.cssText = "font-size:13px;color:var(--muted);padding:0 8px;";
-  info.textContent = `Page ${current} of ${total}`;
-  container.appendChild(info);
-
-  const next = document.createElement("button");
-  next.className = "page-btn"; next.textContent = "Next →"; next.disabled = current >= total;
-  next.addEventListener("click", () => callback(current+1));
-  container.appendChild(next);
+  container.innerHTML="";
+  const prev=document.createElement("button"); prev.className="page-btn"; prev.textContent="← Prev"; prev.disabled=current<=1;
+  prev.addEventListener("click",()=>callback(current-1)); container.appendChild(prev);
+  const info=document.createElement("span"); info.style.cssText="font-size:13px;color:var(--muted);padding:0 8px;";
+  info.textContent=`Page ${current} of ${total}`; container.appendChild(info);
+  const next=document.createElement("button"); next.className="page-btn"; next.textContent="Next →"; next.disabled=current>=total;
+  next.addEventListener("click",()=>callback(current+1)); container.appendChild(next);
 }
 
-/* Handle "Enrol" button click on a collab card */
-document.addEventListener("click", function(ev){
-  const btn = ev.target.closest("[data-select-collab]");
-  if(!btn) return;
-  state.selectedCollab = { id: btn.dataset.selectCollab, name: btn.dataset.collabName };
-  document.getElementById("enrolTargetName").textContent = btn.dataset.collabName;
+document.addEventListener("click",function(ev){
+  const btn=ev.target.closest("[data-select-collab]"); if(!btn) return;
+  state.selectedCollab={id:btn.dataset.selectCollab, name:btn.dataset.collabName};
+  document.getElementById("enrolTargetName").textContent=btn.dataset.collabName;
   document.getElementById("enrolForm").classList.remove("hidden");
-  document.getElementById("enrolForm").scrollIntoView({ behavior:"smooth", block:"nearest" });
+  document.getElementById("enrolForm").scrollIntoView({behavior:"smooth",block:"nearest"});
 });
 
-document.getElementById("cancelEnrolSelectBtn").addEventListener("click", () => {
-  state.selectedCollab = null;
-  document.getElementById("enrolForm").classList.add("hidden");
+document.getElementById("cancelEnrolSelectBtn").addEventListener("click",()=>{
+  state.selectedCollab=null; document.getElementById("enrolForm").classList.add("hidden");
 });
 
-/* ================================================================
-   CONFIRM ENROLMENT
-   ================================================================ */
-document.getElementById("confirmEnrolBtn").addEventListener("click", async () => {
-  if(!state.selectedCollab || !state.selectedTeam) return;
-
-  const contractType = document.getElementById("contractType").value;
-  const isInvite     = document.getElementById("enrolInvite").value === "true";
-
+/* CONFIRM ENROLMENT */
+document.getElementById("confirmEnrolBtn").addEventListener("click",async()=>{
+  if(!state.selectedCollab||!state.selectedTeam) return;
+  const contractType=document.getElementById("contractType").value;
+  const isInvite=document.getElementById("enrolInvite").value==="true";
   if(!contractType){ alert("Please select a contract type."); return; }
-
-  const btn = document.getElementById("confirmEnrolBtn");
-  btn.disabled = true; btn.textContent = "…";
-
-  const resultFeed = document.getElementById("enrolResults");
-
-  try {
-    const payload = {
-      enrolment: {
-        volunteer_id:  state.selectedCollab.id,
-        team_id:       state.selectedTeam.id,
-        contract_type: contractType,
-        invitation:    isInvite
-      }
-    };
-    const res = await apiPOST("api/v1/admin/enrolments", payload);
-
-    const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
-    const action  = isInvite ? "Invitation sent" : "Enrolled";
-
-    appendResult(resultFeed, "success",
-      `<b>${action}:</b> ${escHtml(state.selectedCollab.name)} → Team "${escHtml(state.selectedTeam.name||"")}" (enrolment #${escHtml(String(enrolId))})`);
-
-    /* Reset form */
-    state.selectedCollab = null;
+  const btn=document.getElementById("confirmEnrolBtn");
+  btn.disabled=true; btn.textContent="…";
+  const resultFeed=document.getElementById("enrolResults");
+  try{
+    const payload={enrolment:{volunteer_id:state.selectedCollab.id, team_id:state.selectedTeam.id, contract_type:contractType, invitation:isInvite}};
+    const res=await apiPOST("api/v1/admin/enrolments",payload);
+    const enrolId=(res.enrolment&&res.enrolment.id)||res.id||"?";
+    const action=isInvite?"Invitation sent":"Enrolled";
+    appendResult(resultFeed,"success",`<b>${action}:</b> ${escHtml(state.selectedCollab.name)} → Team "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
+    state.selectedCollab=null;
     document.getElementById("enrolForm").classList.add("hidden");
-    document.getElementById("contractType").value = "";
-
-    /* Reload enrolments tab */
+    document.getElementById("contractType").value="";
     loadEnrolments(state.selectedTeam.id);
-
-  } catch(e) {
-    appendResult(resultFeed, "error", `<b>Error:</b> ${e.message}`);
-  } finally {
-    btn.disabled = false; btn.textContent = "Confirm enrolment";
-  }
+  }catch(e){ appendResult(resultFeed,"error",`<b>Error:</b> ${e.message}`); }
+  finally{ btn.disabled=false; btn.textContent="Confirm enrolment"; }
 });
 
-/* ================================================================
-   SEARCH COLLABORATORS (filter bar)
-   ================================================================ */
-document.getElementById("searchCollabBtn").addEventListener("click", () => searchCollaborators(1));
-document.getElementById("fSearch").addEventListener("keydown", e => { if(e.key==="Enter") searchCollaborators(1); });
-
-document.getElementById("clearFiltersBtn").addEventListener("click", () => {
-  ["fSearch","fMinAge"].forEach(id => document.getElementById(id).value = "");
-  ["fFunction","fLanguage","fArchived","fBlocked"].forEach(id => document.getElementById(id).selectedIndex = 0);
-  document.getElementById("collabResults").innerHTML = "";
-  document.getElementById("collabPagination").innerHTML = "";
+document.getElementById("searchCollabBtn").addEventListener("click",()=>searchCollaborators(1));
+document.getElementById("fSearch").addEventListener("keydown",e=>{if(e.key==="Enter") searchCollaborators(1);});
+document.getElementById("clearFiltersBtn").addEventListener("click",()=>{
+  ["fSearch","fMinAge"].forEach(id=>document.getElementById(id).value="");
+  ["fFunction","fLanguage","fArchived","fBlocked"].forEach(id=>document.getElementById(id).selectedIndex=0);
+  document.getElementById("collabResults").innerHTML="";
+  document.getElementById("collabPagination").innerHTML="";
 });
 
-/* ================================================================
-   INVITE SEARCH (simple name search, then invite button per result)
-   ================================================================ */
-document.getElementById("inviteSearchBtn").addEventListener("click", async () => {
-  const q = document.getElementById("inviteSearch").value.trim();
+/* INVITE SEARCH */
+document.getElementById("inviteSearchBtn").addEventListener("click",async()=>{
+  const q=document.getElementById("inviteSearch").value.trim();
   if(!q){ alert("Enter a name to search."); return; }
-  const container = document.getElementById("inviteResults");
-  container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
-  try {
-    const data    = await apiGET("api/v1/admin/collaborators", {
-      search: q,
-      department_id: state.departmentId || undefined,
-      archived: undefined
-    });
-    const collabs = data.volunteers || data.collaborators || [];
-    if(!collabs.length){
-      container.innerHTML = `<div class="empty"><p>No collaborators found.</p></div>`;
-      return;
-    }
-    container.innerHTML = "";
-    const list = document.createElement("div"); list.className = "collab-list";
-    collabs.forEach(c => {
-      const card = document.createElement("div"); card.className = "collab-card";
-      card.innerHTML = `
+  const container=document.getElementById("inviteResults");
+  container.innerHTML=`<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
+  document.getElementById("inviteContractWrap").classList.add("hidden");
+  try{
+    const data=await apiGET("api/v1/admin/collaborators",{search:q, department_id:state.departmentId||undefined});
+    const collabs=data.volunteers||data.collaborators||[];
+    if(!collabs.length){ container.innerHTML=`<div class="empty"><p>No collaborators found.</p></div>`; return; }
+    container.innerHTML="";
+    const list=document.createElement("div"); list.className="collab-list";
+    collabs.forEach(c=>{
+      const card=document.createElement("div"); card.className="collab-card";
+      card.innerHTML=`
         <div class="collab-avatar">${escHtml(initials(c.first_name,c.last_name))}</div>
         <div class="collab-info">
           <div class="collab-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
-          <div class="collab-meta">${c.email ? escHtml(c.email) : ""}</div>
+          <div class="collab-meta">${c.email?escHtml(c.email):""}</div>
         </div>
         <div class="collab-actions">
-          <button class="btn btn-success btn-sm" data-invite-collab="${escHtml(String(c.id))}" data-invite-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Invite</button>
+          <button class="btn btn-success btn-sm"
+            data-invite-collab="${escHtml(String(c.id))}"
+            data-invite-name="${escHtml(((c.first_name||"")+" "+(c.last_name||"")).trim())}">Invite</button>
         </div>`;
       list.appendChild(card);
     });
     container.appendChild(list);
-  } catch(e) {
-    container.innerHTML = `<div class="alert alert-error">${escHtml(e.message)}</div>`;
-  }
+    document.getElementById("inviteContractWrap").classList.remove("hidden");
+  }catch(e){ container.innerHTML=`<div class="alert alert-error">${escHtml(e.message)}</div>`; }
 });
 
-/* Handle "Invite" button */
-document.addEventListener("click", async function(ev){
-  const btn = ev.target.closest("[data-invite-collab]");
-  if(!btn) return;
+/* INVITE BUTTON — requires contract_type */
+document.addEventListener("click",async function(ev){
+  const btn=ev.target.closest("[data-invite-collab]"); if(!btn) return;
   if(!state.selectedTeam){ alert("No team selected."); return; }
-
-  const collabId   = btn.dataset.inviteCollab;
-  const collabName = btn.dataset.inviteName;
-  const log        = document.getElementById("inviteResultLog");
-
-  btn.disabled = true; btn.textContent = "…";
-  try {
-    /* Beeple invitation: POST enrolment with invitation:true */
-    const res = await apiPOST("api/v1/admin/enrolments", {
-      enrolment: {
-        volunteer_id: collabId,
-        team_id:      state.selectedTeam.id,
-        invitation:   true
-      }
+  const contractType=document.getElementById("inviteContractType").value;
+  if(!contractType){ alert("Please select a contract type for the invitation."); return; }
+  const collabId=btn.dataset.inviteCollab;
+  const collabName=btn.dataset.inviteName;
+  const log=document.getElementById("inviteResultLog");
+  btn.disabled=true; btn.textContent="…";
+  try{
+    const res=await apiPOST("api/v1/admin/enrolments",{
+      enrolment:{volunteer_id:collabId, team_id:state.selectedTeam.id, contract_type:contractType, invitation:true}
     });
-    const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
-    appendResult(log, "success",
-      `<b>Invitation sent</b> to ${escHtml(collabName)} for team "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
-    btn.textContent = "✓ Sent";
-  } catch(e) {
-    appendResult(log, "error", `<b>Failed for ${escHtml(collabName)}:</b> ${e.message}`);
-    btn.disabled = false; btn.textContent = "Invite";
+    const enrolId=(res.enrolment&&res.enrolment.id)||res.id||"?";
+    appendResult(log,"success",`<b>Invitation sent</b> to ${escHtml(collabName)} for "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
+    btn.textContent="✓ Sent";
+  }catch(e){
+    appendResult(log,"error",`<b>Failed for ${escHtml(collabName||"?")}:</b> ${e.message}`);
+    btn.disabled=false; btn.textContent="Invite";
   }
 });
 
-/* ================================================================
-   BREADCRUMB BUILDER
-   ================================================================ */
+/* BREADCRUMB */
 function setBreadcrumb(containerId, crumbs){
-  const el = document.getElementById(containerId === "viewTeam" ? "breadcrumbTeam" : "breadcrumb");
-  el.innerHTML = "";
-  crumbs.forEach((c, i) => {
-    if(i > 0){
-      const sep = document.createElement("span");
-      sep.textContent = "›";
-      el.appendChild(sep);
-    }
-    if(c.action){
-      const a = document.createElement("a");
-      a.textContent = c.label;
-      a.addEventListener("click", c.action);
-      el.appendChild(a);
-    } else {
-      const s = document.createElement("span");
-      s.textContent = c.label;
-      el.appendChild(s);
-    }
+  const el=document.getElementById(containerId==="viewTeam"?"breadcrumbTeam":"breadcrumb");
+  el.innerHTML="";
+  crumbs.forEach((c,i)=>{
+    if(i>0){ const sep=document.createElement("span"); sep.textContent="›"; el.appendChild(sep); }
+    if(c.action){ const a=document.createElement("a"); a.textContent=c.label; a.addEventListener("click",c.action); el.appendChild(a); }
+    else{ const s=document.createElement("span"); s.textContent=c.label; el.appendChild(s); }
   });
 }
 
-/* ================================================================
-   LOAD FUNCTION LIST FOR FILTER DROPDOWN
-   ================================================================ */
+/* LOAD FUNCTIONS FOR FILTER */
 async function loadFunctions(){
-  try {
-    const data = await apiGET("api/v1/admin/functions");
-    const fns  = data.functions || [];
-    const sel  = document.getElementById("fFunction");
-    fns.forEach(f => {
-      const o = document.createElement("option");
-      o.value = f.id; o.textContent = f.name;
-      sel.appendChild(o);
-    });
-  } catch {}
+  try{
+    const data=await apiGET("api/v1/admin/functions");
+    const fns=data.functions||[];
+    const sel=document.getElementById("fFunction");
+    fns.forEach(f=>{ const o=document.createElement("option"); o.value=f.id; o.textContent=f.name; sel.appendChild(o); });
+  }catch{}
 }
 
-/* ================================================================
-   INIT
-   ================================================================ */
+/* DEBUG CLEAR */
+if(DEBUG){
+  document.getElementById("debugClearBtn").addEventListener("click",()=>{
+    document.getElementById("debugLog").textContent="";
+  });
+}
+
+/* INIT */
 (function init(){
-  /* Theme */
-  const t = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", t);
+  const t=localStorage.getItem("theme")||"light";
+  document.documentElement.setAttribute("data-theme",t);
   syncTheme();
 
-  /* Cookie banner */
-  if(!getCookie("beeple_cookie_ok")){
-    document.getElementById("cookie").classList.remove("hidden");
+  if(DEBUG){
+    document.getElementById("debugSection").classList.remove("hidden");
+    dlog("Debug mode ON. BASE="+BASE);
   }
-  document.getElementById("cookieOk").addEventListener("click", () => {
-    setCookie("beeple_cookie_ok","1");
-    document.getElementById("cookie").classList.add("hide");
-    setTimeout(() => document.getElementById("cookie").classList.add("hidden"), 380);
-  });
 
-  /* Check if we have a connection */
-  if(!BASE || !TOKEN){
+  if(!BASE||!TOKEN){
     showView("viewNotConnected");
-    document.getElementById("projListMsg").innerHTML =
-      `<span style="color:var(--warn);">Please <a href="index.html">connect first</a>.</span>`;
+    document.getElementById("projListMsg").innerHTML=
+      `<span style="color:var(--warn);">Please <a href="index.html">log in first</a>.</span>`;
     return;
   }
 
-  /* Load everything */
   loadProjects();
   loadFunctions();
 })();
