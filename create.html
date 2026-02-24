@@ -171,17 +171,18 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
   <div class="brand">
     <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
   </div>
-  <div class="title">Team creation</div>
+  <div class="title">Quick team creation</div>
   <!-- spacer to balance hamburger -->
   <div style="width:40px;flex-shrink:0;"></div>
 </div>
 
 <!-- NAV MENU -->
 <nav id="navMenu" class="nav-menu" aria-label="Main navigation">
-  <a href="create.html" class="nav-item active">Team creation</a>
+  <a href="create.html" class="nav-item active">Quick team creation</a>
   <a href="planning.html" class="nav-item">Planning</a>
-  <button id="logoutBtn" class="nav-item danger">Log out</button>
   <button id="themeBtn" class="nav-item">Dark mode</button>
+  <button id="debugToggleBtn" class="nav-item">Debug mode</button>
+  <button id="logoutBtn" class="nav-item danger">Log out</button>
 </nav>
 <div id="navOverlay" class="nav-overlay"></div>
 
@@ -189,19 +190,9 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
   <!-- Debug banner (only shown when debug=Y) -->
   <div id="debugBanner" class="debug-banner hidden">Debug mode active — full API responses shown in logs.</div>
 
-  <!-- Notice -->
-  <div class="notice"><b>Security notice:</b> your API token is stored in session storage and will be cleared when you close the browser tab.</div>
-
   <!-- Create single team -->
-  <section class="card collapsible" id="sec-single">
-    <div class="head">
-      <h2>Create team</h2>
-      <div class="tools">
-        <button class="btn btn-ghost" data-toggle="#sec-single" data-role="collapse">Collapse</button>
-        <button class="btn btn-ghost hidden" data-toggle="#sec-single">Expand</button>
-      </div>
-    </div>
-    <div class="body">
+  <section class="card" id="sec-single">
+    <h2>Create team</h2>
       <div id="projectBlock" class="hidden">
         <label class="required">Project</label>
         <select id="projectSelect"></select>
@@ -289,7 +280,6 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
         <button id="loadBtn" class="btn secondary">Reload tenant data</button>
       </div>
       <div id="createResult" style="margin-top:8px;"></div>
-    </div>
   </section>
 
   <!-- Created teams -->
@@ -311,23 +301,17 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
     </div>
   </section>
 
-  <!-- Logs -->
-  <section class="card collapsible" id="sec-logs">
-    <div class="head">
-      <h2>Logs</h2>
-      <div class="tools">
-        <button class="btn btn-ghost" data-toggle="#sec-logs" data-role="collapse">Collapse</button>
-        <button class="btn btn-ghost hidden" data-toggle="#sec-logs">Expand</button>
-      </div>
-    </div>
-    <div class="body"><pre id="log">Ready</pre></div>
+  <!-- Logs (only visible in debug mode) -->
+  <section class="card hidden" id="sec-logs">
+    <h2>Logs</h2>
+    <pre id="log">Ready</pre>
   </section>
 </main>
 
 <script>
 const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
 const debugParam = new URLSearchParams(location.search).get("debug");
-const DEBUG = debugParam === "1" || debugParam === "Y" || debugParam === "y";
+let DEBUG = debugParam === "1" || debugParam === "Y" || debugParam === "y";
 
 /* ---- Auth guard: redirect to login if no token ---- */
 const BASE  = localStorage.getItem("bwBase")  || "";
@@ -354,7 +338,18 @@ document.getElementById("themeBtn").addEventListener("click", () => {
 });
 
 /* ---- Debug ---- */
-if(DEBUG){ document.getElementById("debugBanner").classList.remove("hidden"); }
+function syncDebug(){
+  document.getElementById("debugBanner").classList.toggle("hidden", !DEBUG);
+  document.getElementById("sec-logs").classList.toggle("hidden", !DEBUG);
+  document.getElementById("debugToggleBtn").textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
+}
+syncDebug();
+
+document.getElementById("debugToggleBtn").addEventListener("click", () => {
+  DEBUG = !DEBUG;
+  syncDebug();
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+});
 
 /* ---- Hamburger nav menu ---- */
 const navMenu    = document.getElementById("navMenu");
@@ -394,7 +389,7 @@ async function proxyGET(path){
   const res = await fetch(proxyUrl(path), { headers:{"X-Beeple-Token": TOKEN} });
   const txt = await res.text();
   L("<-", res.status);
-  if(DEBUG || !res.ok) L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
+  L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
   addGap();
   if(!res.ok) throw new Error("HTTP "+res.status+" on GET "+path+(DEBUG?" — "+txt.slice(0,200):""));
   try{ return txt ? JSON.parse(txt) : {}; }catch{ return{raw:txt}; }
@@ -407,7 +402,7 @@ async function proxyPOST(path, payload){
   const res = await fetch(proxyUrl(path), { method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body });
   const txt = await res.text();
   L("<-", res.status);
-  if(DEBUG || !res.ok) L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
+  L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
   addGap();
   if(!res.ok){
     let r = "HTTP " + res.status;
@@ -423,7 +418,7 @@ async function proxyDELETE(path){
   const res = await fetch(proxyUrl(path), { method:"DELETE", headers:{"X-Beeple-Token":TOKEN} });
   const txt = await res.text();
   L("<-", res.status);
-  if(DEBUG || !res.ok) L(txt);
+  L(txt);
   addGap();
   if(!res.ok) throw new Error("HTTP "+res.status+(DEBUG?" — "+txt.slice(0,200):""));
   return true;
@@ -684,7 +679,7 @@ els.autoName.addEventListener("change", () => els.teamNameWrap.classList.toggle(
   els.shiftEnd.value   = fmt(e);
 
   els.teamNameWrap.classList.toggle("hidden", els.autoName.value === "yes");
-  ["sec-single","sec-created","sec-logs"].forEach(id => toggleSection(el(id), true));
+  toggleSection(el("sec-created"), true);
 
   loadTenant();
 })();
