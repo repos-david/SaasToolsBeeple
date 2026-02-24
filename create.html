@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Team creation — Beeple</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
+<style>
+:root {
+  --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
+  --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --danger:#ef6b6b;
+  --success:#22c55e; --successSoft:#dcfce7;
+  --border:rgba(15,23,42,.10); --field:#ffffff; --fieldBorder:#e5e7eb;
+  --tableHead:#eef2ff; --radius:10px; --radius-lg:14px;
+  --shadow:0 4px 20px rgba(15,23,42,.08),0 1px 0 rgba(15,23,42,.04);
+}
+[data-theme="dark"] {
+  --bg:#0b1020; --bg2:#0e1428; --card:#0f1630; --text:#e8ecff; --muted:#b8c3ef;
+  --accent:#5aa2ff; --accent2:#7ec3ff; --accentSoft:#0e2244; --danger:#e66d6d;
+  --success:#4ade80; --successSoft:#052e16;
+  --border:rgba(255,255,255,.14); --field:#121b39; --fieldBorder:rgba(255,255,255,.18);
+  --tableHead:#13224a; --shadow:0 8px 28px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.04);
+}
+*,*::before,*::after { box-sizing:border-box; max-width:100%; }
+html { overflow-x:clip; }
+body {
+  margin:0; overflow-x:clip;
+  background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+  color:var(--text);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px; line-height:1.55;
+  -webkit-text-size-adjust:100%; text-size-adjust:100%;
+}
+/* TOP BAR */
+.topbar {
+  position:sticky; top:0; z-index:30;
+  background:var(--card); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+  padding:10px 16px;
+}
+.topbar .brand img { height:22px; width:auto; display:block; }
+.topbar .title { font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center; }
+.icon-btn {
+  width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
+  background:var(--accentSoft); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0; color:var(--accent);
+}
+[data-theme="dark"] .icon-btn { color:var(--accent2); }
+.icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* NAV MENU */
+.nav-menu {
+  position:fixed; top:55px; left:0; z-index:25;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:0 0 var(--radius-lg) 0;
+  box-shadow:var(--shadow);
+  min-width:210px;
+  transform:translateX(-110%);
+  transition:transform .25s ease;
+}
+.nav-menu.open { transform:translateX(0); }
+.nav-item {
+  display:block; padding:14px 20px; font-weight:600; font-size:15px;
+  color:var(--text); text-decoration:none; cursor:pointer;
+  border-bottom:1px solid var(--border);
+}
+.nav-item:hover { background:var(--accentSoft); }
+.nav-item.active { color:var(--accent); background:var(--accentSoft); border-left:3px solid var(--accent); }
+button.nav-item {
+  width:100%; text-align:left; background:none; border:none;
+  border-bottom:1px solid var(--border);
+  font-family:inherit; font-size:15px; font-weight:600; padding:14px 20px;
+  color:var(--text); cursor:pointer;
+}
+button.nav-item:hover { background:var(--accentSoft); }
+button.nav-item.danger { color:var(--danger); }
+.nav-overlay {
+  display:none; position:fixed; inset:0; z-index:24; background:rgba(0,0,0,.3);
+}
+.nav-overlay.show { display:block; }
+/* CONTAINER */
+.container { width:100%; max-width:980px; margin:14px auto 36px; padding:0 12px; display:grid; gap:14px; }
+/* CARDS */
+.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow); overflow:hidden; min-width:0; }
+.card h2 { margin:0 0 10px; font-size:17px; }
+.sub { color:var(--muted); font-size:13px; margin-top:4px; }
+@media(max-width:400px){ .card{padding:12px;} }
+/* FORM ELEMENTS */
+input,select,textarea {
+  display:block; width:100%; padding:11px 12px;
+  border:1px solid var(--fieldBorder); border-radius:var(--radius);
+  background:var(--field); color:var(--text); font-family:inherit;
+  font-size:16px; line-height:1.4;
+  transition:border-color .15s,box-shadow .15s;
+  -webkit-appearance:none; appearance:none;
+}
+input::placeholder,textarea::placeholder { color:var(--muted); opacity:.6; }
+input:focus,select:focus,textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
+select {
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; cursor:pointer;
+}
+/* LABELS */
+label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
+label:first-child { margin-top:4px; }
+.required::after { content:" *"; color:var(--accent); }
+/* BUTTONS */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:auto; border:none; border-radius:var(--radius);
+  padding:11px 18px; font-family:inherit; font-size:14px; font-weight:700; line-height:1.2;
+  cursor:pointer; min-height:44px; white-space:nowrap;
+  transition:filter .15s,opacity .15s;
+}
+.btn.primary { background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; }
+.btn.primary:hover { filter:brightness(1.08); }
+.btn.secondary { background:#edf2ff; color:#0f172a; border:1px solid var(--border); }
+[data-theme="dark"] .btn.secondary { background:#1e2a45; color:#e5e7eb; }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--muted); padding:6px 12px; min-height:36px; font-size:13px; }
+/* COLLAPSIBLE */
+.collapsible .head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.collapsible .head h2 { margin-bottom:0; flex:1 1 auto; }
+.collapsible .tools { display:flex; gap:6px; flex-shrink:0; }
+.collapsible .body { margin-top:14px; }
+.collapsed .body { display:none; }
+/* GRID ROWS */
+.row   { display:grid; grid-template-columns:1fr 1fr;     gap:10px; }
+.row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+@media(max-width:560px){ .row,.row-3 { grid-template-columns:1fr; } }
+/* BUTTON ROW */
+.btn-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+@media(max-width:440px){ .btn-row{flex-direction:column;} .btn-row .btn{width:100%;} }
+/* NOTICE */
+.notice { padding:12px 14px; border:1px dashed #f59e0b; border-radius:10px; background:rgba(245,158,11,.10); color:#92400e; font-size:14px; word-break:break-word; }
+[data-theme="dark"] .notice { color:#fbbf24; }
+.notice b { font-weight:800; }
+/* ALERT */
+.alert { padding:12px 14px; border-radius:var(--radius); font-size:14px; margin-top:8px; word-break:break-word; }
+.alert-error   { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
+.alert-success { background:var(--successSoft); border:1px solid #86efac; color:#166534; }
+[data-theme="dark"] .alert-error   { color:#fca5a5; }
+[data-theme="dark"] .alert-success { color:#86efac; }
+/* UTILITY */
+.hidden { display:none !important; }
+/* TABLES */
+.table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:var(--radius); }
+table { min-width:620px; width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--fieldBorder); border-radius:10px; overflow:hidden; background:var(--field); }
+th,td { padding:9px 11px; border-bottom:1px solid var(--fieldBorder); vertical-align:top; white-space:nowrap; font-size:13px; }
+th { background:var(--tableHead); color:#0b1740; text-align:left; font-weight:700; }
+[data-theme="dark"] th { color:#d9e3ff; }
+tr:last-child td { border-bottom:0; }
+.table-note { padding:14px 12px; color:var(--muted); white-space:normal; font-size:13px; }
+/* LOG */
+pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:12px; font-size:12px; max-height:38vh; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; }
+[data-theme="dark"] pre { background:#070e1f; color:#c7dbff; }
+/* ANIMATION */
+@keyframes slideRight { to { opacity:0; transform:translateX(60%); } }
+.slideRight { animation:slideRight .35s ease forwards; }
+/* DEBUG BANNER */
+.debug-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--radius); padding:8px 14px; font-size:13px; color:#92400e; }
+[data-theme="dark"] .debug-banner { background:#451a03; color:#fbbf24; border-color:#b45309; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <button class="icon-btn" id="hamburgerBtn" aria-label="Menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="brand">
+    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
+  </div>
+  <div class="title">Team creation</div>
+  <!-- spacer to balance hamburger -->
+  <div style="width:40px;flex-shrink:0;"></div>
+</div>
+
+<!-- NAV MENU -->
+<nav id="navMenu" class="nav-menu" aria-label="Main navigation">
+  <a href="create.html" class="nav-item active">Team creation</a>
+  <a href="planning.html" class="nav-item">Planning</a>
+  <button id="logoutBtn" class="nav-item danger">Log out</button>
+  <button id="themeBtn" class="nav-item">Dark mode</button>
+</nav>
+<div id="navOverlay" class="nav-overlay"></div>
+
+<main class="container">
+  <!-- Debug banner (only shown when debug=Y) -->
+  <div id="debugBanner" class="debug-banner hidden">Debug mode active — full API responses shown in logs.</div>
+
+  <!-- Notice -->
+  <div class="notice"><b>Security notice:</b> your API token is stored in session storage and will be cleared when you close the browser tab.</div>
+
+  <!-- Create single team -->
+  <section class="card collapsible" id="sec-single">
+    <div class="head">
+      <h2>Create team</h2>
+      <div class="tools">
+        <button class="btn btn-ghost" data-toggle="#sec-single" data-role="collapse">Collapse</button>
+        <button class="btn btn-ghost hidden" data-toggle="#sec-single">Expand</button>
+      </div>
+    </div>
+    <div class="body">
+      <div id="projectBlock" class="hidden">
+        <label class="required">Project</label>
+        <select id="projectSelect"></select>
+      </div>
+      <div id="subprojectBlock" class="hidden">
+        <label class="required">Subproject</label>
+        <select id="subprojectSelect"></select>
+      </div>
+      <div class="row">
+        <div>
+          <label>Auto-generate name</label>
+          <select id="autoName"><option value="yes" selected>Yes</option><option value="no">No</option></select>
+        </div>
+        <div id="teamNameWrap" class="hidden">
+          <label>Team name</label>
+          <input id="teamName" placeholder="Team name">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label class="required">Volunteers needed</label>
+          <input id="volNeeded" type="number" inputmode="numeric" min="0" value="1">
+        </div>
+        <div id="functionBlock" class="hidden">
+          <label class="required">Function</label>
+          <select id="functionSelect"></select>
+        </div>
+      </div>
+      <div id="addressBlock" class="hidden">
+        <label class="required">Work location</label>
+        <select id="addressSelect"></select>
+      </div>
+      <div class="row">
+        <div>
+          <label class="required">Shift start (local)</label>
+          <input id="shiftStart" type="datetime-local">
+        </div>
+        <div>
+          <label class="required">Shift end (local)</label>
+          <input id="shiftEnd" type="datetime-local">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label class="required">Draft mode</label>
+          <select id="draftMode"><option value="yes" selected>Yes</option><option value="no">No</option></select>
+        </div>
+        <div id="compBlock" class="hidden">
+          <label>Team compensation</label>
+          <select id="compensationSelect"></select>
+        </div>
+      </div>
+      <label>Max travel distance (km)</label>
+      <input id="maxTravelKm" type="number" inputmode="numeric" min="0">
+      <label>Extra practical info</label>
+      <textarea id="extraInfo" rows="3" placeholder="extra info"></textarea>
+      <!-- Advanced collapsed by default -->
+      <div class="collapsible collapsed" id="sec-advanced">
+        <div class="head" style="margin-top:16px;">
+          <h2 style="font-size:15px;margin:0;">Advanced fields</h2>
+          <div class="tools">
+            <button class="btn btn-ghost" data-toggle="#sec-advanced">Expand</button>
+            <button class="btn btn-ghost hidden" data-toggle="#sec-advanced" data-role="collapse">Collapse</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="row">
+            <div><label>Relative check-in start (HH:MM)</label><input id="relCheckinStart" placeholder="00:30"></div>
+            <div><label>Relative check-in duration (HH:MM)</label><input id="relCheckinDuration" placeholder="00:15"></div>
+          </div>
+          <div class="row">
+            <div><label>Work location specification</label><input id="locationSpec" placeholder="At the entrance"></div>
+            <div><label>Minimal age</label><input id="minimalAge" type="number" inputmode="numeric" min="0" placeholder="18"></div>
+          </div>
+          <label>Client experience required</label>
+          <select id="clientExperience">
+            <option value="">(not set)</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="createSingleBtn" class="btn primary">Create team</button>
+        <button id="loadBtn" class="btn secondary">Reload tenant data</button>
+      </div>
+      <div id="createResult" style="margin-top:8px;"></div>
+    </div>
+  </section>
+
+  <!-- Created teams -->
+  <section class="card collapsible" id="sec-created">
+    <div class="head">
+      <h2>Created teams</h2>
+      <div class="tools">
+        <button class="btn btn-ghost" data-toggle="#sec-created" data-role="collapse">Collapse</button>
+        <button class="btn btn-ghost hidden" data-toggle="#sec-created">Expand</button>
+      </div>
+    </div>
+    <div class="body">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Project</th><th>Subproject</th><th>Name</th><th>Function</th><th>Address</th><th>Comp.</th><th>Shift</th><th>Action</th></tr></thead>
+          <tbody id="createdTbody"><tr><td class="table-note" colspan="9">Nothing created yet.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Logs -->
+  <section class="card collapsible" id="sec-logs">
+    <div class="head">
+      <h2>Logs</h2>
+      <div class="tools">
+        <button class="btn btn-ghost" data-toggle="#sec-logs" data-role="collapse">Collapse</button>
+        <button class="btn btn-ghost hidden" data-toggle="#sec-logs">Expand</button>
+      </div>
+    </div>
+    <div class="body"><pre id="log">Ready</pre></div>
+  </section>
+</main>
+
+<script>
+const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
+const debugParam = new URLSearchParams(location.search).get("debug");
+const DEBUG = debugParam === "1" || debugParam === "Y" || debugParam === "y";
+
+/* ---- Auth guard: redirect to login if no token ---- */
+const BASE  = localStorage.getItem("bwBase")  || "";
+const TOKEN = sessionStorage.getItem("bwToken") || "";
+if(!BASE || !TOKEN){
+  window.location.replace("index.html");
+}
+
+/* ---- Theme ---- */
+(function(){
+  const t = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", t);
+  syncThemeBtn();
+})();
+function syncThemeBtn(){
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.getElementById("themeBtn").textContent = dark ? "Light mode" : "Dark mode";
+}
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+  syncThemeBtn();
+});
+
+/* ---- Debug ---- */
+if(DEBUG){ document.getElementById("debugBanner").classList.remove("hidden"); }
+
+/* ---- Hamburger nav menu ---- */
+const navMenu    = document.getElementById("navMenu");
+const navOverlay = document.getElementById("navOverlay");
+document.getElementById("hamburgerBtn").addEventListener("click", () => {
+  navMenu.classList.toggle("open");
+  navOverlay.classList.toggle("show");
+});
+navOverlay.addEventListener("click", () => {
+  navMenu.classList.remove("open");
+  navOverlay.classList.remove("show");
+});
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem("bwToken");
+  window.location.replace("index.html");
+});
+
+/* ---- Per-tenant form state (in cookies, keyed by tenant URL) ---- */
+function setCookie(k,v,days=365){ const exp=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${exp};path=/;SameSite=Lax`; }
+function getCookie(k){ return document.cookie.split("; ").reduce((r,v)=>{ const[n,...rest]=v.split("="); return n===k?decodeURIComponent(rest.join("=")):r; },""); }
+function tenantKey(){ return BASE.replace(/^https?:\/\//,"").replace(/[^\w.-]/g,"_"); }
+const savePerTenant = (k,v) => { const t=tenantKey(); if(t) setCookie(`beeple_${t}_${k}`,v); };
+const loadPerTenant = k    => { const t=tenantKey(); return t?getCookie(`beeple_${t}_${k}`):""};
+
+/* ---- Log ---- */
+const logEl = document.getElementById("log");
+const L = (...a) => { logEl.textContent += a.join(" ") + "\n"; logEl.scrollTop = logEl.scrollHeight; };
+const addGap = () => { logEl.textContent += "\n"; };
+function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+function extractErr(e){ if(!e)return"Unknown error"; if(typeof e==="string")return e; if(e.message)return e.message; try{return JSON.stringify(e);}catch{return String(e);} }
+
+/* ---- Proxy helpers ---- */
+function proxyUrl(path){ return `${PROXY_URL}?base=${encodeURIComponent(BASE)}&path=${encodeURIComponent(path)}${DEBUG?"&debug=1":""}`; }
+
+async function proxyGET(path){
+  L("GET", path);
+  const res = await fetch(proxyUrl(path), { headers:{"X-Beeple-Token": TOKEN} });
+  const txt = await res.text();
+  L("<-", res.status);
+  if(DEBUG || !res.ok) L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
+  addGap();
+  if(!res.ok) throw new Error("HTTP "+res.status+" on GET "+path+(DEBUG?" — "+txt.slice(0,200):""));
+  try{ return txt ? JSON.parse(txt) : {}; }catch{ return{raw:txt}; }
+}
+
+async function proxyPOST(path, payload){
+  const body = JSON.stringify(payload);
+  L("POST", path);
+  L("Body:", body.length > 1500 ? body.slice(0,1500)+"…" : body);
+  const res = await fetch(proxyUrl(path), { method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body });
+  const txt = await res.text();
+  L("<-", res.status);
+  if(DEBUG || !res.ok) L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
+  addGap();
+  if(!res.ok){
+    let r = "HTTP " + res.status;
+    try{ const j=JSON.parse(txt); if(j&&j.error)r=j.error; if(j&&j.errors)r=JSON.stringify(j.errors); }catch{}
+    if(DEBUG) r += " — " + txt.slice(0,200);
+    throw new Error(r);
+  }
+  try{ return txt ? JSON.parse(txt) : {}; }catch{ return{raw:txt}; }
+}
+
+async function proxyDELETE(path){
+  L("DELETE", path);
+  const res = await fetch(proxyUrl(path), { method:"DELETE", headers:{"X-Beeple-Token":TOKEN} });
+  const txt = await res.text();
+  L("<-", res.status);
+  if(DEBUG || !res.ok) L(txt);
+  addGap();
+  if(!res.ok) throw new Error("HTTP "+res.status+(DEBUG?" — "+txt.slice(0,200):""));
+  return true;
+}
+
+/* ---- State ---- */
+const state = {
+  maps: { projects:{}, subprojects:{}, functions:{}, addresses:{}, compensations:{} },
+  created: []
+};
+
+/* ---- DOM shortcuts ---- */
+const el = id => document.getElementById(id);
+const els = {
+  projectBlock:    el("projectBlock"),
+  subprojectBlock: el("subprojectBlock"),
+  functionBlock:   el("functionBlock"),
+  addressBlock:    el("addressBlock"),
+  compBlock:       el("compBlock"),
+  projectSelect:   el("projectSelect"),
+  subprojectSelect:el("subprojectSelect"),
+  functionSelect:  el("functionSelect"),
+  addressSelect:   el("addressSelect"),
+  compensationSelect:el("compensationSelect"),
+  autoName:        el("autoName"),
+  teamNameWrap:    el("teamNameWrap"),
+  teamName:        el("teamName"),
+  volNeeded:       el("volNeeded"),
+  shiftStart:      el("shiftStart"),
+  shiftEnd:        el("shiftEnd"),
+  draftMode:       el("draftMode"),
+  maxTravelKm:     el("maxTravelKm"),
+  extraInfo:       el("extraInfo"),
+  relCheckinStart: el("relCheckinStart"),
+  relCheckinDuration:el("relCheckinDuration"),
+  locationSpec:    el("locationSpec"),
+  minimalAge:      el("minimalAge"),
+  clientExperience:el("clientExperience"),
+  createdTbody:    el("createdTbody"),
+  createResult:    el("createResult"),
+};
+
+function fillSelect(sel, items){
+  sel.innerHTML = "";
+  items.forEach(it => {
+    const o = document.createElement("option");
+    o.value = String(it.value); o.textContent = it.label;
+    sel.appendChild(o);
+  });
+}
+
+/* ---- Load tenant data ---- */
+async function loadTenant(){
+  ["projectBlock","subprojectBlock","functionBlock","addressBlock","compBlock"]
+    .forEach(id => el(id).classList.add("hidden"));
+  try {
+    const pData = await proxyGET("api/v1/admin/projects");
+    const projects = pData.projects || [];
+    fillSelect(els.projectSelect, projects.map(p => ({value:p.id, label:p.name||"Project #"+p.id})));
+    state.maps.projects = Object.fromEntries(projects.map(p => [String(p.id), p.name||"Project #"+p.id]));
+    if(projects.length) els.projectBlock.classList.remove("hidden");
+
+    const allSubs = [];
+    for(const p of projects){
+      try {
+        const sData = await proxyGET(`api/v1/admin/projects/${p.id}/subprojects`);
+        (sData.subprojects||[]).forEach(s => allSubs.push({id:String(s.id), name:s.name||"Sub #"+s.id, project_id:String(p.id)}));
+      } catch(e){ L("Sub err project", p.id, ":", extractErr(e)); }
+    }
+
+    const fData = await proxyGET("api/v1/admin/functions");
+    const fns = fData.functions || fData || [];
+    fillSelect(els.functionSelect, fns.map(f => ({value:f.id, label:f.name||"Function #"+f.id})));
+    state.maps.functions = Object.fromEntries(fns.map(f => [String(f.id), f.name||"Function #"+f.id]));
+    if(fns.length) els.functionBlock.classList.remove("hidden");
+
+    const aData = await proxyGET("api/v1/admin/addresses");
+    const addrs = aData.addresses || [];
+    const addrL = a => a.name||[a.street,a.number,a.city].filter(Boolean).join(" ")||"Address #"+a.id;
+    fillSelect(els.addressSelect, addrs.map(a => ({value:a.id, label:addrL(a)})));
+    state.maps.addresses = Object.fromEntries(addrs.map(a => [String(a.id), addrL(a)]));
+    if(addrs.length) els.addressBlock.classList.remove("hidden");
+
+    const cData = await proxyGET("api/v1/admin/team_compensations");
+    const comps = cData.team_compensations || cData || [];
+    const cOpts = [{value:"",label:"(none)"}].concat(comps.map(c => ({value:c.id, label:c.name||"Comp #"+c.id})));
+    fillSelect(els.compensationSelect, cOpts);
+    state.maps.compensations = Object.fromEntries(cOpts.map(o => [String(o.value), o.label]));
+    els.compBlock.classList.remove("hidden");
+
+    L(`Loaded — Projects:${projects.length} Fns:${fns.length} Addrs:${addrs.length}`);
+
+    /* Restore saved selections */
+    const sp = loadPerTenant("project"); if(sp) els.projectSelect.value = sp;
+    const sf = loadPerTenant("function"); if(sf) els.functionSelect.value = sf;
+    const sa = loadPerTenant("address"); if(sa) els.addressSelect.value = sa;
+    const sc = loadPerTenant("comp"); if(sc) els.compensationSelect.value = sc;
+    if(sp) await loadSubprojectsForProject(sp);
+    const ss = loadPerTenant("subproject"); if(ss) els.subprojectSelect.value = ss;
+
+  } catch(e){ alert("Load failed: " + extractErr(e)); }
+}
+
+async function loadSubprojectsForProject(pid){
+  if(!pid){ els.subprojectBlock.classList.add("hidden"); return; }
+  try {
+    const sData = await proxyGET(`api/v1/admin/projects/${pid}/subprojects`);
+    const subs = sData.subprojects || [];
+    if(subs.length){
+      fillSelect(els.subprojectSelect, subs.map(s => ({value:s.id, label:s.name||"Sub #"+s.id})));
+      state.maps.subprojects = Object.fromEntries(subs.map(s => [String(s.id), s.name||"Sub #"+s.id]));
+      els.subprojectBlock.classList.remove("hidden");
+    } else { els.subprojectBlock.classList.add("hidden"); }
+  } catch(e){ L("Sub load error:", extractErr(e)); addGap(); els.subprojectBlock.classList.add("hidden"); }
+}
+
+/* ---- Build API payload ---- */
+function buildApiPayload(){
+  const noSub = els.subprojectBlock.classList.contains("hidden");
+  const team = {
+    auto_generate_name: els.autoName.value === "yes",
+    name: els.autoName.value === "yes" ? undefined : (els.teamName.value || undefined),
+    volunteers_needed: els.volNeeded.value ? parseInt(els.volNeeded.value, 10) : undefined,
+    function_id: els.functionSelect.value || undefined,
+    work_location_id: els.addressSelect.value || undefined,
+    team_compensation_id: els.compensationSelect.value || undefined,
+    published: els.draftMode.value !== "yes",
+    extra_practical_info: els.extraInfo.value || undefined,
+    maximum_travel_distance: els.maxTravelKm.value ? Number(els.maxTravelKm.value) : undefined,
+    relative_checkin_start: els.relCheckinStart.value || undefined,
+    relative_checkin_duration: els.relCheckinDuration.value || undefined,
+    work_location_specification: els.locationSpec.value || undefined,
+    minimal_age: els.minimalAge.value ? Number(els.minimalAge.value) : undefined,
+    client_experience_required: els.clientExperience.value === "" ? undefined : (els.clientExperience.value === "true"),
+    shifts_attributes: []
+  };
+  if(els.shiftStart.value && els.shiftEnd.value){
+    const s = new Date(els.shiftStart.value), e = new Date(els.shiftEnd.value);
+    team.shifts_attributes.push({
+      start_datetime: isNaN(s) ? els.shiftStart.value : s.toISOString(),
+      end_datetime:   isNaN(e) ? els.shiftEnd.value   : e.toISOString()
+    });
+  }
+  Object.keys(team).forEach(k => team[k] === undefined && delete team[k]);
+  return { team, projectId: els.projectSelect.value, subprojectId: noSub ? "" : (els.subprojectSelect.value || "") };
+}
+
+/* ---- Create team immediately ---- */
+async function createTeam(){
+  const projectId = els.projectSelect.value;
+  if(!projectId){ alert("Select a project first."); return; }
+
+  const btn = el("createSingleBtn");
+  btn.disabled = true; btn.textContent = "Creating…";
+  el("createResult").innerHTML = "";
+
+  try {
+    const { team, subprojectId } = buildApiPayload();
+    const path = subprojectId
+      ? `api/v1/admin/subprojects/${encodeURIComponent(subprojectId)}/teams`
+      : `api/v1/admin/projects/${encodeURIComponent(projectId)}/teams`;
+    const res = await proxyPOST(path, { team });
+    const newId = (res && res.team && res.team.id) || (res && res.id) || "?";
+    const newName = (res && res.team && res.team.name) || "(auto-named)";
+
+    el("createResult").innerHTML = `<div class="alert alert-success">Team created — ID: <b>${escHtml(String(newId))}</b> &quot;${escHtml(newName)}&quot;</div>`;
+
+    state.created.push({
+      id: newId,
+      projectName: state.maps.projects[projectId] || projectId,
+      subprojectName: subprojectId ? (state.maps.subprojects[subprojectId] || subprojectId) : "",
+      name: newName,
+      functionName: state.maps.functions[els.functionSelect.value] || "",
+      addressName: state.maps.addresses[els.addressSelect.value] || "",
+      compensationName: state.maps.compensations[els.compensationSelect.value] || "",
+      start: els.shiftStart.value,
+      end: els.shiftEnd.value
+    });
+    renderCreated();
+    toggleSection(el("sec-created"), true);
+  } catch(e){
+    el("createResult").innerHTML = `<div class="alert alert-error"><b>Create failed:</b> ${escHtml(extractErr(e))}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = "Create team";
+  }
+}
+
+/* ---- Render created teams ---- */
+function renderCreated(){
+  els.createdTbody.innerHTML = "";
+  if(!state.created.length){
+    els.createdTbody.innerHTML = `<tr><td class="table-note" colspan="9">Nothing created yet.</td></tr>`;
+    return;
+  }
+  state.created.forEach(item => {
+    const shift = (item.start && item.end) ? `${item.start} — ${item.end}` : "";
+    const tr = document.createElement("tr");
+    tr.setAttribute("data-id", item.id);
+    tr.innerHTML = `<td>${escHtml(item.id)}</td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td>${escHtml(item.name)}</td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td><button class="btn btn-ghost" data-del="${escHtml(item.id)}">Delete</button></td>`;
+    els.createdTbody.appendChild(tr);
+  });
+}
+
+/* ---- Delete created team ---- */
+async function deleteCreated(id){
+  const btn = document.querySelector(`[data-del="${id}"]`);
+  if(btn){ btn.textContent = "…"; btn.disabled = true; }
+  try {
+    await proxyDELETE(`api/v1/admin/teams/${encodeURIComponent(id)}`);
+    const row = document.querySelector(`tr[data-id="${id}"]`);
+    if(row){ row.classList.add("slideRight"); setTimeout(() => row.remove(), 360); }
+    state.created = state.created.filter(x => String(x.id) !== String(id));
+    if(!state.created.length) renderCreated();
+  } catch(e){
+    if(btn){ btn.textContent = "Delete"; btn.disabled = false; }
+    alert("Delete failed: " + extractErr(e));
+  }
+}
+
+/* ---- Collapsible ---- */
+function toggleSection(el, expand){
+  if(!el) return;
+  if(expand === undefined) expand = el.classList.contains("collapsed");
+  const xBtn = el.querySelector('[data-toggle]:not([data-role="collapse"])');
+  const cBtn = el.querySelector('[data-toggle][data-role="collapse"]');
+  if(expand){ el.classList.remove("collapsed"); if(xBtn)xBtn.classList.add("hidden"); if(cBtn)cBtn.classList.remove("hidden"); }
+  else      { el.classList.add("collapsed");    if(xBtn)xBtn.classList.remove("hidden"); if(cBtn)cBtn.classList.add("hidden"); }
+}
+
+/* ---- Event delegation ---- */
+document.addEventListener("click", ev => {
+  const t = ev.target.closest("button") || ev.target;
+  if(t.dataset.toggle){ toggleSection(document.querySelector(t.dataset.toggle), t.dataset.role !== "collapse"); return; }
+  if(t.id === "createSingleBtn"){ createTeam(); return; }
+  if(t.id === "loadBtn"){ loadTenant(); return; }
+  if(t.dataset.del){ deleteCreated(t.dataset.del); return; }
+});
+
+/* ---- Form state persistence ---- */
+els.projectSelect.addEventListener("change", async () => { savePerTenant("project", els.projectSelect.value); await loadSubprojectsForProject(els.projectSelect.value); });
+els.subprojectSelect.addEventListener("change", () => savePerTenant("subproject", els.subprojectSelect.value));
+els.functionSelect.addEventListener("change",   () => savePerTenant("function",   els.functionSelect.value));
+els.addressSelect.addEventListener("change",    () => savePerTenant("address",    els.addressSelect.value));
+els.compensationSelect.addEventListener("change",() => savePerTenant("comp",      els.compensationSelect.value));
+els.autoName.addEventListener("change", () => els.teamNameWrap.classList.toggle("hidden", els.autoName.value === "yes"));
+
+/* ---- Init ---- */
+(function init(){
+  if(!BASE || !TOKEN) return;
+  if(DEBUG) L("Debug ON — base:", BASE);
+
+  const pad = n => String(n).padStart(2,"0");
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const now = new Date();
+  const s = new Date(now); s.setDate(s.getDate()+1); s.setHours(8,0,0,0);
+  const e = new Date(now); e.setDate(e.getDate()+1); e.setHours(17,0,0,0);
+  els.shiftStart.value = fmt(s);
+  els.shiftEnd.value   = fmt(e);
+
+  els.teamNameWrap.classList.toggle("hidden", els.autoName.value === "yes");
+  ["sec-single","sec-created","sec-logs"].forEach(id => toggleSection(el(id), true));
+
+  loadTenant();
+})();
+</script>
+</body>
+</html>
