@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <title>Team Wizard — Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
+<link rel="icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4e6bff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root {
   --bg:#f0f4ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
@@ -277,6 +282,7 @@ document.getElementById("loginPwBtn").addEventListener("click", async () => {
     }
     saveBase(base);
     saveToken(token);
+    sessionStorage.setItem("bwJustLoggedIn","1");
     window.location.replace("create.html");
   } catch(e){
     showMsg("pwMsg","error","Network error: " + escHtml(e.message));
@@ -316,6 +322,7 @@ document.getElementById("loginTokenBtn").addEventListener("click", async () => {
     }
     saveBase(base);
     saveToken(token);
+    sessionStorage.setItem("bwJustLoggedIn","1");
     window.location.replace("create.html");
   } catch(e){
     showMsg("tkMsg","error","Network error: " + escHtml(e.message));
@@ -349,6 +356,11 @@ document.getElementById("tkBase").addEventListener("blur", () => {
 });
 
 function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+
+/* ---- PWA: Service Worker ---- */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
 </script>
 </body>
 </html>
