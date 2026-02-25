@@ -4,7 +4,12 @@
 <meta charset="utf-8">
 <title>Team creation — Beeple</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
+<link rel="icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4e6bff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root {
   --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
@@ -180,6 +185,7 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 <nav id="navMenu" class="nav-menu" aria-label="Main navigation">
   <a href="create.html" class="nav-item active">Quick team creation</a>
   <a href="planning.html" class="nav-item">Planning</a>
+  <button id="installBtn" class="nav-item hidden">Install as app</button>
   <button id="themeBtn" class="nav-item">Dark mode</button>
   <button id="debugToggleBtn" class="nav-item">Debug mode</button>
   <button id="logoutBtn" class="nav-item danger">Log out</button>
@@ -294,8 +300,8 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
     <div class="body">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>ID</th><th>Project</th><th>Subproject</th><th>Name</th><th>Function</th><th>Address</th><th>Comp.</th><th>Shift</th><th>Action</th></tr></thead>
-          <tbody id="createdTbody"><tr><td class="table-note" colspan="9">Nothing created yet.</td></tr></tbody>
+          <thead><tr><th>ID</th><th>Project</th><th>Subproject</th><th>Name</th><th>Vol.</th><th>Draft</th><th>Function</th><th>Address</th><th>Comp.</th><th>Shift</th><th>Travel km</th><th>Min age</th><th>Extra info</th><th>Action</th></tr></thead>
+          <tbody id="createdTbody"><tr><td class="table-note" colspan="14">Nothing created yet.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -404,13 +410,37 @@ async function proxyPOST(path, payload){
   L("<-", res.status);
   L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
   addGap();
+  let json = {};
+  try { json = txt ? JSON.parse(txt) : {}; } catch { json = {raw:txt}; }
+  /* Check HTTP errors */
   if(!res.ok){
     let r = "HTTP " + res.status;
-    try{ const j=JSON.parse(txt); if(j&&j.error)r=j.error; if(j&&j.errors)r=JSON.stringify(j.errors); }catch{}
+    if(json.error) r = json.error;
+    if(json.errors) r = formatApiErrors(json.errors);
     if(DEBUG) r += " — " + txt.slice(0,200);
     throw new Error(r);
   }
-  try{ return txt ? JSON.parse(txt) : {}; }catch{ return{raw:txt}; }
+  /* Check API-level errors in 200 responses */
+  if(json.errors){
+    const errMsg = formatApiErrors(json.errors);
+    if(errMsg) throw new Error(errMsg);
+  }
+  return json;
+}
+
+function formatApiErrors(errors){
+  if(!errors) return "";
+  if(Array.isArray(errors)){
+    if(errors.length === 0) return "";
+    return errors.map(e => String(e)).join(", ");
+  }
+  if(typeof errors === "object"){
+    return Object.entries(errors).map(([k,v]) => {
+      const msgs = Array.isArray(v) ? v.join(", ") : String(v);
+      return k === "base" ? msgs : k.replace(/_/g," ").replace(/\./g," → ") + ": " + msgs;
+    }).join("; ");
+  }
+  return String(errors);
 }
 
 async function proxyDELETE(path){
@@ -591,11 +621,16 @@ async function createTeam(){
       projectName: state.maps.projects[projectId] || projectId,
       subprojectName: subprojectId ? (state.maps.subprojects[subprojectId] || subprojectId) : "",
       name: newName,
+      volunteersNeeded: els.volNeeded.value || "1",
+      draft: els.draftMode.value === "yes" ? "Yes" : "No",
       functionName: state.maps.functions[els.functionSelect.value] || "",
       addressName: state.maps.addresses[els.addressSelect.value] || "",
       compensationName: state.maps.compensations[els.compensationSelect.value] || "",
       start: els.shiftStart.value,
-      end: els.shiftEnd.value
+      end: els.shiftEnd.value,
+      travelKm: els.maxTravelKm.value || "",
+      minAge: els.minimalAge.value || "",
+      extraInfo: (els.extraInfo.value || "").slice(0, 50)
     });
     renderCreated();
     toggleSection(el("sec-created"), true);
@@ -610,20 +645,21 @@ async function createTeam(){
 function renderCreated(){
   els.createdTbody.innerHTML = "";
   if(!state.created.length){
-    els.createdTbody.innerHTML = `<tr><td class="table-note" colspan="9">Nothing created yet.</td></tr>`;
+    els.createdTbody.innerHTML = `<tr><td class="table-note" colspan="14">Nothing created yet.</td></tr>`;
     return;
   }
   state.created.forEach(item => {
     const shift = (item.start && item.end) ? `${item.start} — ${item.end}` : "";
     const tr = document.createElement("tr");
     tr.setAttribute("data-id", item.id);
-    tr.innerHTML = `<td>${escHtml(item.id)}</td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td>${escHtml(item.name)}</td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td><button class="btn btn-ghost" data-del="${escHtml(item.id)}">Delete</button></td>`;
+    tr.innerHTML = `<td>${escHtml(item.id)}</td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td>${escHtml(item.name)}</td><td>${escHtml(item.volunteersNeeded||"")}</td><td>${escHtml(item.draft||"")}</td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td>${escHtml(item.travelKm||"")}</td><td>${escHtml(item.minAge||"")}</td><td style="white-space:normal;max-width:120px;">${escHtml(item.extraInfo||"")}</td><td><button class="btn btn-ghost" data-del="${escHtml(item.id)}">Delete</button></td>`;
     els.createdTbody.appendChild(tr);
   });
 }
 
 /* ---- Delete created team ---- */
 async function deleteCreated(id){
+  if(!confirm("Are you sure you want to delete this team? This action cannot be undone.")) return;
   const btn = document.querySelector(`[data-del="${id}"]`);
   if(btn){ btn.textContent = "…"; btn.disabled = true; }
   try {
@@ -683,6 +719,32 @@ els.autoName.addEventListener("change", () => els.teamNameWrap.classList.toggle(
 
   loadTenant();
 })();
+
+/* ---- PWA: Service Worker + Install ---- */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+let _deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  _deferredInstall = e;
+  document.getElementById("installBtn").classList.remove("hidden");
+  /* Show install overlay 5s after login */
+  if(sessionStorage.getItem("bwJustLoggedIn")){
+    sessionStorage.removeItem("bwJustLoggedIn");
+    setTimeout(() => {
+      if(_deferredInstall && confirm("Install Beeple TeamWizard as an app for quick access?")) {
+        _deferredInstall.prompt();
+        _deferredInstall.userChoice.then(() => { _deferredInstall = null; document.getElementById("installBtn").classList.add("hidden"); });
+      }
+    }, 5000);
+  }
+});
+document.getElementById("installBtn").addEventListener("click", () => {
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+  if(_deferredInstall){ _deferredInstall.prompt(); _deferredInstall.userChoice.then(() => { _deferredInstall = null; document.getElementById("installBtn").classList.add("hidden"); }); }
+  else { alert("App is already installed or installation is not supported by your browser."); }
+});
 </script>
 </body>
 </html>

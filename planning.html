@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <title>Planning — Beeple</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
+<link rel="icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="TeamWizard">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#4e6bff">
 <style>
 /* ================================================================
    VARIABLES
@@ -29,8 +35,7 @@
 html { overflow-x:clip; }
 body {
   margin:0; overflow-x:clip;
-  background:var(--bg);
-  color:var(--text);
+  background:var(--bg); color:var(--text);
   font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   font-size:15px; line-height:1.55;
   -webkit-text-size-adjust:100%; text-size-adjust:100%;
@@ -39,13 +44,10 @@ body {
 .topbar {
   position:sticky; top:0; z-index:30;
   background:var(--card); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:12px;
-  padding:10px 16px;
+  display:flex; align-items:center; gap:12px; padding:10px 16px;
 }
 .topbar .brand img { height:22px; width:auto; display:block; }
-.topbar .title {
-  font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center;
-}
+.topbar .title { font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center; }
 /* icon buttons */
 .icon-btn {
   width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
@@ -58,11 +60,8 @@ body {
 .nav-menu {
   position:fixed; top:55px; left:0; z-index:25;
   background:var(--card); border:1px solid var(--border);
-  border-radius:0 0 var(--radius-lg) 0;
-  box-shadow:var(--shadow);
-  min-width:210px;
-  transform:translateX(-110%);
-  transition:transform .25s ease;
+  border-radius:0 0 var(--radius-lg) 0; box-shadow:var(--shadow); min-width:210px;
+  transform:translateX(-110%); transition:transform .25s ease;
 }
 .nav-menu.open { transform:translateX(0); }
 .nav-item {
@@ -80,20 +79,17 @@ button.nav-item {
 }
 button.nav-item:hover { background:var(--accentSoft); }
 button.nav-item.danger { color:var(--danger); }
-.nav-overlay {
-  display:none; position:fixed; inset:0; z-index:24; background:rgba(0,0,0,.3);
-}
+.nav-overlay { display:none; position:fixed; inset:0; z-index:24; background:rgba(0,0,0,.3); }
 .nav-overlay.show { display:block; }
 /* MAIN CONTENT */
-.main { max-width:1100px; margin:0 auto; padding:20px 16px 40px; }
+.main { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
 /* PROJECT SEARCH */
 .proj-search { margin-bottom:16px; }
 .proj-search input {
   width:100%; max-width:400px; padding:10px 12px;
   border:1px solid var(--fieldBorder); border-radius:var(--radius);
   background:var(--field); color:var(--text); font-family:inherit;
-  font-size:16px; line-height:1.4;
-  -webkit-appearance:none; appearance:none;
+  font-size:16px; line-height:1.4; -webkit-appearance:none; appearance:none;
 }
 .proj-search input::placeholder { color:var(--muted); opacity:.6; }
 .proj-search input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
@@ -109,11 +105,7 @@ button.nav-item.danger { color:var(--danger); }
 .section-title { font-size:20px; font-weight:800; margin:0 0 4px; }
 .section-sub  { color:var(--muted); font-size:13px; margin:0 0 16px; }
 /* CARDS GRID */
-.card-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-  gap:12px;
-}
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
 /* CARD */
 .card {
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
@@ -127,38 +119,24 @@ button.nav-item.danger { color:var(--danger); }
 .card .meta { font-size:12px; color:var(--muted); }
 .card .meta span { margin-right:10px; }
 /* STATUS CHIPS */
-.chip {
-  display:inline-block; font-size:11px; font-weight:700; padding:2px 8px;
-  border-radius:20px; margin-right:4px;
-}
+.chip { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:4px; }
 .chip-green  { background:var(--successSoft); color:var(--success); }
 .chip-yellow { background:var(--warnSoft);    color:var(--warn); }
 .chip-red    { background:#fee2e2;             color:#dc2626; }
 .chip-blue   { background:var(--accentSoft);   color:var(--accent); }
 .chip-grey   { background:#f1f5f9; color:#64748b; }
-/* TEAM DETAIL PANEL */
-.team-panel {
+/* TEAM HEADER CARD */
+.team-header-card {
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
-  box-shadow:var(--shadow); overflow:hidden;
+  padding:16px 18px; box-shadow:var(--shadow); margin-bottom:12px;
 }
-.team-panel-header {
-  padding:16px 18px; border-bottom:1px solid var(--border);
-  display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap;
+.team-header-card h2 { margin:0; font-size:18px; }
+/* SECTION CARD */
+.sec-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:18px; box-shadow:var(--shadow); margin-bottom:12px;
 }
-.team-panel-header h2 { margin:0; font-size:18px; flex:1; }
-.team-panel-body { padding:18px; }
-/* TABS */
-.tabs {
-  display:flex; gap:4px; border-bottom:2px solid var(--border); margin-bottom:18px; flex-wrap:wrap;
-}
-.tab {
-  padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer;
-  border-radius:8px 8px 0 0; border:none; background:transparent; color:var(--muted);
-  transition:color .15s; font-family:inherit;
-}
-.tab.active { color:var(--accent); background:var(--accentSoft); }
-.tab-pane { display:none; }
-.tab-pane.active { display:block; }
+.sec-card h3 { margin:0 0 14px; font-size:16px; font-weight:700; }
 /* FORM */
 input,select,textarea {
   display:block; width:100%; padding:10px 12px;
@@ -216,11 +194,14 @@ label:first-child { margin-top:0; }
   width:40px; height:40px; border-radius:50%; background:var(--accentSoft);
   display:flex; align-items:center; justify-content:center;
   font-weight:800; font-size:14px; color:var(--accent); flex-shrink:0;
+  cursor:pointer;
 }
-.collab-info { flex:1; min-width:0; }
+.collab-avatar:hover { background:var(--accent); color:#fff; }
+.collab-info { flex:1; min-width:0; cursor:pointer; }
+.collab-info:hover .collab-name { color:var(--accent); }
 .collab-name { font-weight:700; font-size:14px; }
 .collab-meta { font-size:12px; color:var(--muted); margin-top:2px; }
-.collab-actions { display:flex; gap:6px; flex-wrap:wrap; }
+.collab-actions { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 /* ENROLMENT LIST */
 .enrol-list { display:grid; gap:8px; }
 .enrol-item {
@@ -229,11 +210,14 @@ label:first-child { margin-top:0; }
 }
 .enrol-info { flex:1; min-width:0; font-size:13px; }
 .enrol-name { font-weight:700; font-size:14px; }
-/* ALERT BOXES */
-.alert {
-  padding:12px 14px; border-radius:var(--radius); font-size:14px;
-  margin-bottom:12px; word-break:break-word;
+/* INLINE ACTION ROW (enrol/invite confirm) */
+.inline-action {
+  width:100%; border-top:1px solid var(--fieldBorder); padding-top:10px; margin-top:8px;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
 }
+.inline-action select { width:auto; min-width:150px; font-size:13px; padding:6px 30px 6px 10px; }
+/* ALERT BOXES */
+.alert { padding:12px 14px; border-radius:var(--radius); font-size:14px; margin-bottom:12px; word-break:break-word; }
 .alert-error   { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
 .alert-success { background:var(--successSoft); border:1px solid #86efac; color:#166534; }
 .alert-info    { background:var(--accentSoft); border:1px solid var(--accent2); color:var(--accent); }
@@ -242,21 +226,8 @@ label:first-child { margin-top:0; }
 [data-theme="dark"] .alert-success { color:#86efac; }
 [data-theme="dark"] .alert-warn    { color:#fbbf24; }
 /* EMPTY STATE */
-.empty {
-  text-align:center; padding:40px 20px; color:var(--muted);
-}
+.empty { text-align:center; padding:40px 20px; color:var(--muted); }
 .empty svg { width:48px; height:48px; stroke:var(--muted); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
-/* TABLE */
-.table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:var(--radius); }
-table { min-width:500px; width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--fieldBorder); border-radius:10px; overflow:hidden; background:var(--field); }
-th,td { padding:9px 11px; border-bottom:1px solid var(--fieldBorder); vertical-align:middle; white-space:nowrap; font-size:13px; }
-th { background:var(--tableHead); color:#0b1740; text-align:left; font-weight:700; }
-[data-theme="dark"] th { color:#d9e3ff; }
-tr:last-child td { border-bottom:0; }
-/* LOG */
-.log-wrap { margin-top:12px; }
-pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px; font-size:11px; max-height:160px; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; }
-[data-theme="dark"] pre.log { background:#070e1f; color:#c7dbff; }
 /* SPINNER */
 .spinner {
   display:inline-block; width:18px; height:18px; border:2px solid var(--fieldBorder);
@@ -264,14 +235,16 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   animation:spin .7s linear infinite; vertical-align:middle;
 }
 @keyframes spin { to { transform:rotate(360deg); } }
+/* LOG */
+.log-wrap { margin-top:12px; }
+pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px; font-size:11px; max-height:160px; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; }
+[data-theme="dark"] pre.log { background:#070e1f; color:#c7dbff; }
 /* UTILITY */
 .hidden { display:none !important; }
 .mt8 { margin-top:8px; }
 .mt16 { margin-top:16px; }
-
 /* RESULT FEED */
 .result-feed { display:grid; gap:8px; max-height:280px; overflow-y:auto; }
-
 /* PAGINATION */
 .pagination { display:flex; gap:6px; align-items:center; margin-top:12px; flex-wrap:wrap; }
 .page-btn {
@@ -281,34 +254,83 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 }
 .page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 .page-btn:disabled { opacity:.4; cursor:default; }
-
 /* Cookie banner */
 .cookie { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); width:min(92vw,520px); background:rgba(255,255,255,.8); backdrop-filter:blur(14px); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:14px; padding:14px; display:flex; align-items:center; gap:12px; z-index:40; color:#0f172a; }
 [data-theme="dark"] .cookie { background:rgba(11,16,32,.85); color:#e5e7eb; }
 .cookie.hide { transition:transform .35s,opacity .35s; transform:translate(-50%,130%); opacity:0; }
 .cookie .msg { flex:1; font-size:14px; }
 .cookie .btn { width:auto; min-width:64px; min-height:36px; }
-
 /* DEBUG BANNER */
 .debug-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--radius); padding:8px 14px; font-size:13px; color:#92400e; margin:12px 16px 0; }
 [data-theme="dark"] .debug-banner { background:#451a03; color:#fbbf24; border-color:#b45309; }
+/* FAB (floating action button) */
+.fab {
+  position:fixed; bottom:24px; right:20px; z-index:20;
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(160deg,var(--accent),var(--accent2));
+  color:#fff; font-size:28px; font-weight:300; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none; box-shadow:0 4px 18px rgba(78,107,255,.45);
+  transition:transform .15s,box-shadow .15s;
+}
+.fab:hover { transform:scale(1.1); box-shadow:0 6px 26px rgba(78,107,255,.6); }
+/* COLLABORATOR DETAIL MODAL */
+.modal-overlay {
+  position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.5);
+  backdrop-filter:blur(4px); display:flex; align-items:center;
+  justify-content:center; padding:16px;
+}
+.modal-card {
+  background:var(--card); border-radius:var(--radius-lg); box-shadow:var(--shadow);
+  max-width:520px; width:100%; max-height:85vh; overflow-y:auto;
+}
+.modal-header {
+  padding:16px 18px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+}
+.modal-header h2 { margin:0; font-size:17px; flex:1; }
+.modal-close {
+  background:none; border:none; font-size:22px; line-height:1;
+  cursor:pointer; color:var(--muted); padding:2px 8px; border-radius:6px;
+}
+.modal-close:hover { background:var(--accentSoft); color:var(--text); }
+.modal-body { padding:18px; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 20px; }
+@media(max-width:440px) { .detail-grid { grid-template-columns:1fr; } }
+.detail-item label { margin:0 0 2px; font-size:12px; color:var(--muted); font-weight:600; }
+.detail-item span { display:block; font-size:14px; font-weight:500; }
+/* PWA install overlay */
+.pwa-overlay {
+  position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+  z-index:50; width:min(92vw,480px);
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.18);
+  padding:16px; display:flex; align-items:center; gap:14px;
+  animation:slideUp .3s ease;
+}
+@keyframes slideUp {
+  from { transform:translateX(-50%) translateY(20px); opacity:0; }
+  to   { transform:translateX(-50%) translateY(0); opacity:1; }
+}
+.pwa-overlay.hidden { display:none !important; }
+.pwa-icon { border-radius:12px; flex-shrink:0; }
+.pwa-text { flex:1; }
+.pwa-text strong { display:block; font-weight:700; margin-bottom:2px; }
+.pwa-text span { font-size:13px; color:var(--muted); }
+.pwa-actions { display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; }
 </style>
 </head>
 <body>
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <!-- Hamburger: opens navigation menu -->
   <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
-
   <div class="brand">
     <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
   </div>
-
   <div class="title">Planning</div>
-  <!-- spacer to balance hamburger -->
   <div style="width:40px;flex-shrink:0;"></div>
 </div>
 
@@ -316,8 +338,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 <nav id="navMenu" class="nav-menu" aria-label="Main navigation">
   <a href="create.html" class="nav-item">Quick team creation</a>
   <a href="planning.html" class="nav-item active">Planning</a>
+  <button id="navInvitationsBtn" class="nav-item">📋 Pending invitations</button>
   <button id="themeBtn" class="nav-item">Dark mode</button>
   <button id="debugToggleBtn" class="nav-item">Debug mode</button>
+  <button id="pwaMenuBtn" class="nav-item hidden">Install as app</button>
   <button id="logoutBtn" class="nav-item danger">Log out</button>
 </nav>
 <div id="navOverlay" class="nav-overlay"></div>
@@ -325,206 +349,201 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 <!-- Debug banner -->
 <div id="debugBanner" class="debug-banner hidden">Debug mode active — full API responses shown in logs.</div>
 
+<!-- PWA install overlay -->
+<div id="pwaOverlay" class="pwa-overlay hidden" role="dialog" aria-label="Install app">
+  <img src="icon.svg" width="52" height="52" class="pwa-icon" alt="">
+  <div class="pwa-text">
+    <strong>Install TeamWizard</strong>
+    <span>Add to home screen for quick access</span>
+  </div>
+  <div class="pwa-actions">
+    <button id="pwaInstallBtn" class="btn primary btn-sm">Install</button>
+    <button id="pwaDismissBtn" class="btn secondary btn-sm">Not now</button>
+  </div>
+</div>
+
+<!-- Collaborator detail modal -->
+<div id="collabModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Collaborator details">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div id="collabModalAvatar" class="collab-avatar" style="width:44px;height:44px;font-size:16px;cursor:default;flex-shrink:0;"></div>
+      <h2 id="collabModalName"></h2>
+      <button class="modal-close" id="collabModalClose" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="collabModalBody">
+      <div class="empty"><div class="spinner"></div><p>Loading…</p></div>
+    </div>
+  </div>
+</div>
+
 <!-- MAIN -->
 <main class="main" id="main">
 
-    <!-- LOADING STATE (shown until projects load) -->
-    <div id="viewLoading">
-      <div class="empty"><div class="spinner"></div><p>Loading projects…</p></div>
-    </div>
+  <!-- LOADING STATE -->
+  <div id="viewLoading">
+    <div class="empty"><div class="spinner"></div><p>Loading projects…</p></div>
+  </div>
 
-    <!-- PROJECT LIST VIEW -->
-    <div id="viewProjects" class="hidden">
-      <h1 class="section-title">All Projects</h1>
-      <p class="section-sub">Select a project to browse subprojects and teams.</p>
-      <div class="proj-search">
-        <input id="projSearch" type="search" placeholder="Filter projects…" autocomplete="off">
+  <!-- PROJECT LIST VIEW -->
+  <div id="viewProjects" class="hidden">
+    <h1 class="section-title">All Projects</h1>
+    <div class="proj-search">
+      <input id="projSearch" type="search" placeholder="Filter projects…" autocomplete="off">
+    </div>
+    <div id="projectGrid" class="card-grid"></div>
+  </div>
+
+  <!-- PENDING INVITATIONS VIEW -->
+  <div id="viewInvitations" class="hidden">
+    <div class="breadcrumb" id="breadcrumbInv"></div>
+    <h1 class="section-title">Pending Invitations</h1>
+    <p class="section-sub">Invitations sent to collaborators that are still waiting for acceptance.</p>
+    <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:200px;">
+        <label style="margin-bottom:6px;">Project</label>
+        <select id="invProjectSelect" style="font-size:14px;"></select>
       </div>
-      <div id="projectGrid" class="card-grid"></div>
+      <button id="loadInvitationsBtn" class="btn primary btn-sm">Load invitations</button>
+      <button id="invBackBtn" class="btn secondary btn-sm">← Back to projects</button>
     </div>
+    <div id="invitationsFeed">
+      <div class="empty"><p>Select a project and click "Load invitations".</p></div>
+    </div>
+  </div>
 
-    <!-- SUBPROJECT / TEAMS VIEW -->
-    <div id="viewProject" class="hidden">
-      <div class="breadcrumb" id="breadcrumb"></div>
-      <h1 class="section-title" id="viewProjectTitle"></h1>
-      <p class="section-sub" id="viewProjectSub"></p>
-      <div id="teamDateBar" class="hidden" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-        <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">Teams from</label>
-        <input id="teamDateFrom" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
-        <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">to</label>
-        <input id="teamDateTo" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
-        <button class="btn secondary btn-sm" id="teamDateApply">Apply</button>
-        <button class="btn btn-sm" id="teamDateReset" style="color:var(--muted);">Reset</button>
+  <!-- SUBPROJECT / TEAMS VIEW -->
+  <div id="viewProject" class="hidden">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    <h1 class="section-title" id="viewProjectTitle"></h1>
+    <p class="section-sub" id="viewProjectSub"></p>
+    <!-- Name filter for subprojects/teams grid -->
+    <div class="proj-search" id="gridSearchBar">
+      <input id="gridSearch" type="search" placeholder="Filter…" autocomplete="off">
+    </div>
+    <!-- Date bar: only shown when listing teams (not subprojects) -->
+    <div id="teamDateBar" class="hidden" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+      <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">Teams from</label>
+      <input id="teamDateFrom" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
+      <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">to</label>
+      <input id="teamDateTo" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
+      <button class="btn secondary btn-sm" id="teamDateApply">Apply</button>
+      <button class="btn btn-sm" id="teamDateReset" style="color:var(--muted);">Reset</button>
+    </div>
+    <div id="subprojectGrid" class="card-grid"></div>
+  </div>
+
+  <!-- TEAM DETAIL VIEW -->
+  <div id="viewTeam" class="hidden">
+    <div class="breadcrumb" id="breadcrumbTeam"></div>
+
+    <!-- Team header -->
+    <div class="team-header-card">
+      <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <h2 id="teamTitle" style="margin:0;"></h2>
+            <span id="teamChips"></span>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="teamMeta"></div>
+        </div>
       </div>
-      <div id="subprojectGrid" class="card-grid"></div>
     </div>
 
-    <!-- TEAM DETAIL VIEW -->
-    <div id="viewTeam" class="hidden">
-      <div class="breadcrumb" id="breadcrumbTeam"></div>
+    <!-- Enrolments card -->
+    <div class="sec-card">
+      <h3>Enrolments</h3>
+      <div id="enrolmentsFeed">
+        <div class="empty"><div class="spinner"></div><p>Loading…</p></div>
+      </div>
+    </div>
 
-      <div class="team-panel">
-        <div class="team-panel-header">
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-              <h2 id="teamTitle" style="margin:0;"></h2>
-              <span id="teamChips"></span>
-            </div>
-            <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="teamMeta"></div>
+    <!-- Find & add collaborators card -->
+    <div class="sec-card">
+      <h3>Find &amp; add collaborator</h3>
+
+      <!-- Filters -->
+      <div class="filters">
+        <h4>Filter collaborators</h4>
+        <div class="filter-grid">
+          <div>
+            <label>Name search</label>
+            <input id="fSearch" type="search" placeholder="John…" autocomplete="off">
+          </div>
+          <div>
+            <label>Function</label>
+            <select id="fFunction">
+              <option value="">All functions</option>
+            </select>
+          </div>
+          <div>
+            <label>Language</label>
+            <select id="fLanguage">
+              <option value="">Any language</option>
+              <option value="nl">Dutch</option>
+              <option value="fr">French</option>
+              <option value="en">English</option>
+              <option value="de">German</option>
+            </select>
+          </div>
+          <div>
+            <label>Show archived</label>
+            <select id="fArchived">
+              <option value="false">Active only</option>
+              <option value="true">Include archived</option>
+            </select>
+          </div>
+          <div>
+            <label>Show blocked</label>
+            <select id="fBlocked">
+              <option value="false">Not blocked</option>
+              <option value="true">Include blocked</option>
+            </select>
+          </div>
+          <div>
+            <label>Min age</label>
+            <input id="fMinAge" type="number" inputmode="numeric" min="16" max="99" placeholder="Any">
           </div>
         </div>
-        <div class="team-panel-body">
-
-          <!-- TABS -->
-          <div class="tabs">
-            <button class="tab active" data-tab="enrolments">Enrolments</button>
-            <button class="tab" data-tab="enroll">Enroll someone</button>
-            <button class="tab" data-tab="invite">Invite someone</button>
-          </div>
-
-          <!-- TAB: current enrolments -->
-          <div class="tab-pane active" id="tab-enrolments">
-            <div id="enrolmentsFeed">
-              <div class="empty"><div class="spinner"></div><p>Loading…</p></div>
-            </div>
-          </div>
-
-          <!-- TAB: enroll -->
-          <div class="tab-pane" id="tab-enroll">
-            <p style="font-size:13px;color:var(--muted);margin-top:0;">
-              Search collaborators from this project's department and directly enrol them in the team.
-            </p>
-
-            <!-- FILTERS -->
-            <div class="filters">
-              <h4>Filter collaborators</h4>
-              <div class="filter-grid">
-                <div>
-                  <label>Name search</label>
-                  <input id="fSearch" type="search" placeholder="John…" autocomplete="off">
-                </div>
-                <div>
-                  <label>Function</label>
-                  <select id="fFunction">
-                    <option value="">All functions</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Language</label>
-                  <select id="fLanguage">
-                    <option value="">Any language</option>
-                    <option value="nl">Dutch</option>
-                    <option value="fr">French</option>
-                    <option value="en">English</option>
-                    <option value="de">German</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Show archived</label>
-                  <select id="fArchived">
-                    <option value="false">Active only</option>
-                    <option value="true">Include archived</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Show blocked</label>
-                  <select id="fBlocked">
-                    <option value="false">Not blocked</option>
-                    <option value="true">Include blocked</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Min age</label>
-                  <input id="fMinAge" type="number" inputmode="numeric" min="16" max="99" placeholder="Any">
-                </div>
-              </div>
-              <div class="btn-row">
-                <button id="searchCollabBtn" class="btn primary btn-sm">Search</button>
-                <button id="clearFiltersBtn" class="btn secondary btn-sm">Clear</button>
-              </div>
-            </div>
-
-            <!-- RESULTS -->
-            <div id="collabResults"></div>
-            <div id="collabPagination" class="pagination"></div>
-
-            <!-- ENROL FORM (shown when a collaborator is selected) -->
-            <div id="enrolForm" class="hidden" style="margin-top:16px;">
-              <div style="background:var(--accentSoft);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;">
-                Enrolling: <strong id="enrolTargetName"></strong>
-              </div>
-              <div class="form-row">
-                <div>
-                  <label class="required">Contract type</label>
-                  <select id="contractType">
-                    <option value="">(select)</option>
-                    <option value="interim">Interim</option>
-                    <option value="intern">Intern</option>
-                    <option value="contractual">Contractual</option>
-                    <option value="freelancer">Freelancer</option>
-                    <option value="collaborator">Collaborator</option>
-                    <option value="volunteer">Volunteer</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Invite instead of enrol</label>
-                  <select id="enrolInvite">
-                    <option value="false">No — direct enrolment</option>
-                    <option value="true">Yes — send invitation</option>
-                  </select>
-                </div>
-              </div>
-              <div class="btn-row">
-                <button id="confirmEnrolBtn" class="btn primary">Confirm enrolment</button>
-                <button id="cancelEnrolSelectBtn" class="btn secondary">Cancel</button>
-              </div>
-            </div>
-
-            <!-- RESULT LOG -->
-            <div id="enrolResults" class="result-feed mt16"></div>
-          </div>
-
-          <!-- TAB: invite -->
-          <div class="tab-pane" id="tab-invite">
-            <p style="font-size:13px;color:var(--muted);margin-top:0;">
-              Search a collaborator by name and send them an invitation for this team.
-            </p>
-            <div>
-              <label>Name search</label>
-              <input id="inviteSearch" type="search" placeholder="Search collaborator…" autocomplete="off">
-            </div>
-            <div class="form-row" style="margin-top:10px;">
-              <div>
-                <label class="required">Contract type</label>
-                <select id="inviteContractType">
-                  <option value="volunteer">Volunteer</option>
-                  <option value="interim">Interim</option>
-                  <option value="intern">Intern</option>
-                  <option value="contractual">Contractual</option>
-                  <option value="freelancer">Freelancer</option>
-                  <option value="collaborator">Collaborator</option>
-                </select>
-              </div>
-            </div>
-            <div class="btn-row">
-              <button id="inviteSearchBtn" class="btn secondary btn-sm">Search</button>
-            </div>
-            <div id="inviteResults" class="mt16"></div>
-            <div id="inviteResultLog" class="result-feed mt16"></div>
-          </div>
-
-        </div><!-- team-panel-body -->
-      </div><!-- team-panel -->
-
-      <!-- Debug log (shown only when debug=Y) -->
-      <div id="debugLogWrap" class="log-wrap hidden">
-        <h4 style="margin:16px 0 4px;font-size:13px;color:var(--muted);">Debug log</h4>
-        <pre class="log" id="debugLog"></pre>
+        <div class="btn-row">
+          <button id="searchCollabBtn" class="btn primary btn-sm">Search</button>
+          <button id="clearFiltersBtn" class="btn secondary btn-sm">Clear</button>
+        </div>
       </div>
 
-    </div><!-- viewTeam -->
+      <!-- Contract type selector — applies to all enrol/invite actions -->
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+        <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;">Contract type</label>
+        <select id="globalContractType" style="width:auto;min-width:170px;font-size:14px;padding:7px 32px 7px 10px;">
+          <option value="">(select)</option>
+          <option value="interim">Interim</option>
+          <option value="intern">Intern</option>
+          <option value="contractual">Contractual</option>
+          <option value="freelancer">Freelancer</option>
+          <option value="collaborator">Collaborator</option>
+          <option value="volunteer">Volunteer</option>
+        </select>
+      </div>
 
-  </main>
+      <!-- Results -->
+      <div id="collabResults"></div>
+      <div id="collabPagination" class="pagination"></div>
+
+      <!-- Result log -->
+      <div id="enrolResults" class="result-feed mt16"></div>
+    </div>
+
+    <!-- Debug log (shown only when debug=Y) -->
+    <div id="debugLogWrap" class="log-wrap hidden">
+      <h4 style="margin:16px 0 4px;font-size:13px;color:var(--muted);">Debug log</h4>
+      <pre class="log" id="debugLog"></pre>
+    </div>
+
+  </div><!-- viewTeam -->
+
+</main>
+
+<!-- Floating action button — links to create.html for current project -->
+<a id="fabBtn" href="create.html" class="fab hidden" title="Create team for this project">+</a>
 
 <!-- COOKIE BANNER -->
 <div id="cookie" class="cookie hidden">
@@ -541,14 +560,11 @@ const debugParam = new URLSearchParams(location.search).get("debug");
 let DEBUG        = debugParam === "1" || debugParam === "Y" || debugParam === "y";
 
 /* ================================================================
-   AUTH — read from sessionStorage (set by login page)
+   AUTH
    ================================================================ */
 const BASE  = localStorage.getItem("bwBase")   || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
-
-if(!BASE || !TOKEN){
-  window.location.replace("index.html");
-}
+if(!BASE || !TOKEN){ window.location.replace("index.html"); }
 
 /* ================================================================
    THEME
@@ -565,7 +581,7 @@ document.getElementById("themeBtn").addEventListener("click", () => {
 });
 
 /* ================================================================
-   NAV MENU (hamburger)
+   NAV MENU
    ================================================================ */
 const navMenu    = document.getElementById("navMenu");
 const navOverlay = document.getElementById("navOverlay");
@@ -583,7 +599,7 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 });
 
 /* ================================================================
-   DEBUG TOGGLE (menu item)
+   DEBUG TOGGLE
    ================================================================ */
 function syncDebug(){
   document.getElementById("debugBanner").classList.toggle("hidden", !DEBUG);
@@ -596,24 +612,66 @@ document.getElementById("debugToggleBtn").addEventListener("click", () => {
 });
 
 /* ================================================================
-   COOKIE HELPERS (for cookie banner only)
+   PWA INSTALL
    ================================================================ */
-function setCookie(k,v,days=365){ const e=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${e};path=/;SameSite=Lax;Secure`; }
+let pwaPrompt = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  pwaPrompt = e;
+  document.getElementById("pwaMenuBtn").classList.remove("hidden");
+});
+window.addEventListener("appinstalled", () => {
+  pwaPrompt = null;
+  document.getElementById("pwaMenuBtn").classList.add("hidden");
+  document.getElementById("pwaOverlay").classList.add("hidden");
+  localStorage.setItem("pwa_installed", "1");
+});
+function triggerPwaInstall(){
+  if(!pwaPrompt) return;
+  pwaPrompt.prompt();
+  pwaPrompt.userChoice.then(() => { pwaPrompt = null; });
+}
+document.getElementById("pwaMenuBtn").addEventListener("click", () => {
+  triggerPwaInstall();
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+});
+document.getElementById("pwaInstallBtn").addEventListener("click", () => { triggerPwaInstall(); });
+document.getElementById("pwaDismissBtn").addEventListener("click", () => {
+  document.getElementById("pwaOverlay").classList.add("hidden");
+  localStorage.setItem("pwa_install_dismissed", "1");
+});
+// Show overlay after 5 s (once)
+setTimeout(() => {
+  if(pwaPrompt && !localStorage.getItem("pwa_installed") && !localStorage.getItem("pwa_install_dismissed")){
+    document.getElementById("pwaOverlay").classList.remove("hidden");
+  }
+}, 5000);
+
+/* ================================================================
+   SERVICE WORKER
+   ================================================================ */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+/* ================================================================
+   COOKIE HELPERS
+   ================================================================ */
+function setCookie(k,v,days=365){ const e=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${e};path=/;SameSite=Lax`; }
 function getCookie(k){ return document.cookie.split("; ").reduce((r,v)=>{ const[n,...rest]=v.split("="); return n===k?decodeURIComponent(rest.join("=")):r; },""); }
 
 /* ================================================================
    STATE
    ================================================================ */
 const state = {
-  projects:        [],
-  functions:       [],
-  selectedProject: null,
+  projects:           [],
+  functions:          [],
+  selectedProject:    null,
   selectedSubproject: null,
-  selectedTeam:    null,
-  collabPage:      1,
-  collabTotal:     0,
-  selectedCollab:  null,
-  departmentId:    null
+  selectedTeam:       null,
+  collabPage:         1,
+  collabTotal:        0,
+  departmentId:       null
 };
 
 /* ================================================================
@@ -657,12 +715,15 @@ function fmtShift(team){
 }
 
 function showView(id){
-  ["viewLoading","viewProjects","viewProject","viewTeam"].forEach(v => {
+  ["viewLoading","viewProjects","viewProject","viewTeam","viewInvitations"].forEach(v => {
     document.getElementById(v).classList.toggle("hidden", v!==id);
   });
+  // Hide FAB unless shown explicitly by caller
+  if(id !== "viewProject" && id !== "viewTeam"){
+    document.getElementById("fabBtn").classList.add("hidden");
+  }
 }
 
-/* Debug log helper */
 function dLog(...args){
   if(!DEBUG) return;
   const el = document.getElementById("debugLog");
@@ -692,8 +753,7 @@ async function apiGET(path, queryObj){
   try { json = JSON.parse(txt); } catch {}
   if(!res.ok){
     const msg = parseApiErrors(json) || ("HTTP " + res.status);
-    const detail = DEBUG ? ` [${txt.slice(0,300)}]` : "";
-    throw new Error(msg + detail);
+    throw new Error(msg + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
   }
   return json;
 }
@@ -711,8 +771,7 @@ async function apiPOST(path, payload){
   try { json = JSON.parse(txt); } catch {}
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
-    const detail = DEBUG ? ` [${txt.slice(0,300)}]` : "";
-    throw new Error((apiErr || "HTTP " + res.status) + detail);
+    throw new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
   }
   return json;
 }
@@ -720,8 +779,7 @@ async function apiPOST(path, payload){
 async function apiDELETEorPOST(method, path, payload){
   dLog(method, path);
   const res = await fetch(proxyUrl(path), {
-    method,
-    headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
+    method, headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
     body: payload ? JSON.stringify(payload) : undefined
   });
   const txt = await res.text();
@@ -730,8 +788,7 @@ async function apiDELETEorPOST(method, path, payload){
   try { json = JSON.parse(txt); } catch {}
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
-    const detail = DEBUG ? ` [${txt.slice(0,300)}]` : "";
-    throw new Error((apiErr || "HTTP " + res.status) + detail);
+    throw new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
   }
   return json;
 }
@@ -745,7 +802,6 @@ function makeAlert(type, html){
   d.innerHTML = html;
   return d;
 }
-
 function appendResult(container, type, html){
   const el = makeAlert(type, html);
   container.prepend(el);
@@ -753,7 +809,38 @@ function appendResult(container, type, html){
 }
 
 /* ================================================================
-   LOAD PROJECTS + POPULATE SIDEBAR
+   HISTORY / BACK-BUTTON NAVIGATION
+   ================================================================ */
+function pushNav(state_obj){
+  history.pushState(state_obj, "", location.pathname + (state_obj.search || ""));
+}
+
+window.addEventListener("popstate", e => {
+  const s = e.state;
+  if(!s || s.view === "projects"){
+    showView("viewProjects");
+    return;
+  }
+  if(s.view === "project" && s.project){
+    selectProject(s.project, true);
+    return;
+  }
+  if(s.view === "subproject" && s.subproject){
+    state.selectedProject = s.project;
+    selectSubproject(s.subproject, true);
+    return;
+  }
+  if(s.view === "team" && s.team){
+    state.selectedProject    = s.project;
+    state.selectedSubproject = s.subproject || null;
+    selectTeam(s.team, true);
+    return;
+  }
+  showView("viewProjects");
+});
+
+/* ================================================================
+   LOAD PROJECTS
    ================================================================ */
 async function loadProjects(){
   showView("viewLoading");
@@ -773,19 +860,23 @@ async function loadProjects(){
 function renderProjectGrid(projects){
   const grid = document.getElementById("projectGrid");
   grid.innerHTML = "";
+  if(!projects.length){
+    grid.innerHTML = `<div class="empty"><p>No projects found.</p></div>`;
+    return;
+  }
   projects.forEach(p => {
     const color = p.color_code || "#4e6bff";
     const el = document.createElement("div");
     el.className = "card";
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <span class="proj-dot" style="background:${escHtml(color)};width:14px;height:14px;"></span>
+        <span style="background:${escHtml(color)};width:14px;height:14px;border-radius:3px;flex-shrink:0;display:inline-block;"></span>
         <h3 style="margin:0;">${escHtml(p.name)}</h3>
       </div>
       <div class="meta">
-        <span>📅 ${fmtDate(p.start_date)} – ${fmtDate(p.end_date)}</span><br>
-        ${p.department ? `<span>🏢 ${escHtml(p.department.name)}</span>` : ""}
-        ${p.customer   ? `<span>👤 ${escHtml(p.customer.name)}</span>`   : ""}
+        <span title="Date">📅 ${fmtDate(p.start_date)} – ${fmtDate(p.end_date)}</span><br>
+        ${p.department ? `<span title="Department">🏢 ${escHtml(p.department.name)}</span>` : ""}
+        ${p.customer   ? `<span title="Client">👤 ${escHtml(p.customer.name)}</span>`   : ""}
       </div>
       <div style="margin-top:8px;">
         <span class="chip chip-${p.published ? "green":"grey"}">${p.published?"Published":"Draft"}</span>
@@ -798,7 +889,7 @@ function renderProjectGrid(projects){
 }
 
 /* ================================================================
-   PROJECT SEARCH FILTER (filters the card grid)
+   PROJECT SEARCH FILTER
    ================================================================ */
 document.getElementById("projSearch").addEventListener("input", function(){
   const q = this.value.toLowerCase();
@@ -810,14 +901,15 @@ document.getElementById("projSearch").addEventListener("input", function(){
 /* ================================================================
    SELECT PROJECT
    ================================================================ */
-async function selectProject(project){
+async function selectProject(project, noPush){
   state.selectedProject    = project;
   state.selectedSubproject = null;
   state.selectedTeam       = null;
   state.departmentId       = project.department ? project.department.id : null;
 
+  if(!noPush) pushNav({ view:"project", project, search:"?view=project&id="+project.id });
+
   showView("viewProject");
-  initDateBar();
 
   const title = document.getElementById("viewProjectTitle");
   const sub   = document.getElementById("viewProjectSub");
@@ -826,13 +918,16 @@ async function selectProject(project){
   grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
 
   setBreadcrumb("viewProject", [
-    { label:"Projects", action: () => { showView("viewProjects"); clearActiveProject(); } },
+    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
     { label: project.name }
   ]);
 
   try {
     if(project.subprojects_enabled){
-      sub.textContent = "This project uses subprojects. Select one to see its teams.";
+      // Subprojects view — no date bar
+      hideDateBar();
+      document.getElementById("fabBtn").classList.add("hidden");
+      sub.textContent = "Select a subproject to see its teams.";
       const data = await apiGET(`api/v1/admin/projects/${project.id}/subprojects`);
       const subs = data.subprojects || [];
       if(!subs.length){
@@ -846,7 +941,7 @@ async function selectProject(project){
         el.innerHTML = `
           <h3>${escHtml(s.name)}</h3>
           <div class="meta">
-            <span>${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span>
+            <span title="Date">📅 ${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span>
           </div>
           <div style="margin-top:8px;">
             <span class="chip chip-blue">${s.registrations_count||0}/${s.volunteers_needed||0}</span>
@@ -855,7 +950,10 @@ async function selectProject(project){
         grid.appendChild(el);
       });
     } else {
+      // Direct teams view — show date bar + FAB
+      initDateBar();
       sub.textContent = "All teams in this project:";
+      showFab(project.id, null);
       await loadTeamsIntoGrid(grid, project.id, null);
     }
   } catch(e) {
@@ -863,14 +961,15 @@ async function selectProject(project){
   }
 }
 
-function clearActiveProject(){}
-
 /* ================================================================
    SELECT SUBPROJECT
    ================================================================ */
-async function selectSubproject(sub){
+async function selectSubproject(sub, noPush){
   state.selectedSubproject = sub;
   state.selectedTeam       = null;
+
+  if(!noPush) pushNav({ view:"subproject", project:state.selectedProject, subproject:sub, search:"?view=subproject&id="+sub.id });
+
   showView("viewProject");
   initDateBar();
 
@@ -884,10 +983,12 @@ async function selectSubproject(sub){
   grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading teams…</p></div>`;
 
   setBreadcrumb("viewProject", [
-    { label:"Projects",    action: () => { showView("viewProjects"); clearActiveProject(); } },
+    { label:"Projects",    action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
     { label: project.name, action: () => selectProject(project) },
     { label: sub.name }
   ]);
+
+  showFab(project.id, sub.id);
 
   try {
     await loadTeamsIntoGrid(grid, project.id, sub.id);
@@ -897,13 +998,30 @@ async function selectSubproject(sub){
 }
 
 /* ================================================================
+   FAB — floating action button linking to create page
+   ================================================================ */
+function showFab(projectId, subprojectId){
+  const fab = document.getElementById("fabBtn");
+  let url = `create.html?project=${encodeURIComponent(projectId)}`;
+  if(subprojectId) url += `&subproject=${encodeURIComponent(subprojectId)}`;
+  fab.href = url;
+  fab.classList.remove("hidden");
+}
+
+function hideDateBar(){
+  const bar = document.getElementById("teamDateBar");
+  bar.style.display = "none";
+  bar.classList.add("hidden");
+}
+
+/* ================================================================
    DATE BAR
    ================================================================ */
 function isoDate(d){ return d.toISOString().slice(0,10); }
 function defaultDateFrom(){ const d=new Date(); d.setDate(d.getDate()-7); return isoDate(d); }
 function defaultDateTo(){ const d=new Date(); d.setMonth(d.getMonth()+1); return isoDate(d); }
 
-let _dateBatInited = false;
+let _dateBarInited = false;
 function initDateBar(){
   const bar  = document.getElementById("teamDateBar");
   const from = document.getElementById("teamDateFrom");
@@ -912,8 +1030,8 @@ function initDateBar(){
   if(!to.value)   to.value   = defaultDateTo();
   bar.style.display = "flex";
   bar.classList.remove("hidden");
-  if(_dateBatInited) return;
-  _dateBatInited = true;
+  if(_dateBarInited) return;
+  _dateBarInited = true;
   document.getElementById("teamDateApply").addEventListener("click", () => reloadCurrentTeamGrid());
   document.getElementById("teamDateReset").addEventListener("click", () => {
     from.value = defaultDateFrom();
@@ -945,7 +1063,7 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const data  = await apiGET(path, { start_date: fromVal, end_date: toVal });
   const teams = data.teams || [];
   if(!teams.length){
-    grid.innerHTML = `<div class="empty"><p>No teams found.</p></div>`;
+    grid.innerHTML = `<div class="empty"><p>No teams found in the selected date range.</p></div>`;
     return;
   }
   grid.innerHTML = "";
@@ -955,13 +1073,13 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     el.innerHTML = `
       <h3>${escHtml(t.name||"(auto-named)")}</h3>
       <div class="meta">
-        <div>${fmtShift(t)}</div>
+        <div title="Shift">📅 ${fmtShift(t)}</div>
         <div style="margin-top:4px;">
           <span class="chip chip-${t.published?"green":"grey"}">${t.published?"Published":"Draft"}</span>
           <span class="chip chip-blue">${t.registrations_count||0}/${t.volunteers_needed||0} filled</span>
         </div>
-        ${t.function ? `<div style="margin-top:4px;">⚙ ${escHtml(t.function.name)}</div>` : ""}
-        ${t.address  ? `<div>📍 ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
+        ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
+        ${t.address  ? `<div title="Location">📍 ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
       </div>`;
     el.addEventListener("click", () => selectTeam(t));
     grid.appendChild(el);
@@ -971,12 +1089,19 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
 /* ================================================================
    SELECT TEAM
    ================================================================ */
-async function selectTeam(team){
-  state.selectedTeam   = team;
-  state.selectedCollab = null;
-  showView("viewTeam");
+async function selectTeam(team, noPush){
+  state.selectedTeam = team;
 
-  /* Show debug log area when debug mode is on */
+  if(!noPush) pushNav({
+    view:"team", team,
+    project: state.selectedProject,
+    subproject: state.selectedSubproject,
+    search:"?view=team&id="+team.id
+  });
+
+  showView("viewTeam");
+  document.getElementById("fabBtn").classList.add("hidden");
+
   document.getElementById("debugLogWrap").classList.toggle("hidden", !DEBUG);
   if(DEBUG) document.getElementById("debugLog").textContent = "";
 
@@ -984,7 +1109,7 @@ async function selectTeam(team){
   const sub     = state.selectedSubproject;
 
   const crumbs = [
-    { label:"Projects", action: () => { showView("viewProjects"); clearActiveProject(); } },
+    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
     { label: project.name, action: () => selectProject(project) }
   ];
   if(sub) crumbs.push({ label: sub.name, action: () => selectSubproject(sub) });
@@ -997,17 +1122,13 @@ async function selectTeam(team){
      <span class="chip chip-blue">${team.registrations_count||0}/${team.volunteers_needed||0} filled</span>`;
   document.getElementById("teamMeta").innerHTML =
     [fmtShift(team),
-     team.function ? "⚙ " + escHtml(team.function.name) : "",
-     team.address  ? "📍 " + escHtml(team.address.name||team.address.city||"") : ""
+     team.function ? `<span title="Function">⚙ ${escHtml(team.function.name)}</span>` : "",
+     team.address  ? `<span title="Location">📍 ${escHtml(team.address.name||team.address.city||"")}</span>` : ""
     ].filter(Boolean).join(" &nbsp;·&nbsp; ");
 
-  switchTab("enrolments");
-
-  document.getElementById("enrolResults").innerHTML    = "";
-  document.getElementById("inviteResultLog").innerHTML = "";
-  document.getElementById("inviteResults").innerHTML   = "";
-  document.getElementById("enrolForm").classList.add("hidden");
-  state.selectedCollab = null;
+  document.getElementById("enrolResults").innerHTML  = "";
+  document.getElementById("collabResults").innerHTML = "";
+  document.getElementById("collabPagination").innerHTML = "";
 
   loadEnrolments(team.id);
 }
@@ -1028,13 +1149,13 @@ async function loadEnrolments(teamId){
     feed.innerHTML = `<div class="enrol-list" id="enrolListInner"></div>`;
     const list = document.getElementById("enrolListInner");
     enrols.forEach(e => {
-      const c   = e.collaborator || {};
+      const c   = e.collaborator || e.volunteer || {};
       const row = document.createElement("div");
       row.className = "enrol-item";
       row.dataset.enrolId = e.id;
       row.innerHTML = `
-        <div class="collab-avatar">${escHtml(initials(c.first_name,c.last_name))}</div>
-        <div class="enrol-info">
+        <div class="collab-avatar" style="cursor:pointer;" title="View details" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(initials(c.first_name,c.last_name))}</div>
+        <div class="enrol-info" style="cursor:pointer;" data-view-collab="${escHtml(String(c.id||""))}">
           <div class="enrol-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
           <div style="font-size:12px;color:var(--muted);">
             ${e.contract_type ? `<span class="chip chip-grey">${escHtml(e.contract_type)}</span>` : ""}
@@ -1078,17 +1199,6 @@ document.addEventListener("click", async function(ev){
 });
 
 /* ================================================================
-   TABS
-   ================================================================ */
-function switchTab(name){
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab===name));
-  document.querySelectorAll(".tab-pane").forEach(p => p.classList.toggle("active", p.id==="tab-"+name));
-}
-document.querySelectorAll(".tab").forEach(btn => {
-  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-});
-
-/* ================================================================
    SEARCH COLLABORATORS
    ================================================================ */
 async function searchCollaborators(page){
@@ -1100,14 +1210,15 @@ async function searchCollaborators(page){
   container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
   pagDiv.innerHTML = "";
 
+  const searchVal = document.getElementById("fSearch").value.trim();
   const query = {
-    search:        document.getElementById("fSearch").value.trim()    || undefined,
-    function_id:   document.getElementById("fFunction").value         || undefined,
-    language:      document.getElementById("fLanguage").value         || undefined,
+    search:        searchVal   || undefined,
+    function_id:   document.getElementById("fFunction").value  || undefined,
+    language:      document.getElementById("fLanguage").value  || undefined,
     archived:      document.getElementById("fArchived").value === "true" ? true : undefined,
     blocked:       document.getElementById("fBlocked").value  === "true" ? true : undefined,
-    minimum_age:   document.getElementById("fMinAge").value            || undefined,
-    department_id: state.departmentId                                  || undefined,
+    minimum_age:   document.getElementById("fMinAge").value    || undefined,
+    department_id: state.departmentId                          || undefined,
     page
   };
   Object.keys(query).forEach(k => query[k]===undefined && delete query[k]);
@@ -1120,7 +1231,7 @@ async function searchCollaborators(page){
     const perPage = meta.per_page || 20;
 
     if(!collabs.length){
-      container.innerHTML = `<div class="empty"><p>No collaborators found matching your filters.</p></div>`;
+      container.innerHTML = `<div class="empty"><p>No collaborators found.</p></div>`;
       return;
     }
 
@@ -1131,34 +1242,163 @@ async function searchCollaborators(page){
       const card = document.createElement("div");
       card.className = "collab-card";
       card.innerHTML = `
-        <div class="collab-avatar">${escHtml(initials(c.first_name,c.last_name))}</div>
-        <div class="collab-info">
+        <div class="collab-avatar" data-view-collab="${escHtml(String(c.id))}" title="View details">${escHtml(initials(c.first_name,c.last_name))}</div>
+        <div class="collab-info" data-view-collab="${escHtml(String(c.id))}">
           <div class="collab-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
           <div class="collab-meta">
-            ${c.email ? escHtml(c.email) : ""}
-            ${c.function ? " · " + escHtml(c.function.name) : ""}
+            ${c.email    ? escHtml(c.email) : ""}
+            ${c.function ? " · <span title='Function'>⚙ " + escHtml(c.function.name) + "</span>" : ""}
             ${c.language ? " · " + escHtml(c.language.toUpperCase()) : ""}
             ${c.blocked  ? ' <span class="chip chip-red">Blocked</span>' : ""}
             ${c.archived ? ' <span class="chip chip-grey">Archived</span>' : ""}
           </div>
         </div>
         <div class="collab-actions">
-          <button class="btn primary btn-sm" data-select-collab="${escHtml(String(c.id))}" data-collab-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Enrol</button>
+          <button class="btn primary btn-sm"
+                  data-enrol-id="${escHtml(String(c.id))}"
+                  data-enrol-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Enrol</button>
+          <button class="btn btn-success btn-sm"
+                  data-invite-id="${escHtml(String(c.id))}"
+                  data-invite-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Invite</button>
         </div>`;
       list.appendChild(card);
     });
     container.appendChild(list);
 
     const totalPages = Math.ceil(state.collabTotal / perPage);
-    if(totalPages > 1){
-      renderPagination(pagDiv, page, totalPages, searchCollaborators);
-    }
+    if(totalPages > 1) renderPagination(pagDiv, page, totalPages, searchCollaborators);
 
   } catch(e) {
     container.innerHTML = `<div class="alert alert-error"><b>Search failed:</b> ${escHtml(e.message)}</div>`;
   }
 }
 
+document.getElementById("searchCollabBtn").addEventListener("click", () => searchCollaborators(1));
+document.getElementById("fSearch").addEventListener("keydown", e => { if(e.key==="Enter") searchCollaborators(1); });
+document.getElementById("clearFiltersBtn").addEventListener("click", () => {
+  ["fSearch","fMinAge"].forEach(id => document.getElementById(id).value = "");
+  ["fFunction","fLanguage","fArchived","fBlocked"].forEach(id => document.getElementById(id).selectedIndex = 0);
+  document.getElementById("collabResults").innerHTML    = "";
+  document.getElementById("collabPagination").innerHTML = "";
+});
+
+/* ================================================================
+   ENROL / INVITE (buttons on each collaborator card)
+   ================================================================ */
+document.addEventListener("click", async function(ev){
+  const enrolBtn  = ev.target.closest("[data-enrol-id]");
+  const inviteBtn = ev.target.closest("[data-invite-id]");
+  if(!enrolBtn && !inviteBtn) return;
+
+  const isInvite   = !!inviteBtn;
+  const btn        = isInvite ? inviteBtn : enrolBtn;
+  const collabId   = btn.dataset[isInvite ? "inviteId"   : "enrolId"];
+  const collabName = btn.dataset[isInvite ? "inviteName" : "enrolName"];
+
+  if(!state.selectedTeam){ alert("No team selected."); return; }
+
+  const contractType = document.getElementById("globalContractType").value;
+  if(!contractType){ alert("Please select a contract type above before enrolling or inviting."); return; }
+
+  const log = document.getElementById("enrolResults");
+  btn.disabled = true; btn.textContent = "…";
+
+  try {
+    /* Endpoint: POST api/v1/admin/teams/{team_id}/enrolments */
+    const res = await apiPOST(`api/v1/admin/teams/${state.selectedTeam.id}/enrolments`, {
+      enrolment: {
+        volunteer_id:  collabId,
+        contract_type: contractType,
+        invitation:    isInvite
+      }
+    });
+    const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
+    const action  = isInvite ? "Invitation sent" : "Enrolled";
+    appendResult(log, "success",
+      `<b>${action}:</b> ${escHtml(collabName)} → "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
+    btn.textContent = isInvite ? "✓ Invited" : "✓ Enrolled";
+    if(!isInvite) loadEnrolments(state.selectedTeam.id);
+  } catch(e) {
+    appendResult(log, "error", `<b>Failed for ${escHtml(collabName)}:</b> ${e.message}`);
+    btn.disabled = false; btn.textContent = isInvite ? "Invite" : "Enrol";
+  }
+});
+
+/* ================================================================
+   COLLABORATOR DETAIL MODAL
+   ================================================================ */
+document.addEventListener("click", async function(ev){
+  const trigger = ev.target.closest("[data-view-collab]");
+  if(!trigger) return;
+  const collabId = trigger.dataset.viewCollab;
+  if(!collabId || collabId === "undefined") return;
+  openCollabModal(collabId);
+});
+
+document.getElementById("collabModalClose").addEventListener("click", () => {
+  document.getElementById("collabModal").classList.add("hidden");
+});
+document.getElementById("collabModal").addEventListener("click", e => {
+  if(e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
+});
+
+async function openCollabModal(collabId){
+  const modal  = document.getElementById("collabModal");
+  const body   = document.getElementById("collabModalBody");
+  const avatar = document.getElementById("collabModalAvatar");
+  const name   = document.getElementById("collabModalName");
+
+  avatar.textContent = "…";
+  name.textContent   = "Loading…";
+  body.innerHTML     = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
+  modal.classList.remove("hidden");
+
+  try {
+    const data = await apiGET(`api/v1/admin/collaborators/${collabId}`);
+    const c    = data.volunteer || data.collaborator || data;
+
+    avatar.textContent = initials(c.first_name, c.last_name);
+    name.textContent   = [c.first_name, c.last_name].filter(Boolean).join(" ") || "(no name)";
+
+    const rows = [
+      ["Email",        c.email],
+      ["Phone",        c.phone || c.mobile],
+      ["Language",     c.language ? c.language.toUpperCase() : null],
+      ["Function",     c.function ? c.function.name : null],
+      ["Department",   c.department ? c.department.name : null],
+      ["Date of birth",c.date_of_birth ? fmtDate(c.date_of_birth) : null],
+      ["Status",       [c.archived?"Archived":null, c.blocked?"Blocked":null].filter(Boolean).join(", ") || "Active"],
+      ["Address",      c.address ? [c.address.street, c.address.number, c.address.city].filter(Boolean).join(" ") : null],
+    ];
+
+    let html = `<div class="detail-grid">`;
+    rows.forEach(([label, val]) => {
+      if(!val && val !== 0) return;
+      html += `<div class="detail-item"><label>${escHtml(label)}</label><span>${escHtml(String(val))}</span></div>`;
+    });
+    html += `</div>`;
+
+    // Profile properties if present
+    const props = c.profile_properties || c.profile_property_answers || [];
+    if(props.length){
+      html += `<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">`;
+      html += `<div style="font-weight:700;font-size:13px;color:var(--muted);margin-bottom:10px;">Profile properties</div>`;
+      html += `<div class="detail-grid">`;
+      props.forEach(p => {
+        html += `<div class="detail-item"><label>${escHtml(p.name||p.label||"")}</label><span>${escHtml(String(p.value||p.answer||"—"))}</span></div>`;
+      });
+      html += `</div>`;
+    }
+
+    body.innerHTML = html;
+  } catch(e) {
+    body.innerHTML = `<div class="alert alert-error"><b>Could not load collaborator:</b> ${escHtml(e.message)}</div>`;
+  }
+}
+
+/* ================================================================
+   PAGINATION
+   ================================================================ */
 function renderPagination(container, current, total, callback){
   container.innerHTML = "";
   const prev = document.createElement("button");
@@ -1177,153 +1417,6 @@ function renderPagination(container, current, total, callback){
   container.appendChild(next);
 }
 
-/* Handle "Enrol" button click on a collab card */
-document.addEventListener("click", function(ev){
-  const btn = ev.target.closest("[data-select-collab]");
-  if(!btn) return;
-  state.selectedCollab = { id: btn.dataset.selectCollab, name: btn.dataset.collabName };
-  document.getElementById("enrolTargetName").textContent = btn.dataset.collabName;
-  document.getElementById("enrolForm").classList.remove("hidden");
-  document.getElementById("enrolForm").scrollIntoView({ behavior:"smooth", block:"nearest" });
-});
-
-document.getElementById("cancelEnrolSelectBtn").addEventListener("click", () => {
-  state.selectedCollab = null;
-  document.getElementById("enrolForm").classList.add("hidden");
-});
-
-/* ================================================================
-   CONFIRM ENROLMENT
-   ================================================================ */
-document.getElementById("confirmEnrolBtn").addEventListener("click", async () => {
-  if(!state.selectedCollab || !state.selectedTeam) return;
-
-  const contractType = document.getElementById("contractType").value;
-  const isInvite     = document.getElementById("enrolInvite").value === "true";
-
-  if(!contractType){ alert("Please select a contract type."); return; }
-
-  const btn = document.getElementById("confirmEnrolBtn");
-  btn.disabled = true; btn.textContent = "…";
-
-  const resultFeed = document.getElementById("enrolResults");
-
-  try {
-    const payload = {
-      enrolment: {
-        volunteer_id:  state.selectedCollab.id,
-        team_id:       state.selectedTeam.id,
-        contract_type: contractType,
-        invitation:    isInvite
-      }
-    };
-    const res = await apiPOST("api/v1/admin/enrolments", payload);
-
-    const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
-    const action  = isInvite ? "Invitation sent" : "Enrolled";
-
-    appendResult(resultFeed, "success",
-      `<b>${action}:</b> ${escHtml(state.selectedCollab.name)} → Team "${escHtml(state.selectedTeam.name||"")}" (enrolment #${escHtml(String(enrolId))})`);
-
-    state.selectedCollab = null;
-    document.getElementById("enrolForm").classList.add("hidden");
-    document.getElementById("contractType").value = "";
-
-    loadEnrolments(state.selectedTeam.id);
-
-  } catch(e) {
-    appendResult(resultFeed, "error", `<b>Error:</b> ${escHtml(e.message)}`);
-  } finally {
-    btn.disabled = false; btn.textContent = "Confirm enrolment";
-  }
-});
-
-/* ================================================================
-   SEARCH COLLABORATORS (filter bar)
-   ================================================================ */
-document.getElementById("searchCollabBtn").addEventListener("click", () => searchCollaborators(1));
-document.getElementById("fSearch").addEventListener("keydown", e => { if(e.key==="Enter") searchCollaborators(1); });
-
-document.getElementById("clearFiltersBtn").addEventListener("click", () => {
-  ["fSearch","fMinAge"].forEach(id => document.getElementById(id).value = "");
-  ["fFunction","fLanguage","fArchived","fBlocked"].forEach(id => document.getElementById(id).selectedIndex = 0);
-  document.getElementById("collabResults").innerHTML    = "";
-  document.getElementById("collabPagination").innerHTML = "";
-});
-
-/* ================================================================
-   INVITE SEARCH
-   ================================================================ */
-document.getElementById("inviteSearchBtn").addEventListener("click", async () => {
-  const q = document.getElementById("inviteSearch").value.trim();
-  if(!q){ alert("Enter a name to search."); return; }
-  const container = document.getElementById("inviteResults");
-  container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
-  try {
-    const data    = await apiGET("api/v1/admin/collaborators", {
-      search:        q,
-      department_id: state.departmentId || undefined,
-      archived:      undefined
-    });
-    const collabs = data.volunteers || data.collaborators || [];
-    if(!collabs.length){
-      container.innerHTML = `<div class="empty"><p>No collaborators found.</p></div>`;
-      return;
-    }
-    container.innerHTML = "";
-    const list = document.createElement("div"); list.className = "collab-list";
-    collabs.forEach(c => {
-      const card = document.createElement("div"); card.className = "collab-card";
-      card.innerHTML = `
-        <div class="collab-avatar">${escHtml(initials(c.first_name,c.last_name))}</div>
-        <div class="collab-info">
-          <div class="collab-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
-          <div class="collab-meta">${c.email ? escHtml(c.email) : ""}</div>
-        </div>
-        <div class="collab-actions">
-          <button class="btn btn-success btn-sm"
-                  data-invite-collab="${escHtml(String(c.id))}"
-                  data-invite-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Invite</button>
-        </div>`;
-      list.appendChild(card);
-    });
-    container.appendChild(list);
-  } catch(e) {
-    container.innerHTML = `<div class="alert alert-error">${escHtml(e.message)}</div>`;
-  }
-});
-
-/* Handle "Invite" button — now includes contract_type */
-document.addEventListener("click", async function(ev){
-  const btn = ev.target.closest("[data-invite-collab]");
-  if(!btn) return;
-  if(!state.selectedTeam){ alert("No team selected."); return; }
-
-  const collabId       = btn.dataset.inviteCollab;
-  const collabName     = btn.dataset.inviteName;
-  const contractType   = document.getElementById("inviteContractType").value;
-  const log            = document.getElementById("inviteResultLog");
-
-  btn.disabled = true; btn.textContent = "…";
-  try {
-    const res = await apiPOST("api/v1/admin/enrolments", {
-      enrolment: {
-        volunteer_id:  collabId,
-        team_id:       state.selectedTeam.id,
-        contract_type: contractType,
-        invitation:    true
-      }
-    });
-    const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
-    appendResult(log, "success",
-      `<b>Invitation sent</b> to ${escHtml(collabName)} for team "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
-    btn.textContent = "✓ Sent";
-  } catch(e) {
-    appendResult(log, "error", `<b>Failed for ${escHtml(collabName)}:</b> ${escHtml(e.message)}`);
-    btn.disabled = false; btn.textContent = "Invite";
-  }
-});
-
 /* ================================================================
    BREADCRUMB BUILDER
    ================================================================ */
@@ -1331,20 +1424,11 @@ function setBreadcrumb(containerId, crumbs){
   const el = document.getElementById(containerId === "viewTeam" ? "breadcrumbTeam" : "breadcrumb");
   el.innerHTML = "";
   crumbs.forEach((c, i) => {
-    if(i > 0){
-      const sep = document.createElement("span");
-      sep.textContent = "›";
-      el.appendChild(sep);
-    }
+    if(i > 0){ const sep = document.createElement("span"); sep.textContent = "›"; el.appendChild(sep); }
     if(c.action){
-      const a = document.createElement("a");
-      a.textContent = c.label;
-      a.addEventListener("click", c.action);
-      el.appendChild(a);
+      const a = document.createElement("a"); a.textContent = c.label; a.addEventListener("click", c.action); el.appendChild(a);
     } else {
-      const s = document.createElement("span");
-      s.textContent = c.label;
-      el.appendChild(s);
+      const s = document.createElement("span"); s.textContent = c.label; el.appendChild(s);
     }
   });
 }
@@ -1366,6 +1450,161 @@ async function loadFunctions(){
 }
 
 /* ================================================================
+   GRID SEARCH FILTER (teams / subprojects)
+   ================================================================ */
+document.getElementById("gridSearch").addEventListener("input", function(){
+  const q = this.value.toLowerCase();
+  document.querySelectorAll("#subprojectGrid .card").forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+});
+
+/* ================================================================
+   PENDING INVITATIONS VIEW
+   ================================================================ */
+function showInvitations(){
+  showView("viewInvitations");
+  document.getElementById("viewInvitations").classList.remove("hidden");
+  document.getElementById("fabBtn").classList.add("hidden");
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+
+  // Populate project dropdown
+  const sel = document.getElementById("invProjectSelect");
+  sel.innerHTML = `<option value="">(select project)</option>`;
+  state.projects.forEach(p => {
+    const o = document.createElement("option");
+    o.value = p.id; o.textContent = p.name;
+    sel.appendChild(o);
+  });
+  setBreadcrumbInv([
+    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"},""); } },
+    { label:"Pending Invitations" }
+  ]);
+}
+
+function setBreadcrumbInv(crumbs){
+  const el = document.getElementById("breadcrumbInv");
+  if(!el) return;
+  el.innerHTML = "";
+  crumbs.forEach((c,i) => {
+    if(i > 0){ const sep = document.createElement("span"); sep.textContent = "›"; el.appendChild(sep); }
+    if(c.action){ const a = document.createElement("a"); a.textContent = c.label; a.addEventListener("click",c.action); el.appendChild(a); }
+    else { const s = document.createElement("span"); s.textContent = c.label; el.appendChild(s); }
+  });
+}
+
+document.getElementById("navInvitationsBtn").addEventListener("click", () => {
+  // If projects not loaded yet, load them first
+  if(!state.projects.length){
+    loadProjects().then(() => showInvitations());
+  } else {
+    showInvitations();
+  }
+});
+
+document.getElementById("invBackBtn").addEventListener("click", () => {
+  showView("viewProjects");
+  history.pushState({view:"projects"},"");
+});
+
+document.getElementById("loadInvitationsBtn").addEventListener("click", async () => {
+  const projectId = document.getElementById("invProjectSelect").value;
+  if(!projectId){ alert("Please select a project."); return; }
+
+  const feed = document.getElementById("invitationsFeed");
+  feed.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading teams and enrolments…</p></div>`;
+
+  const btn = document.getElementById("loadInvitationsBtn");
+  btn.disabled = true; btn.textContent = "Loading…";
+
+  try {
+    const project = state.projects.find(p => String(p.id) === String(projectId));
+    const fromVal = defaultDateFrom();
+    const toVal   = defaultDateTo();
+
+    // Collect all teams (from subprojects if applicable, else directly)
+    let allTeams = [];
+    if(project && project.subprojects_enabled){
+      const subsData = await apiGET(`api/v1/admin/projects/${projectId}/subprojects`);
+      const subs = subsData.subprojects || [];
+      for(const sub of subs){
+        try {
+          const td = await apiGET(`api/v1/admin/subprojects/${sub.id}/teams`, { start_date: fromVal, end_date: toVal });
+          (td.teams || []).forEach(t => { t._subprojectName = sub.name; allTeams.push(t); });
+        } catch {}
+      }
+    } else {
+      const td = await apiGET(`api/v1/admin/projects/${projectId}/teams`, { start_date: fromVal, end_date: toVal });
+      allTeams = td.teams || [];
+    }
+
+    if(!allTeams.length){
+      feed.innerHTML = `<div class="empty"><p>No teams found in the last 7 days to next month.</p></div>`;
+      return;
+    }
+
+    // Load enrolments for each team and filter pending invitations
+    const pending = [];
+    for(const team of allTeams){
+      try {
+        const ed = await apiGET(`api/v1/admin/teams/${team.id}/enrolments`);
+        (ed.enrolments || []).forEach(e => {
+          if(e.invitation && !e.confirmed && !e.cancelled){
+            pending.push({ enrolment: e, team });
+          }
+        });
+      } catch {}
+    }
+
+    if(!pending.length){
+      feed.innerHTML = `<div class="empty"><p>No pending invitations found for this project.</p></div>`;
+      return;
+    }
+
+    // Render pending invitations table
+    feed.innerHTML = `
+      <p style="font-size:13px;color:var(--muted);margin:0 0 12px;">${pending.length} pending invitation${pending.length===1?"":"s"}</p>
+      <div style="overflow-x:auto;">
+        <table style="min-width:500px;width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--fieldBorder);border-radius:10px;overflow:hidden;background:var(--field);">
+          <thead>
+            <tr>
+              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Collaborator</th>
+              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Team</th>
+              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Shift</th>
+              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Contract type</th>
+            </tr>
+          </thead>
+          <tbody id="invTableBody"></tbody>
+        </table>
+      </div>`;
+    const tbody = document.getElementById("invTableBody");
+    pending.forEach(({ enrolment: e, team }) => {
+      const c = e.collaborator || e.volunteer || {};
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">
+          <span style="font-weight:700;cursor:pointer;color:var(--accent);" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</span>
+          ${c.email ? `<div style="font-size:12px;color:var(--muted);">${escHtml(c.email)}</div>` : ""}
+        </td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">
+          ${escHtml(team.name||"(auto-named)")}
+          ${team._subprojectName ? `<div style="font-size:12px;color:var(--muted);">${escHtml(team._subprojectName)}</div>` : ""}
+        </td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">${fmtShift(team)}</td>
+        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">
+          <span class="chip chip-grey">${escHtml(e.contract_type||"—")}</span>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+
+  } catch(e) {
+    feed.innerHTML = `<div class="alert alert-error"><b>Error loading invitations:</b> ${escHtml(e.message)}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = "Load invitations";
+  }
+});
+
+/* ================================================================
    INIT
    ================================================================ */
 (function init(){
@@ -1377,6 +1616,9 @@ async function loadFunctions(){
   /* Debug */
   syncDebug();
 
+  /* Replace the initial history entry so back-button works from first step */
+  history.replaceState({ view:"projects" }, "", location.href);
+
   /* Cookie banner */
   if(!getCookie("beeple_cookie_ok")){
     document.getElementById("cookie").classList.remove("hidden");
@@ -1387,9 +1629,28 @@ async function loadFunctions(){
     setTimeout(() => document.getElementById("cookie").classList.add("hidden"), 380);
   });
 
-  /* Load projects */
+  /* Load data */
   loadProjects();
   loadFunctions();
+
+  /* Pre-select from URL params if navigated via FAB */
+  const sp = new URLSearchParams(location.search);
+  if(sp.get("project")){
+    /* We'll try to pre-select after projects load */
+    const targetProject = sp.get("project");
+    const targetSub     = sp.get("subproject");
+    const origLoad = loadProjects;
+    (async () => {
+      await new Promise(r => setTimeout(r, 800)); // wait for projects to load
+      const p = state.projects.find(x => String(x.id) === targetProject);
+      if(p) await selectProject(p);
+      if(targetSub && p && p.subprojects_enabled){
+        /* select subproject after project loads — wait for grid */
+        await new Promise(r => setTimeout(r, 800));
+        // subproject selection via URL handled gracefully — just show the project for now
+      }
+    })();
+  }
 })();
 </script>
 </body>
