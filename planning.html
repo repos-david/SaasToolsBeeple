@@ -598,7 +598,7 @@ document.getElementById("debugToggleBtn").addEventListener("click", () => {
 /* ================================================================
    COOKIE HELPERS (for cookie banner only)
    ================================================================ */
-function setCookie(k,v,days=365){ const e=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${e};path=/;SameSite=Lax`; }
+function setCookie(k,v,days=365){ const e=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${e};path=/;SameSite=Lax;Secure`; }
 function getCookie(k){ return document.cookie.split("; ").reduce((r,v)=>{ const[n,...rest]=v.split("="); return n===k?decodeURIComponent(rest.join("=")):r; },""); }
 
 /* ================================================================
@@ -1232,7 +1232,7 @@ document.getElementById("confirmEnrolBtn").addEventListener("click", async () =>
     loadEnrolments(state.selectedTeam.id);
 
   } catch(e) {
-    appendResult(resultFeed, "error", `<b>Error:</b> ${e.message}`);
+    appendResult(resultFeed, "error", `<b>Error:</b> ${escHtml(e.message)}`);
   } finally {
     btn.disabled = false; btn.textContent = "Confirm enrolment";
   }
@@ -1319,7 +1319,7 @@ document.addEventListener("click", async function(ev){
       `<b>Invitation sent</b> to ${escHtml(collabName)} for team "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
     btn.textContent = "✓ Sent";
   } catch(e) {
-    appendResult(log, "error", `<b>Failed for ${escHtml(collabName)}:</b> ${e.message}`);
+    appendResult(log, "error", `<b>Failed for ${escHtml(collabName)}:</b> ${escHtml(e.message)}`);
     btn.disabled = false; btn.textContent = "Invite";
   }
 });
