@@ -368,7 +368,7 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 });
 
 /* ---- Per-tenant form state (in cookies, keyed by tenant URL) ---- */
-function setCookie(k,v,days=365){ const exp=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${exp};path=/;SameSite=Lax`; }
+function setCookie(k,v,days=365){ const exp=new Date(Date.now()+days*864e5).toUTCString(); document.cookie=`${k}=${encodeURIComponent(v)};expires=${exp};path=/;SameSite=Lax;Secure`; }
 function getCookie(k){ return document.cookie.split("; ").reduce((r,v)=>{ const[n,...rest]=v.split("="); return n===k?decodeURIComponent(rest.join("=")):r; },""); }
 function tenantKey(){ return BASE.replace(/^https?:\/\//,"").replace(/[^\w.-]/g,"_"); }
 const savePerTenant = (k,v) => { const t=tenantKey(); if(t) setCookie(`beeple_${t}_${k}`,v); };
