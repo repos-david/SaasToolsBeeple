@@ -1297,15 +1297,15 @@ document.addEventListener("click", async function(ev){
   btn.disabled = true; btn.textContent = "…";
 
   try {
-    /* Endpoint: POST api/v1/admin/teams/{team_id}/enrolments */
-    const res = await apiPOST(`api/v1/admin/teams/${state.selectedTeam.id}/enrolments`, {
-      enrolment: {
-        volunteer_id:  collabId,
-        contract_type: contractType,
-        invitation:    isInvite
+    const res = await apiPOST(`api/v1/admin/collaborators/enrolments`, {
+      team_registration: {
+        collaborator_id: collabId,
+        team_id:         state.selectedTeam.id,
+        contract_type:   contractType,
+        invitation:      isInvite
       }
     });
-    const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
+    const enrolId = (res.team_registration && res.team_registration.id) || (res.enrolment && res.enrolment.id) || res.id || "?";
     const action  = isInvite ? "Invitation sent" : "Enrolled";
     appendResult(log, "success",
       `<b>${action}:</b> ${escHtml(collabName)} → "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
