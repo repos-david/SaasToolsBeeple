@@ -422,12 +422,9 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     </div>
     <!-- Date bar: only shown when listing teams (not subprojects) -->
     <div id="teamDateBar" class="hidden" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-      <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">Teams from</label>
       <input id="teamDateFrom" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
-      <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">to</label>
+      <span style="font-size:13px;color:var(--muted);">→</span>
       <input id="teamDateTo" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
-      <button class="btn secondary btn-sm" id="teamDateApply">Apply</button>
-      <button class="btn btn-sm" id="teamDateReset" style="color:var(--muted);">Reset</button>
     </div>
     <div id="subprojectGrid" class="card-grid"></div>
   </div>
@@ -1032,12 +1029,8 @@ function initDateBar(){
   bar.classList.remove("hidden");
   if(_dateBarInited) return;
   _dateBarInited = true;
-  document.getElementById("teamDateApply").addEventListener("click", () => reloadCurrentTeamGrid());
-  document.getElementById("teamDateReset").addEventListener("click", () => {
-    from.value = defaultDateFrom();
-    to.value   = defaultDateTo();
-    reloadCurrentTeamGrid();
-  });
+  from.addEventListener("change", () => reloadCurrentTeamGrid());
+  to.addEventListener("change",   () => reloadCurrentTeamGrid());
 }
 
 function reloadCurrentTeamGrid(){
