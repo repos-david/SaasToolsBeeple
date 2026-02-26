@@ -36,25 +36,37 @@ body {
   font-size:15px; line-height:1.55;
   -webkit-text-size-adjust:100%; text-size-adjust:100%;
 }
+/* ACCENT STRIP */
+.accent-strip {
+  height:4px; background:linear-gradient(90deg,var(--accent),var(--accent2));
+  flex-shrink:0;
+}
 /* TOP BAR */
 .topbar {
   position:sticky; top:0; z-index:30;
   background:var(--card); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:12px;
-  padding:10px 16px;
+  display:flex; align-items:center; gap:14px;
+  padding:12px 20px;
+  box-shadow:0 1px 3px rgba(15,23,42,.06);
 }
 .topbar .brand img { height:22px; width:auto; display:block; }
-.topbar .title { font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center; }
-.icon-btn {
-  width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
-  background:var(--accentSoft); cursor:pointer; display:flex; align-items:center;
-  justify-content:center; flex-shrink:0; color:var(--accent);
+.topbar .title {
+  font-weight:700; font-size:15px; flex:1; text-align:center;
+  color:var(--muted); letter-spacing:.01em;
 }
-[data-theme="dark"] .icon-btn { color:var(--accent2); }
-.icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.icon-btn {
+  width:36px; height:36px; border-radius:8px; border:1px solid var(--border);
+  background:var(--card); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0; color:var(--muted);
+  transition:background .15s,color .15s;
+}
+.icon-btn:hover { background:var(--accentSoft); color:var(--accent); }
+[data-theme="dark"] .icon-btn { color:var(--muted); }
+[data-theme="dark"] .icon-btn:hover { color:var(--accent2); }
+.icon-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 /* MAIN / LOGIN */
 .login-wrap {
-  min-height:calc(100vh - 55px);
+  min-height:calc(100vh - 59px);
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   padding:28px 16px;
@@ -114,6 +126,9 @@ input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow
 </style>
 </head>
 <body>
+
+<!-- ACCENT STRIP -->
+<div class="accent-strip"></div>
 
 <!-- TOP BAR -->
 <div class="topbar">
