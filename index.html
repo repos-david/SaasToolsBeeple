@@ -261,11 +261,11 @@ document.getElementById("loginPwBtn").addEventListener("click", async () => {
   btn.disabled = true; btn.textContent = "Logging in…";
 
   try {
-    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/admin/sessions")}${DEBUG?"&debug=1":""}`;
+    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/authenticate")}${DEBUG?"&debug=1":""}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Beeple-Token": "login" },
-      body: JSON.stringify({ email, password: pass })
+      body: JSON.stringify({ session: { email, password: pass } })
     });
     const txt = await res.text();
     let json = {};
