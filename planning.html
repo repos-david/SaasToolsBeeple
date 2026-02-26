@@ -1205,7 +1205,7 @@ async function searchCollaborators(page){
 
   const searchVal = document.getElementById("fSearch").value.trim();
   const query = {
-    search:        searchVal   || undefined,
+    q:             searchVal   || undefined,
     function_id:   document.getElementById("fFunction").value  || undefined,
     language:      document.getElementById("fLanguage").value  || undefined,
     archived:      document.getElementById("fArchived").value === "true" ? true : undefined,
