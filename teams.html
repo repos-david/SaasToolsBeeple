@@ -273,8 +273,8 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
         </div>
         <div class="body">
           <div class="row">
-            <div><label>Relative check-in start (HH:MM)</label><input id="relCheckinStart" placeholder="00:30"></div>
-            <div><label>Relative check-in duration (HH:MM)</label><input id="relCheckinDuration" placeholder="00:15"></div>
+            <div><label>Relative check-in start (HH:MM)</label><input id="relCheckinStart" placeholder="00:30" pattern="[0-9]{1,2}:[0-9]{2}" title="Enter time as HH:MM, e.g. 00:30"></div>
+            <div><label>Relative check-in duration (HH:MM)</label><input id="relCheckinDuration" placeholder="00:15" pattern="[0-9]{1,2}:[0-9]{2}" title="Enter duration as HH:MM, e.g. 00:15"></div>
           </div>
           <div class="row">
             <div><label>Work location specification</label><input id="locationSpec" placeholder="At the entrance"></div>
@@ -333,7 +333,7 @@ const DEBUG     = (new URLSearchParams(location.search).get("debug") || "").toUp
 const BASE  = localStorage.getItem("bwBase")  || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
 
-if(!BASE || !TOKEN){ window.location.href = "index.html"; }
+if(!BASE || !TOKEN){ window.location.replace("index.html"); }
 
 const els = {
   loadBtn:document.getElementById("loadBtn"),
@@ -360,7 +360,7 @@ const L = (...a) => { els.log.textContent += a.join(" ") + "\n"; els.log.scrollT
 const addGap = () => { els.log.textContent += "\n"; };
 const extractErr = e => { if(!e) return "Unknown error"; if(typeof e==="string") return e; if(e.message) return e.message; try{ return JSON.stringify(e); }catch{ return String(e); } };
 
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+function escHtml(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
 
 const tenantKey = () => BASE.replace(/^https?:\/\//,"").replace(/[^\w.-]/g,"_");
 const savePerTenant = (k,v) => { const t=tenantKey(); if(t) localStorage.setItem(`beeple_${t}_${k}`,v); };
@@ -394,7 +394,7 @@ document.getElementById("themeMenuBtn").addEventListener("click", () => {
 
 document.getElementById("logoutBtn").addEventListener("click", () => {
   sessionStorage.removeItem("bwToken");
-  window.location.href = "index.html";
+  window.location.replace("index.html");
 });
 
 /* Collapsible */
@@ -572,13 +572,24 @@ function renderCreated(){
   state.created.forEach(item => {
     const shift = (item.start && item.end) ? `${item.start} — ${item.end}` : "";
     const tr = document.createElement("tr"); tr.setAttribute("data-id", item.id);
-    tr.innerHTML = `<td>${escapeHtml(item.id)}</td><td>${escapeHtml(item.projectName)}</td><td>${escapeHtml(item.subprojectName)}</td><td>${escapeHtml(item.name)}</td><td>${escapeHtml(item.functionName)}</td><td>${escapeHtml(item.addressName)}</td><td>${escapeHtml(item.compensationName)}</td><td>${escapeHtml(shift)}</td><td><button class="btn btn-ghost" data-del="${escapeHtml(item.id)}">Delete</button></td>`;
+    tr.innerHTML = `<td>${escHtml(item.id)}</td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td>${escHtml(item.name)}</td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td><button class="btn btn-ghost" data-del="${escHtml(item.id)}">Delete</button></td>`;
     els.createdTbody.appendChild(tr);
   });
 }
 
+const HHMM_RE = /^[0-9]{1,2}:[0-9]{2}$/;
 async function createSingleTeam(){
   if(!els.projectSelect.value){ alert("Select a project first (load tenant data)."); return; }
+  const rcStart    = els.relCheckinStart.value;
+  const rcDuration = els.relCheckinDuration.value;
+  if(rcStart && !HHMM_RE.test(rcStart)){
+    alert("Relative check-in start must be in HH:MM format (e.g. 00:30).");
+    return;
+  }
+  if(rcDuration && !HHMM_RE.test(rcDuration)){
+    alert("Relative check-in duration must be in HH:MM format (e.g. 00:15).");
+    return;
+  }
   const q = currentFormRow();
   const btn = els.createSingleBtn;
   btn.disabled = true; btn.textContent = "Creating…";
@@ -604,11 +615,11 @@ async function createSingleTeam(){
 }
 
 async function deleteCreated(id){
-  const btn = document.querySelector(`[data-del="${id}"]`);
+  const btn = document.querySelector(`[data-del="${CSS.escape(id)}"]`);
   if(btn){ btn.textContent = "…"; btn.disabled = true; }
   try{
     await proxyDELETE(`api/v1/admin/teams/${encodeURIComponent(id)}`);
-    const row = document.querySelector(`tr[data-id="${id}"]`);
+    const row = document.querySelector(`tr[data-id="${CSS.escape(id)}"]`);
     if(row){ row.classList.add("slideRight"); setTimeout(()=>row.remove(), 360); }
     state.created = state.created.filter(x=>String(x.id)!==String(id));
     if(!state.created.length) renderCreated();

@@ -231,7 +231,7 @@ function saveAndGo(token){
   if(!base){ showError("Please enter the tenant URL."); return false; }
   localStorage.setItem("bwBase", base);
   sessionStorage.setItem("bwToken", token);
-  window.location.href = "create.html";
+  window.location.replace("create.html");
   return true;
 }
 
@@ -293,7 +293,7 @@ document.getElementById("formToken").addEventListener("submit", e => {
 (function init(){
   /* Redirect if already logged in */
   if(sessionStorage.getItem("bwToken") && localStorage.getItem("bwBase")){
-    window.location.href = "create.html";
+    window.location.replace("create.html");
     return;
   }
   const t = localStorage.getItem("theme") || "light";
