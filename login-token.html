@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Team Wizard — Login</title>
+<title>Team Wizard — API Token Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="icon" href="icon.svg">
 <link rel="manifest" href="manifest.json">
@@ -108,6 +108,12 @@ input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow
 [data-theme="dark"] .alert-error   { color:#fca5a5; }
 [data-theme="dark"] .alert-success { color:#86efac; }
 .hidden { display:none !important; }
+.security-notice {
+  margin-top:14px; padding:10px 12px;
+  border:1px dashed #f59e0b; border-radius:10px;
+  background:rgba(245,158,11,.10); color:#92400e; font-size:13px;
+}
+[data-theme="dark"] .security-notice { color:#fcd34d; }
 .switch-page {
   margin-top:20px; text-align:center; font-size:13px; color:var(--muted);
 }
@@ -133,34 +139,34 @@ input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow
   </button>
 </div>
 
-<!-- LOGIN PAGE: EMAIL + PASSWORD -->
+<!-- LOGIN PAGE: API TOKEN -->
 <main class="login-wrap">
   <div class="login-card">
     <div class="login-logo">
       <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
     </div>
 
-    <p class="page-heading">Sign in with email &amp; password</p>
+    <p class="page-heading">Sign in with API token</p>
 
-    <form id="formPassword" autocomplete="on" onsubmit="return false;">
-      <label for="pwBase">Tenant URL</label>
-      <input id="pwBase" type="url" name="url" autocomplete="url"
+    <form id="formToken" autocomplete="on" onsubmit="return false;">
+      <label for="tkBase">Tenant URL</label>
+      <input id="tkBase" type="url" name="username" autocomplete="username"
              inputmode="url" placeholder="https://acme.beepleapp.com">
 
-      <label for="pwEmail">Email</label>
-      <input id="pwEmail" type="email" name="username" autocomplete="username"
-             inputmode="email" placeholder="you@example.com">
+      <label for="tkToken">API token</label>
+      <input id="tkToken" type="password" name="password" autocomplete="current-password"
+             placeholder="API token">
 
-      <label for="pwPassword">Password</label>
-      <input id="pwPassword" type="password" name="password" autocomplete="current-password"
-             placeholder="Password">
+      <div class="security-notice">
+        <b>Security notice:</b> Your API token is confidential. Never share it with others and handle it as securely as you would a password.
+      </div>
 
-      <button id="loginPwBtn" class="btn primary full" type="submit">Log in</button>
-      <div id="pwMsg"></div>
+      <button id="loginTokenBtn" class="btn primary full" type="submit">Connect</button>
+      <div id="tkMsg"></div>
     </form>
 
     <div class="switch-page">
-      Have an API token? <a href="login-token.html">Use API token instead &rarr;</a>
+      <a href="index.html">&larr; Use email &amp; password instead</a>
     </div>
   </div>
 </main>
@@ -205,7 +211,7 @@ document.getElementById("themeBtn").addEventListener("click", () => {
 /* ---- Pre-fill base URL from localStorage ---- */
 const storedBase = loadBase();
 if(storedBase){
-  document.getElementById("pwBase").value = storedBase;
+  document.getElementById("tkBase").value = storedBase;
 }
 
 /* ---- Helper: show message ---- */
@@ -214,44 +220,33 @@ function showMsg(elId, type, html){
   el.innerHTML = `<div class="alert alert-${type}">${html}</div>`;
 }
 
-/* ---- Helper: extract token from API response ---- */
-function extractToken(json){
-  return json.token || json.auth_token || json.access_token || json.api_token ||
-         (json.user && json.user.token) || (json.data && json.data.token) || null;
-}
+/* ---- Login with API token (verify by loading projects) ---- */
+document.getElementById("loginTokenBtn").addEventListener("click", async () => {
+  const baseRaw = document.getElementById("tkBase").value.trim();
+  const token   = document.getElementById("tkToken").value.trim();
 
-/* ---- Login with email + password ---- */
-document.getElementById("loginPwBtn").addEventListener("click", async () => {
-  const baseRaw = document.getElementById("pwBase").value.trim();
-  const email   = document.getElementById("pwEmail").value.trim();
-  const pass    = document.getElementById("pwPassword").value;
-
-  if(!baseRaw || !email || !pass){
-    showMsg("pwMsg","error","Please fill in all fields.");
+  if(!baseRaw || !token){
+    showMsg("tkMsg","error","Please fill in both fields.");
     return;
   }
   const base = originOf(baseRaw);
-  const btn  = document.getElementById("loginPwBtn");
-  btn.disabled = true; btn.textContent = "Logging in…";
+  const btn  = document.getElementById("loginTokenBtn");
+  btn.disabled = true; btn.textContent = "Connecting…";
 
   try {
-    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/authenticate")}${DEBUG?"&debug=1":""}`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Beeple-Token": "login" },
-      body: JSON.stringify({ session: { email, password: pass } })
-    });
+    /* Quick verification: try to load projects */
+    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/admin/projects")}${DEBUG?"&debug=1":""}`;
+    const res = await fetch(url, { headers: { "X-Beeple-Token": token } });
     const txt = await res.text();
     let json = {};
     try { json = JSON.parse(txt); } catch {}
 
-    if(DEBUG) console.log("Login response:", res.status, txt);
+    if(DEBUG) console.log("Token verify response:", res.status, txt);
 
-    const token = extractToken(json);
-    if(!res.ok || !token){
-      const errMsg = json.error || json.message || ("HTTP " + res.status);
+    if(!res.ok){
+      const errMsg = (json && (json.error || json.message)) || ("HTTP " + res.status);
       const detail = DEBUG ? `<br><small>${escHtml(txt.slice(0,400))}</small>` : "";
-      showMsg("pwMsg", "error", `Login failed: ${escHtml(errMsg)}${detail}`);
+      showMsg("tkMsg","error",`Connection failed: ${escHtml(errMsg)}${detail}`);
       return;
     }
     saveBase(base);
@@ -259,20 +254,20 @@ document.getElementById("loginPwBtn").addEventListener("click", async () => {
     sessionStorage.setItem("bwJustLoggedIn","1");
     window.location.replace("create.html");
   } catch(e){
-    showMsg("pwMsg","error","Network error: " + escHtml(e.message));
+    showMsg("tkMsg","error","Network error: " + escHtml(e.message));
   } finally {
-    btn.disabled = false; btn.textContent = "Log in";
+    btn.disabled = false; btn.textContent = "Connect";
   }
 });
 
 /* ---- Allow Enter key in form ---- */
-document.getElementById("formPassword").addEventListener("keydown", e => {
-  if(e.key === "Enter") document.getElementById("loginPwBtn").click();
+document.getElementById("formToken").addEventListener("keydown", e => {
+  if(e.key === "Enter") document.getElementById("loginTokenBtn").click();
 });
 
 /* ---- Save base URL on blur ---- */
-document.getElementById("pwBase").addEventListener("blur", () => {
-  const v = document.getElementById("pwBase").value.trim();
+document.getElementById("tkBase").addEventListener("blur", () => {
+  const v = document.getElementById("tkBase").value.trim();
   saveBase(originOf(v));
 });
 
