@@ -139,9 +139,10 @@ label:first-child { margin-top:0; }
     <h2>Connect to Beeple</h2>
     <p class="card-sub">Enter your tenant URL to get started.</p>
 
-    <label class="required">Tenant URL</label>
-    <input id="baseUrl" type="url" inputmode="url" placeholder="https://acme.beepleapp.com"
-           autocomplete="url">
+    <form id="formPassword" autocomplete="on" method="post">
+      <label for="pwBase">Tenant URL</label>
+      <input id="pwBase" type="url" name="url" autocomplete="url"
+             inputmode="url" placeholder="https://acme.beepleapp.com">
 
     <!-- Tab selector -->
     <div class="login-tabs">
@@ -222,39 +223,32 @@ function loadSavedBase(){
   document.getElementById("tokenUrlHint").value = saved;
 }
 
-document.getElementById("baseUrl").addEventListener("input", () => {
-  document.getElementById("tokenUrlHint").value = document.getElementById("baseUrl").value.trim();
-});
-
-function saveAndGo(token){
-  const base = getBase();
-  if(!base){ showError("Please enter the tenant URL."); return false; }
-  localStorage.setItem("bwBase", base);
-  sessionStorage.setItem("bwToken", token);
-  window.location.replace("create.html");
-  return true;
+/* ---- Helper: extract token from API response ---- */
+function extractToken(json){
+  return json.token || json.auth_token || json.access_token || json.api_token ||
+         (json.user && json.user.token) || (json.data && json.data.token) ||
+         (json.session && json.session.token) || null;
 }
 
-/* Login with email + password (deprecated Beeple API) */
-document.getElementById("formPassword").addEventListener("submit", async e => {
+/* ---- Login with email + password ---- */
+document.getElementById("formPassword").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const base     = getBase();
-  const email    = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  if(!base)    { showError("Please enter the tenant URL."); return; }
-  if(!email)   { showError("Please enter your email."); return; }
-  if(!password){ showError("Please enter your password."); return; }
+  const baseRaw = document.getElementById("pwBase").value.trim();
+  const email   = document.getElementById("pwEmail").value.trim();
+  const pass    = document.getElementById("pwPassword").value;
 
   const btn = document.getElementById("loginBtn");
   btn.disabled = true; btn.textContent = "Logging in…";
   clearError();
 
+  const expiryDate = new Date(Date.now() + 365*24*60*60*1000).toISOString().slice(0,10);
+
   try {
-    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/admin/login")}`;
+    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/authenticate")}${DEBUG?"&debug=1":""}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user: { email, password } })
+      body: JSON.stringify({ session: { email, password: pass, display: "Team Wizard", expiry_date: expiryDate } })
     });
     const txt = await res.text();
     let json = {};
@@ -280,27 +274,18 @@ document.getElementById("formPassword").addEventListener("submit", async e => {
   }
 });
 
-/* Login with API token */
-document.getElementById("formToken").addEventListener("submit", e => {
-  e.preventDefault();
-  const token = document.getElementById("tokenInput").value.trim();
-  if(!token){ showError("Please enter your API token."); return; }
-  clearError();
-  saveAndGo(token);
+/* ---- Save base URL on blur ---- */
+document.getElementById("pwBase").addEventListener("blur", () => {
+  const v = document.getElementById("pwBase").value.trim();
+  saveBase(originOf(v));
 });
 
-/* Init */
-(function init(){
-  /* Redirect if already logged in */
-  if(sessionStorage.getItem("bwToken") && localStorage.getItem("bwBase")){
-    window.location.replace("create.html");
-    return;
-  }
-  const t = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", t);
-  syncTheme();
-  loadSavedBase();
-})();
+function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+
+/* ---- PWA: Service Worker ---- */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
 </script>
 </body>
 </html>
