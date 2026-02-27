@@ -4,11 +4,17 @@
 <meta charset="utf-8">
 <title>Team Wizard — Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
+<link rel="icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4e6bff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
 :root {
   --bg:#f0f4ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
   --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --danger:#ef6b6b;
+  --success:#22c55e; --successSoft:#dcfce7;
   --border:rgba(15,23,42,.10); --field:#ffffff; --fieldBorder:#e5e7eb;
   --radius:10px; --radius-lg:14px;
   --shadow:0 4px 20px rgba(15,23,42,.08),0 1px 0 rgba(15,23,42,.04);
@@ -16,6 +22,7 @@
 [data-theme="dark"] {
   --bg:#0b1020; --bg2:#0e1428; --card:#0f1630; --text:#e8ecff; --muted:#b8c3ef;
   --accent:#5aa2ff; --accent2:#7ec3ff; --accentSoft:#0e2244; --danger:#e66d6d;
+  --success:#4ade80; --successSoft:#052e16;
   --border:rgba(255,255,255,.14); --field:#121b39; --fieldBorder:rgba(255,255,255,.18);
   --shadow:0 8px 28px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.04);
 }
@@ -23,7 +30,7 @@
 html { overflow-x:clip; }
 body {
   margin:0; overflow-x:clip;
-  background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+  background:var(--bg);
   color:var(--text);
   font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   font-size:15px; line-height:1.55;

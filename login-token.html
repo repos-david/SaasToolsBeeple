@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Team Wizard — API Token Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4e6bff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root {
+  --bg:#f0f4ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
+  --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --danger:#ef6b6b;
+  --success:#22c55e; --successSoft:#dcfce7;
+  --border:rgba(15,23,42,.10); --field:#ffffff; --fieldBorder:#e5e7eb;
+  --radius:10px; --radius-lg:14px;
+  --shadow:0 4px 20px rgba(15,23,42,.08),0 1px 0 rgba(15,23,42,.04);
+}
+[data-theme="dark"] {
+  --bg:#0b1020; --bg2:#0e1428; --card:#0f1630; --text:#e8ecff; --muted:#b8c3ef;
+  --accent:#5aa2ff; --accent2:#7ec3ff; --accentSoft:#0e2244; --danger:#e66d6d;
+  --success:#4ade80; --successSoft:#052e16;
+  --border:rgba(255,255,255,.14); --field:#121b39; --fieldBorder:rgba(255,255,255,.18);
+  --shadow:0 8px 28px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.04);
+}
+*,*::before,*::after { box-sizing:border-box; max-width:100%; }
+html { overflow-x:clip; }
+body {
+  margin:0; overflow-x:clip;
+  background:var(--bg);
+  color:var(--text);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px; line-height:1.55;
+  -webkit-text-size-adjust:100%; text-size-adjust:100%;
+}
+.accent-strip {
+  height:4px; background:linear-gradient(90deg,var(--accent),var(--accent2));
+  flex-shrink:0;
+}
+.topbar {
+  position:sticky; top:0; z-index:30;
+  background:var(--card); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:14px;
+  padding:12px 20px;
+  box-shadow:0 1px 3px rgba(15,23,42,.06);
+}
+.topbar .brand img { height:22px; width:auto; display:block; }
+.topbar .title {
+  font-weight:700; font-size:15px; flex:1; text-align:center;
+  color:var(--muted); letter-spacing:.01em;
+}
+.icon-btn {
+  width:36px; height:36px; border-radius:8px; border:1px solid var(--border);
+  background:var(--card); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0; color:var(--muted);
+  transition:background .15s,color .15s;
+}
+.icon-btn:hover { background:var(--accentSoft); color:var(--accent); }
+[data-theme="dark"] .icon-btn { color:var(--muted); }
+[data-theme="dark"] .icon-btn:hover { color:var(--accent2); }
+.icon-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.login-wrap {
+  min-height:calc(100vh - 59px);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:28px 16px;
+}
+.login-card {
+  width:min(100%, 440px);
+  background:var(--card); border:1px solid var(--border);
+  border-radius:var(--radius-lg); padding:28px 24px;
+  box-shadow:var(--shadow);
+}
+.login-logo { text-align:center; margin-bottom:24px; }
+.login-logo img { height:28px; width:auto; }
+.page-heading {
+  font-size:17px; font-weight:700; color:var(--text);
+  margin:0 0 20px; text-align:center;
+}
+label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
+label:first-child { margin-top:0; }
+input, select {
+  display:block; width:100%; padding:11px 12px;
+  border:1px solid var(--fieldBorder); border-radius:var(--radius);
+  background:var(--field); color:var(--text); font-family:inherit;
+  font-size:16px; line-height:1.4;
+  transition:border-color .15s,box-shadow .15s;
+  -webkit-appearance:none; appearance:none;
+}
+input::placeholder { color:var(--muted); opacity:.6; }
+input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
+.btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:auto; border:none; border-radius:var(--radius);
+  padding:11px 18px; font-family:inherit; font-size:14px; font-weight:700; line-height:1.2;
+  cursor:pointer; min-height:44px; white-space:nowrap;
+  transition:filter .15s,opacity .15s;
+}
+.btn.primary { background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; }
+.btn.primary:hover { filter:brightness(1.08); }
+.btn.full { width:100%; margin-top:16px; }
+.alert { padding:12px 14px; border-radius:var(--radius); font-size:14px; margin-top:12px; word-break:break-word; }
+.alert-error   { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
+.alert-success { background:var(--successSoft); border:1px solid #86efac; color:#166534; }
+[data-theme="dark"] .alert-error   { color:#fca5a5; }
+[data-theme="dark"] .alert-success { color:#86efac; }
+.hidden { display:none !important; }
+.security-notice {
+  margin-top:14px; padding:10px 12px;
+  border:1px dashed #f59e0b; border-radius:10px;
+  background:rgba(245,158,11,.10); color:#92400e; font-size:13px;
+}
+[data-theme="dark"] .security-notice { color:#fcd34d; }
+.switch-page {
+  margin-top:20px; text-align:center; font-size:13px; color:var(--muted);
+}
+.switch-page a {
+  color:var(--accent); font-weight:600; text-decoration:none;
+}
+.switch-page a:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<!-- ACCENT STRIP -->
+<div class="accent-strip"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
+  </div>
+  <div class="title">Team Wizard</div>
+  <button class="icon-btn" id="themeBtn" title="Toggle dark/light mode">
+    <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  </button>
+</div>
+
+<!-- LOGIN PAGE: API TOKEN -->
+<main class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
+    </div>
+
+    <p class="page-heading">Sign in with API token</p>
+
+    <form id="formToken" autocomplete="on" onsubmit="return false;">
+      <label for="tkBase">Tenant URL</label>
+      <input id="tkBase" type="url" name="username" autocomplete="username"
+             inputmode="url" placeholder="https://acme.beepleapp.com">
+
+      <label for="tkToken">API token</label>
+      <input id="tkToken" type="password" name="password" autocomplete="current-password"
+             placeholder="API token">
+
+      <div class="security-notice">
+        <b>Security notice:</b> Your API token is confidential. Never share it with others and handle it as securely as you would a password.
+      </div>
+
+      <button id="loginTokenBtn" class="btn primary full" type="submit">Connect</button>
+      <div id="tkMsg"></div>
+    </form>
+
+    <div class="switch-page">
+      <a href="index.html">&larr; Use email &amp; password instead</a>
+    </div>
+  </div>
+</main>
+
+<script>
+const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
+const debugParam = new URLSearchParams(location.search).get("debug");
+const DEBUG = debugParam === "1" || debugParam === "Y" || debugParam === "y";
+
+function originOf(u){ try{ return new URL(u).origin; }catch{ return u; } }
+
+/* ---- Storage helpers ---- */
+function saveBase(v){ if(v) localStorage.setItem("bwBase", v); }
+function loadBase(){ return localStorage.getItem("bwBase") || ""; }
+function saveToken(v){ if(v) sessionStorage.setItem("bwToken", v); }
+function loadToken(){ return sessionStorage.getItem("bwToken") || ""; }
+
+/* ---- If already logged in, go straight to create page ---- */
+if(loadToken() && loadBase()){
+  window.location.replace("create.html");
+}
+
+/* ---- Theme ---- */
+(function(){
+  const t = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", t);
+  syncThemeIcon();
+})();
+function syncThemeIcon(){
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.getElementById("themeIcon").innerHTML = dark
+    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+}
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+  syncThemeIcon();
+});
+
+/* ---- Pre-fill base URL from localStorage ---- */
+const storedBase = loadBase();
+if(storedBase){
+  document.getElementById("tkBase").value = storedBase;
+}
+
+/* ---- Helper: show message ---- */
+function showMsg(elId, type, html){
+  const el = document.getElementById(elId);
+  el.innerHTML = `<div class="alert alert-${type}">${html}</div>`;
+}
+
+/* ---- Login with API token (verify by loading projects) ---- */
+document.getElementById("loginTokenBtn").addEventListener("click", async () => {
+  const baseRaw = document.getElementById("tkBase").value.trim();
+  const token   = document.getElementById("tkToken").value.trim();
+
+  if(!baseRaw || !token){
+    showMsg("tkMsg","error","Please fill in both fields.");
+    return;
+  }
+  const base = originOf(baseRaw);
+  const btn  = document.getElementById("loginTokenBtn");
+  btn.disabled = true; btn.textContent = "Connecting…";
+
+  try {
+    /* Quick verification: try to load projects */
+    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/admin/projects")}${DEBUG?"&debug=1":""}`;
+    const res = await fetch(url, { headers: { "X-Beeple-Token": token } });
+    const txt = await res.text();
+    let json = {};
+    try { json = JSON.parse(txt); } catch {}
+
+    if(DEBUG) console.log("Token verify response:", res.status, txt);
+
+    if(!res.ok){
+      const errMsg = (json && (json.error || json.message)) || ("HTTP " + res.status);
+      const detail = DEBUG ? `<br><small>${escHtml(txt.slice(0,400))}</small>` : "";
+      showMsg("tkMsg","error",`Connection failed: ${escHtml(errMsg)}${detail}`);
+      return;
+    }
+    saveBase(base);
+    saveToken(token);
+    sessionStorage.setItem("bwJustLoggedIn","1");
+    window.location.replace("create.html");
+  } catch(e){
+    showMsg("tkMsg","error","Network error: " + escHtml(e.message));
+  } finally {
+    btn.disabled = false; btn.textContent = "Connect";
+  }
+});
+
+/* ---- Allow Enter key in form ---- */
+document.getElementById("formToken").addEventListener("keydown", e => {
+  if(e.key === "Enter") document.getElementById("loginTokenBtn").click();
+});
+
+/* ---- Save base URL on blur ---- */
+document.getElementById("tkBase").addEventListener("blur", () => {
+  const v = document.getElementById("tkBase").value.trim();
+  saveBase(originOf(v));
+});
+
+function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+
+/* ---- PWA: Service Worker ---- */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+</script>
+</body>
+</html>
