@@ -1442,27 +1442,28 @@ if(DEBUG){
     return;
   }
 
-  loadProjects();
   loadFunctions();
 
-  /* Pre-select from URL params if navigated via FAB */
+  /* Load projects, then pre-select from URL params if navigated via FAB */
   const sp = new URLSearchParams(location.search);
-  if(sp.get("project")){
-    /* We'll try to pre-select after projects load */
-    const targetProject = sp.get("project");
-    const targetSub     = sp.get("subproject");
-    const origLoad = loadProjects;
-    (async () => {
-      await new Promise(r => setTimeout(r, 800)); // wait for projects to load
+  const targetProject = sp.get("project");
+  const targetSub     = sp.get("subproject");
+  (async () => {
+    await loadProjects();
+    if(targetProject){
       const p = state.projects.find(x => String(x.id) === targetProject);
-      if(p) await selectProject(p);
-      if(targetSub && p && p.subprojects_enabled){
-        /* select subproject after project loads — wait for grid */
-        await new Promise(r => setTimeout(r, 800));
-        // subproject selection via URL handled gracefully — just show the project for now
+      if(p){
+        await selectProject(p);
+        if(targetSub && p.subprojects_enabled){
+          try{
+            const data = await apiGET(`api/v1/admin/projects/${p.id}/subprojects`);
+            const s = (data.subprojects||[]).find(x => String(x.id) === targetSub);
+            if(s) await selectSubproject(s);
+          }catch(e){ /* subproject not found or failed to load, stay on project view */ }
+        }
       }
-    })();
-  }
+    }
+  })();
 })();
 </script>
 </body>
