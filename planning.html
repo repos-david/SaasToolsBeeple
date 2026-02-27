@@ -12,9 +12,6 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <meta name="theme-color" content="#4e6bff">
 <style>
-/* ================================================================
-   VARIABLES
-   ================================================================ */
 :root {
   --bg:#f0f4ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
   --accent:#4e6bff; --accent2:#7da2ff; --accentSoft:#e9efff; --danger:#ef6b6b;
@@ -30,7 +27,6 @@
   --border:rgba(255,255,255,.14); --field:#121b39; --fieldBorder:rgba(255,255,255,.18);
   --tableHead:#13224a; --shadow:0 8px 28px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.04);
 }
-/* RESET */
 *,*::before,*::after { box-sizing:border-box; max-width:100%; }
 html { overflow-x:clip; }
 body {
@@ -49,84 +45,92 @@ body {
 .topbar {
   position:sticky; top:0; z-index:30;
   background:var(--card); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:14px; padding:12px 20px;
-  box-shadow:0 1px 3px rgba(15,23,42,.06);
+  display:flex; align-items:center; gap:12px; padding:10px 16px;
 }
 .topbar .brand img { height:22px; width:auto; display:block; }
-.topbar .title {
-  font-weight:700; font-size:15px; flex:1; text-align:center;
-  color:var(--muted); letter-spacing:.01em;
-}
-/* icon buttons */
+.topbar .title { font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center; }
 .icon-btn {
-  width:36px; height:36px; border-radius:8px; border:1px solid var(--border);
-  background:var(--card); cursor:pointer; display:flex; align-items:center;
-  justify-content:center; flex-shrink:0; color:var(--muted); font-size:18px;
-  transition:background .15s,color .15s;
+  width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
+  background:var(--accentSoft); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0; color:var(--accent);
 }
-.icon-btn:hover { background:var(--accentSoft); color:var(--accent); }
-[data-theme="dark"] .icon-btn { color:var(--muted); }
-[data-theme="dark"] .icon-btn:hover { color:var(--accent2); }
-.icon-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-/* NAV MENU */
-.nav-menu {
-  position:fixed; top:53px; left:0; z-index:25;
-  background:var(--card); border:1px solid var(--border);
-  border-radius:0 0 var(--radius-lg) 0; box-shadow:var(--shadow); min-width:210px;
-  transform:translateX(-110%); transition:transform .25s ease;
+[data-theme="dark"] .icon-btn { color:var(--accent2); }
+.icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* sidebar toggle only visible on mobile */
+.sidebar-toggle-btn { display:none; }
+@media(max-width:700px){ .sidebar-toggle-btn { display:flex; } }
+/* NAV MENU PANEL */
+.menu-overlay { display:none; position:fixed; inset:0; z-index:49; background:rgba(0,0,0,.4); }
+.menu-overlay.show { display:block; }
+.menu-panel {
+  position:fixed; top:0; right:0; bottom:0; width:min(260px,80vw);
+  background:var(--card); border-left:1px solid var(--border);
+  z-index:50; transform:translateX(100%); transition:transform .3s ease;
+  display:flex; flex-direction:column; box-shadow:-4px 0 20px rgba(0,0,0,.15);
 }
-.nav-menu.open { transform:translateX(0); }
-.nav-item {
-  display:block; padding:14px 20px; font-weight:600; font-size:15px;
-  color:var(--text); text-decoration:none; cursor:pointer;
-  border-bottom:1px solid var(--border);
+.menu-panel.open { transform:translateX(0); }
+.menu-panel-header {
+  padding:16px; display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border); flex-shrink:0;
 }
-.nav-item:hover { background:var(--accentSoft); }
-.nav-item.active { color:var(--accent); background:var(--accentSoft); border-left:3px solid var(--accent); }
-button.nav-item {
-  width:100%; text-align:left; background:none; border:none;
-  border-bottom:1px solid var(--border);
-  font-family:inherit; font-size:15px; font-weight:600; padding:14px 20px;
-  color:var(--text); cursor:pointer;
+.menu-panel-header span { font-weight:800; font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+.menu-item {
+  display:flex; align-items:center; gap:12px; padding:15px 16px;
+  cursor:pointer; border-bottom:1px solid var(--border);
+  text-decoration:none; color:var(--text); font-weight:600; font-size:15px;
+  transition:background .15s; background:transparent;
+  border-left:none; border-right:none; border-top:none;
+  font-family:inherit; width:100%; text-align:left;
 }
-button.nav-item:hover { background:var(--accentSoft); }
-button.nav-item.danger { color:var(--danger); }
-.nav-overlay { display:none; position:fixed; inset:0; z-index:24; background:rgba(0,0,0,.3); }
-.nav-overlay.show { display:block; }
-/* MAIN CONTENT */
-.main { max-width:1100px; margin:0 auto; padding:20px 16px 80px; }
-/* PROJECT SEARCH */
-.proj-search { margin-bottom:16px; }
-.proj-search input {
-  width:100%; max-width:400px; padding:10px 12px;
-  border:1px solid var(--fieldBorder); border-radius:var(--radius);
-  background:var(--field); color:var(--text); font-family:inherit;
-  font-size:16px; line-height:1.4; -webkit-appearance:none; appearance:none;
+.menu-item:hover { background:var(--accentSoft); }
+.menu-item.active { color:var(--accent); background:var(--accentSoft); }
+[data-theme="dark"] .menu-item.active { color:var(--accent2); }
+.menu-item svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.menu-spacer { flex:1; }
+.menu-divider { height:1px; background:var(--border); }
+/* LAYOUT */
+.layout { display:flex; min-height:calc(100vh - 55px); }
+/* SIDEBAR */
+.sidebar {
+  width:var(--sidebar); flex-shrink:0;
+  background:var(--card); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; transition:transform .3s ease; position:relative;
 }
-.proj-search input::placeholder { color:var(--muted); opacity:.6; }
-.proj-search input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
+@media(max-width:700px){
+  .sidebar {
+    position:fixed; left:0; top:55px; bottom:0; z-index:20;
+    transform:translateX(-100%); box-shadow:4px 0 20px rgba(0,0,0,.15);
+  }
+  .sidebar.open { transform:translateX(0); }
+  .sidebar-overlay { display:block; }
+}
+.sidebar-overlay { display:none; position:fixed; inset:0; z-index:19; background:rgba(0,0,0,.4); }
+.sidebar-overlay.show { display:block; }
+.sidebar-header { padding:16px; font-weight:800; font-size:13px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border); }
+.sidebar-search { padding:10px 12px; border-bottom:1px solid var(--border); }
+.sidebar-search input { width:100%; padding:8px 12px; border:1px solid var(--fieldBorder); border-radius:var(--radius); background:var(--field); color:var(--text); font-size:14px; -webkit-appearance:none; appearance:none; }
+.sidebar-search input:focus { outline:none; border-color:var(--accent); }
+.proj-list { flex:1; overflow-y:auto; }
+.proj-item { display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .15s; }
+.proj-item:hover { background:var(--accentSoft); }
+.proj-item.active { background:var(--accentSoft); border-left:3px solid var(--accent); }
+.proj-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.proj-name { font-weight:600; font-size:14px; flex:1; min-width:0; }
+.proj-name small { display:block; font-weight:400; font-size:12px; color:var(--muted); margin-top:1px; }
+.proj-badge { font-size:11px; font-weight:700; padding:2px 6px; border-radius:6px; background:var(--accentSoft); color:var(--accent); }
+/* MAIN */
+.main { flex:1; min-width:0; padding:20px 16px 40px; }
 /* BREADCRUMB */
-.breadcrumb {
-  display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted);
-  margin-bottom:16px; flex-wrap:wrap;
-}
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; }
 .breadcrumb a { color:var(--accent); cursor:pointer; text-decoration:none; }
 .breadcrumb a:hover { text-decoration:underline; }
-.breadcrumb span { color:var(--muted); }
 /* SECTION TITLE */
 .section-title { font-size:20px; font-weight:800; margin:0 0 4px; }
-.section-sub  { color:var(--muted); font-size:13px; margin:0 0 16px; }
+.section-sub { color:var(--muted); font-size:13px; margin:0 0 16px; }
 /* CARDS GRID */
-.card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
-/* CARD */
-.card {
-  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
-  padding:14px; box-shadow:var(--shadow); cursor:pointer; transition:transform .15s,box-shadow .15s;
-  min-width:0;
-}
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px; box-shadow:var(--shadow); cursor:pointer; transition:transform .15s,box-shadow .15s; min-width:0; }
 .card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(15,23,42,.12); }
-.card.static { cursor:default; }
-.card.static:hover { transform:none; box-shadow:var(--shadow); }
 .card h3 { margin:0 0 6px; font-size:15px; }
 .card .meta { font-size:12px; color:var(--muted); }
 .card .meta span { margin-right:10px; }
@@ -150,33 +154,17 @@ button.nav-item.danger { color:var(--danger); }
 }
 .sec-card h3 { margin:0 0 14px; font-size:16px; font-weight:700; }
 /* FORM */
-input,select,textarea {
-  display:block; width:100%; padding:10px 12px;
-  border:1px solid var(--fieldBorder); border-radius:var(--radius);
-  background:var(--field); color:var(--text);
-  font-family:inherit; font-size:16px; line-height:1.4;
-  transition:border-color .15s,box-shadow .15s;
-  -webkit-appearance:none; appearance:none;
-}
+input,select,textarea { display:block; width:100%; padding:10px 12px; border:1px solid var(--fieldBorder); border-radius:var(--radius); background:var(--field); color:var(--text); font-family:inherit; font-size:16px; line-height:1.4; transition:border-color .15s,box-shadow .15s; -webkit-appearance:none; appearance:none; }
 input::placeholder,textarea::placeholder { color:var(--muted); opacity:.6; }
 input:focus,select:focus,textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
-select {
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; cursor:pointer;
-}
+select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; cursor:pointer; }
 label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
 label:first-child { margin-top:0; }
 .required::after { content:" *"; color:var(--accent); }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-@media(max-width:560px) { .form-row { grid-template-columns:1fr; } }
+@media(max-width:560px){ .form-row { grid-template-columns:1fr; } }
 /* BUTTONS */
-.btn {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:auto; border:none; border-radius:var(--radius);
-  padding:10px 18px; font-family:inherit; font-size:14px; font-weight:700;
-  line-height:1.2; cursor:pointer; min-height:42px; white-space:nowrap;
-  transition:filter .15s,opacity .15s;
-}
+.btn { display:inline-flex; align-items:center; justify-content:center; width:auto; border:none; border-radius:var(--radius); padding:10px 18px; font-family:inherit; font-size:14px; font-weight:700; line-height:1.2; cursor:pointer; min-height:42px; white-space:nowrap; transition:filter .15s,opacity .15s; }
 .btn.primary { background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; }
 .btn.primary:hover { filter:brightness(1.08); }
 .btn.secondary { background:#edf2ff; color:#0f172a; border:1px solid var(--border); }
@@ -186,17 +174,14 @@ label:first-child { margin-top:0; }
 .btn-success { background:var(--success); color:#fff; }
 .btn-sm { padding:6px 12px; font-size:13px; min-height:32px; }
 .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
-@media(max-width:440px) { .btn-row { flex-direction:column; } .btn-row .btn { width:100%; } }
-/* FILTERS BAR */
-.filters {
-  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
-  padding:14px 16px; margin-bottom:16px; box-shadow:var(--shadow);
-}
+@media(max-width:440px){ .btn-row{flex-direction:column;} .btn-row .btn{width:100%;} }
+/* FILTERS */
+.filters { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:16px; box-shadow:var(--shadow); }
 .filters h4 { margin:0 0 10px; font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
-.filter-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:10px; }
-.filter-grid input, .filter-grid select { font-size:14px; padding:8px 10px; }
+.filter-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+.filter-grid input,.filter-grid select { font-size:14px; padding:8px 10px; }
 .filter-grid select { padding-right:32px; }
-/* COLLABORATOR LIST */
+/* COLLAB LIST */
 .collab-list { display:grid; gap:10px; }
 .collab-card {
   background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius);
@@ -216,10 +201,7 @@ label:first-child { margin-top:0; }
 .collab-actions { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 /* ENROLMENT LIST */
 .enrol-list { display:grid; gap:8px; }
-.enrol-item {
-  background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius);
-  padding:10px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-}
+.enrol-item { background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .enrol-info { flex:1; min-width:0; font-size:13px; }
 .enrol-name { font-weight:700; font-size:14px; }
 /* INLINE ACTION ROW (enrol/invite confirm) */
@@ -237,15 +219,21 @@ label:first-child { margin-top:0; }
 [data-theme="dark"] .alert-error   { color:#fca5a5; }
 [data-theme="dark"] .alert-success { color:#86efac; }
 [data-theme="dark"] .alert-warn    { color:#fbbf24; }
-/* EMPTY STATE */
+/* EMPTY */
 .empty { text-align:center; padding:40px 20px; color:var(--muted); }
 .empty svg { width:48px; height:48px; stroke:var(--muted); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
+/* TABLE */
+.table-wrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:var(--radius); }
+table { min-width:500px; width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--fieldBorder); border-radius:10px; overflow:hidden; background:var(--field); }
+th,td { padding:9px 11px; border-bottom:1px solid var(--fieldBorder); vertical-align:middle; white-space:nowrap; font-size:13px; }
+th { background:var(--tableHead); color:#0b1740; text-align:left; font-weight:700; }
+[data-theme="dark"] th { color:#d9e3ff; }
+tr:last-child td { border-bottom:0; }
+/* LOG */
+pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px; font-size:11px; max-height:260px; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; }
+[data-theme="dark"] pre.log { background:#070e1f; color:#c7dbff; }
 /* SPINNER */
-.spinner {
-  display:inline-block; width:18px; height:18px; border:2px solid var(--fieldBorder);
-  border-top-color:var(--accent); border-radius:50%;
-  animation:spin .7s linear infinite; vertical-align:middle;
-}
+.spinner { display:inline-block; width:18px; height:18px; border:2px solid var(--fieldBorder); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg); } }
 /* LOG */
 .log-wrap { margin-top:12px; }
@@ -259,11 +247,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 .result-feed { display:grid; gap:8px; max-height:280px; overflow-y:auto; }
 /* PAGINATION */
 .pagination { display:flex; gap:6px; align-items:center; margin-top:12px; flex-wrap:wrap; }
-.page-btn {
-  padding:6px 12px; border-radius:8px; border:1px solid var(--border);
-  background:var(--card); color:var(--text); font-size:13px; font-weight:600;
-  cursor:pointer; min-height:34px;
-}
+.page-btn { padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:13px; font-weight:600; cursor:pointer; min-height:34px; }
 .page-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
 .page-btn:disabled { opacity:.4; cursor:default; }
 /* Cookie banner */
@@ -718,8 +702,8 @@ function fmtShift(team){
     const start = s.start_datetime ? new Date(s.start_datetime) : null;
     const end   = s.end_datetime   ? new Date(s.end_datetime)   : null;
     if(start && end){
-      return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"}) + " " +
-             start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}) + " – " +
+      return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+
+             start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})+" – "+
              end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
     }
   }
@@ -742,9 +726,7 @@ function dLog(...args){
   if(el) el.textContent += args.join(" ") + "\n";
 }
 
-/* ================================================================
-   HTTP via PROXY
-   ================================================================ */
+/* HTTP VIA PROXY */
 function proxyUrl(path, extra=""){
   return `${PROXY_URL}?base=${encodeURIComponent(BASE)}&path=${encodeURIComponent(path)}${extra}${DEBUG?"&debug=1":""}`;
 }
@@ -753,29 +735,28 @@ async function apiGET(path, queryObj){
   let qs = "";
   if(queryObj){
     const params = Object.entries(queryObj)
-      .filter(([,v]) => v !== "" && v !== null && v !== undefined)
-      .map(([k,v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
-    if(params) qs = "&" + params;
+      .filter(([,v])=>v!==""&&v!==null&&v!==undefined)
+      .map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+    if(params) qs = "&"+params;
   }
   dLog("GET", path, qs);
   const res = await fetch(proxyUrl(path) + qs, { headers:{"X-Beeple-Token": TOKEN} });
   const txt = await res.text();
   if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
   let json = {};
-  try { json = JSON.parse(txt); } catch {}
+  try{ json = JSON.parse(txt); }catch{}
   if(!res.ok){
     const msg = parseApiErrors(json) || ("HTTP " + res.status);
     throw new Error(msg + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
   }
+  if(DEBUG) dlog(`  body: ${txt.slice(0,300)}${txt.length>300?"…":""}`);
   return json;
 }
 
 async function apiPOST(path, payload){
   dLog("POST", path, JSON.stringify(payload).slice(0,200));
   const res = await fetch(proxyUrl(path), {
-    method:"POST",
-    headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
-    body: JSON.stringify(payload)
+    method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body
   });
   const txt = await res.text();
   if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
@@ -805,14 +786,10 @@ async function apiDELETEorPOST(method, path, payload){
   return json;
 }
 
-/* ================================================================
-   ALERT BUILDER
-   ================================================================ */
+/* ALERT / RESULT HELPERS */
 function makeAlert(type, html){
   const d = document.createElement("div");
-  d.className = `alert alert-${type}`;
-  d.innerHTML = html;
-  return d;
+  d.className = `alert alert-${type}`; d.innerHTML = html; return d;
 }
 function appendResult(container, type, html){
   const el = makeAlert(type, html);
@@ -891,11 +868,11 @@ function renderProjectGrid(projects){
         ${p.customer   ? `<span title="Client">👤 ${escHtml(p.customer.name)}</span>`   : ""}
       </div>
       <div style="margin-top:8px;">
-        <span class="chip chip-${p.published ? "green":"grey"}">${p.published?"Published":"Draft"}</span>
+        <span class="chip chip-${p.published?"green":"grey"}">${p.published?"Published":"Draft"}</span>
         <span class="chip chip-blue">${p.registrations_count||0}/${p.volunteers_needed||0} enrolled</span>
-        ${p.subprojects_enabled ? '<span class="chip chip-yellow">Subprojects</span>' : ""}
+        ${p.subprojects_enabled?'<span class="chip chip-yellow">Subprojects</span>':""}
       </div>`;
-    el.addEventListener("click", () => selectProject(p));
+    el.addEventListener("click",()=>selectProject(p));
     grid.appendChild(el);
   });
 }
@@ -933,19 +910,15 @@ async function selectProject(project, noPush){
     { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
     { label: project.name }
   ]);
-
-  try {
+  try{
     if(project.subprojects_enabled){
       // Subprojects view — no date bar
       hideDateBar();
       document.getElementById("fabBtn").classList.add("hidden");
       sub.textContent = "Select a subproject to see its teams.";
       const data = await apiGET(`api/v1/admin/projects/${project.id}/subprojects`);
-      const subs = data.subprojects || [];
-      if(!subs.length){
-        grid.innerHTML = `<div class="empty"><p>No subprojects found.</p></div>`;
-        return;
-      }
+      const subs = data.subprojects||[];
+      if(!subs.length){ grid.innerHTML=`<div class="empty"><p>No subprojects found.</p></div>`; return; }
       grid.innerHTML = "";
       subs.forEach(s => {
         const el = document.createElement("div");
@@ -968,9 +941,7 @@ async function selectProject(project, noPush){
       showFab(project.id, null);
       await loadTeamsIntoGrid(grid, project.id, null);
     }
-  } catch(e) {
-    grid.innerHTML = `<div class="alert alert-error">Error loading: ${escHtml(e.message)}</div>`;
-  }
+  }catch(e){ grid.innerHTML=`<div class="alert alert-error">Error loading: ${escHtml(e.message)}</div>`; }
 }
 
 /* ================================================================
@@ -1047,21 +1018,16 @@ function initDateBar(){
   from.addEventListener("change", () => reloadCurrentTeamGrid());
   to.addEventListener("change",   () => reloadCurrentTeamGrid());
 }
-
 function reloadCurrentTeamGrid(){
-  const grid = document.getElementById("subprojectGrid");
-  const p = state.selectedProject;
-  const s = state.selectedSubproject;
+  const grid=document.getElementById("subprojectGrid");
+  const p=state.selectedProject; const s=state.selectedSubproject;
   if(!p) return;
-  grid.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
-  loadTeamsIntoGrid(grid, p.id, s ? s.id : null).catch(e => {
-    grid.innerHTML = `<div class="alert alert-error">Error loading teams: ${escHtml(e.message)}</div>`;
+  grid.innerHTML=`<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
+  loadTeamsIntoGrid(grid,p.id,s?s.id:null).catch(e=>{
+    grid.innerHTML=`<div class="alert alert-error">Error: ${escHtml(e.message)}</div>`;
   });
 }
 
-/* ================================================================
-   LOAD TEAMS INTO A GRID
-   ================================================================ */
 async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const path = subprojectId
     ? `api/v1/admin/subprojects/${subprojectId}/teams`
@@ -1089,8 +1055,7 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
         ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
         ${t.address  ? `<div title="Location">📍 ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
       </div>`;
-    el.addEventListener("click", () => selectTeam(t));
-    grid.appendChild(el);
+    el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
   });
 }
 
@@ -1166,19 +1131,17 @@ async function loadEnrolments(teamId){
         <div class="enrol-info" style="cursor:pointer;" data-view-collab="${escHtml(String(c.id||""))}">
           <div class="enrol-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
           <div style="font-size:12px;color:var(--muted);">
-            ${e.contract_type ? `<span class="chip chip-grey">${escHtml(e.contract_type)}</span>` : ""}
-            ${e.confirmed ? '<span class="chip chip-green">Confirmed</span>' : '<span class="chip chip-yellow">Unconfirmed</span>'}
-            ${e.cancelled ? '<span class="chip chip-red">Cancelled</span>' : ""}
-            ${c.email ? `<span>${escHtml(c.email)}</span>` : ""}
+            ${e.contract_type?`<span class="chip chip-grey">${escHtml(e.contract_type)}</span>`:""}
+            ${e.confirmed?'<span class="chip chip-green">Confirmed</span>':'<span class="chip chip-yellow">Unconfirmed</span>'}
+            ${e.cancelled?'<span class="chip chip-red">Cancelled</span>':""}
+            ${c.email?`<span>${escHtml(c.email)}</span>`:""}
           </div>
         </div>
-        <div>
-          <button class="btn btn-sm btn-danger" data-cancel-enrol="${escHtml(String(e.id))}">Cancel</button>
-        </div>`;
+        <div><button class="btn btn-sm btn-danger" data-cancel-enrol="${escHtml(String(e.id))}">Cancel</button></div>`;
       list.appendChild(row);
     });
-  } catch(ex) {
-    feed.innerHTML = `<div class="alert alert-error"><b>Could not load enrolments:</b> ${escHtml(ex.message)}</div>`;
+  }catch(ex){
+    feed.innerHTML=`<div class="alert alert-error"><b>Could not load enrolments:</b> ${escHtml(ex.message)}</div>`;
   }
 }
 
@@ -1186,9 +1149,8 @@ async function loadEnrolments(teamId){
    CANCEL ENROLMENT
    ================================================================ */
 document.addEventListener("click", async function(ev){
-  const btn = ev.target.closest("[data-cancel-enrol]");
-  if(!btn) return;
-  const enrolId = btn.dataset.cancelEnrol;
+  const btn=ev.target.closest("[data-cancel-enrol]"); if(!btn) return;
+  const enrolId=btn.dataset.cancelEnrol;
   if(!confirm("Cancel this enrolment?")) return;
   btn.disabled = true; btn.textContent = "…";
   try {
@@ -1425,9 +1387,7 @@ function renderPagination(container, current, total, callback){
   container.appendChild(next);
 }
 
-/* ================================================================
-   BREADCRUMB BUILDER
-   ================================================================ */
+/* BREADCRUMB */
 function setBreadcrumb(containerId, crumbs){
   const el = document.getElementById(containerId === "viewTeam" ? "breadcrumbTeam" : "breadcrumb");
   el.innerHTML = "";
@@ -1441,184 +1401,27 @@ function setBreadcrumb(containerId, crumbs){
   });
 }
 
-/* ================================================================
-   LOAD FUNCTION LIST FOR FILTER DROPDOWN
-   ================================================================ */
+/* LOAD FUNCTIONS FOR FILTER */
 async function loadFunctions(){
-  try {
-    const data = await apiGET("api/v1/admin/functions");
-    const fns  = data.functions || [];
-    const sel  = document.getElementById("fFunction");
-    fns.forEach(f => {
-      const o = document.createElement("option");
-      o.value = f.id; o.textContent = f.name;
-      sel.appendChild(o);
-    });
-  } catch {}
+  try{
+    const data=await apiGET("api/v1/admin/functions");
+    const fns=data.functions||[];
+    const sel=document.getElementById("fFunction");
+    fns.forEach(f=>{ const o=document.createElement("option"); o.value=f.id; o.textContent=f.name; sel.appendChild(o); });
+  }catch{}
 }
 
-/* ================================================================
-   GRID SEARCH FILTER (teams / subprojects)
-   ================================================================ */
-document.getElementById("gridSearch").addEventListener("input", function(){
-  const q = this.value.toLowerCase();
-  document.querySelectorAll("#subprojectGrid .card").forEach(el => {
-    el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
-  });
-});
-
-/* ================================================================
-   PENDING INVITATIONS VIEW
-   ================================================================ */
-function showInvitations(){
-  showView("viewInvitations");
-  document.getElementById("viewInvitations").classList.remove("hidden");
-  document.getElementById("fabBtn").classList.add("hidden");
-  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
-
-  // Populate project dropdown
-  const sel = document.getElementById("invProjectSelect");
-  sel.innerHTML = `<option value="">(select project)</option>`;
-  state.projects.forEach(p => {
-    const o = document.createElement("option");
-    o.value = p.id; o.textContent = p.name;
-    sel.appendChild(o);
-  });
-  setBreadcrumbInv([
-    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"},""); } },
-    { label:"Pending Invitations" }
-  ]);
-}
-
-function setBreadcrumbInv(crumbs){
-  const el = document.getElementById("breadcrumbInv");
-  if(!el) return;
-  el.innerHTML = "";
-  crumbs.forEach((c,i) => {
-    if(i > 0){ const sep = document.createElement("span"); sep.textContent = "›"; el.appendChild(sep); }
-    if(c.action){ const a = document.createElement("a"); a.textContent = c.label; a.addEventListener("click",c.action); el.appendChild(a); }
-    else { const s = document.createElement("span"); s.textContent = c.label; el.appendChild(s); }
+/* DEBUG CLEAR */
+if(DEBUG){
+  document.getElementById("debugClearBtn").addEventListener("click",()=>{
+    document.getElementById("debugLog").textContent="";
   });
 }
 
-document.getElementById("navInvitationsBtn").addEventListener("click", () => {
-  // If projects not loaded yet, load them first
-  if(!state.projects.length){
-    loadProjects().then(() => showInvitations());
-  } else {
-    showInvitations();
-  }
-});
-
-document.getElementById("invBackBtn").addEventListener("click", () => {
-  showView("viewProjects");
-  history.pushState({view:"projects"},"");
-});
-
-document.getElementById("loadInvitationsBtn").addEventListener("click", async () => {
-  const projectId = document.getElementById("invProjectSelect").value;
-  if(!projectId){ alert("Please select a project."); return; }
-
-  const feed = document.getElementById("invitationsFeed");
-  feed.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading teams and enrolments…</p></div>`;
-
-  const btn = document.getElementById("loadInvitationsBtn");
-  btn.disabled = true; btn.textContent = "Loading…";
-
-  try {
-    const project = state.projects.find(p => String(p.id) === String(projectId));
-    const fromVal = defaultDateFrom();
-    const toVal   = defaultDateTo();
-
-    // Collect all teams (from subprojects if applicable, else directly)
-    let allTeams = [];
-    if(project && project.subprojects_enabled){
-      const subsData = await apiGET(`api/v1/admin/projects/${projectId}/subprojects`);
-      const subs = subsData.subprojects || [];
-      for(const sub of subs){
-        try {
-          const td = await apiGET(`api/v1/admin/subprojects/${sub.id}/teams`, { start_date: fromVal, end_date: toVal });
-          (td.teams || []).forEach(t => { t._subprojectName = sub.name; allTeams.push(t); });
-        } catch {}
-      }
-    } else {
-      const td = await apiGET(`api/v1/admin/projects/${projectId}/teams`, { start_date: fromVal, end_date: toVal });
-      allTeams = td.teams || [];
-    }
-
-    if(!allTeams.length){
-      feed.innerHTML = `<div class="empty"><p>No teams found in the last 7 days to next month.</p></div>`;
-      return;
-    }
-
-    // Load enrolments for each team and filter pending invitations
-    const pending = [];
-    for(const team of allTeams){
-      try {
-        const ed = await apiGET(`api/v1/admin/teams/${team.id}/enrolments`);
-        (ed.enrolments || []).forEach(e => {
-          if(e.invitation && !e.confirmed && !e.cancelled){
-            pending.push({ enrolment: e, team });
-          }
-        });
-      } catch {}
-    }
-
-    if(!pending.length){
-      feed.innerHTML = `<div class="empty"><p>No pending invitations found for this project.</p></div>`;
-      return;
-    }
-
-    // Render pending invitations table
-    feed.innerHTML = `
-      <p style="font-size:13px;color:var(--muted);margin:0 0 12px;">${pending.length} pending invitation${pending.length===1?"":"s"}</p>
-      <div style="overflow-x:auto;">
-        <table style="min-width:500px;width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--fieldBorder);border-radius:10px;overflow:hidden;background:var(--field);">
-          <thead>
-            <tr>
-              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Collaborator</th>
-              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Team</th>
-              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Shift</th>
-              <th style="background:var(--tableHead);padding:9px 12px;text-align:left;font-size:13px;font-weight:700;">Contract type</th>
-            </tr>
-          </thead>
-          <tbody id="invTableBody"></tbody>
-        </table>
-      </div>`;
-    const tbody = document.getElementById("invTableBody");
-    pending.forEach(({ enrolment: e, team }) => {
-      const c = e.collaborator || e.volunteer || {};
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">
-          <span style="font-weight:700;cursor:pointer;color:var(--accent);" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</span>
-          ${c.email ? `<div style="font-size:12px;color:var(--muted);">${escHtml(c.email)}</div>` : ""}
-        </td>
-        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">
-          ${escHtml(team.name||"(auto-named)")}
-          ${team._subprojectName ? `<div style="font-size:12px;color:var(--muted);">${escHtml(team._subprojectName)}</div>` : ""}
-        </td>
-        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">${fmtShift(team)}</td>
-        <td style="padding:9px 12px;border-bottom:1px solid var(--fieldBorder);font-size:13px;">
-          <span class="chip chip-grey">${escHtml(e.contract_type||"—")}</span>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-
-  } catch(e) {
-    feed.innerHTML = `<div class="alert alert-error"><b>Error loading invitations:</b> ${escHtml(e.message)}</div>`;
-  } finally {
-    btn.disabled = false; btn.textContent = "Load invitations";
-  }
-});
-
-/* ================================================================
-   INIT
-   ================================================================ */
+/* INIT */
 (function init(){
-  /* Theme */
-  const t = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", t);
+  const t=localStorage.getItem("theme")||"light";
+  document.documentElement.setAttribute("data-theme",t);
   syncTheme();
 
   /* Debug */
@@ -1631,13 +1434,14 @@ document.getElementById("loadInvitationsBtn").addEventListener("click", async ()
   if(!getCookie("beeple_cookie_ok")){
     document.getElementById("cookie").classList.remove("hidden");
   }
-  document.getElementById("cookieOk").addEventListener("click", () => {
-    setCookie("beeple_cookie_ok","1");
-    document.getElementById("cookie").classList.add("hide");
-    setTimeout(() => document.getElementById("cookie").classList.add("hidden"), 380);
-  });
 
-  /* Load data */
+  if(!BASE||!TOKEN){
+    showView("viewNotConnected");
+    document.getElementById("projListMsg").innerHTML=
+      `<span style="color:var(--warn);">Please <a href="index.html">log in first</a>.</span>`;
+    return;
+  }
+
   loadProjects();
   loadFunctions();
 
