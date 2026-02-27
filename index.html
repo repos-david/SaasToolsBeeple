@@ -217,7 +217,7 @@ function getBase(){
 
 /* Keep baseUrl synced from localStorage */
 function loadSavedBase(){
-  const saved = localStorage.getItem("beeple_base") || "";
+  const saved = localStorage.getItem("bwBase") || "";
   if(saved) document.getElementById("baseUrl").value = saved;
   document.getElementById("tokenUrlHint").value = saved;
 }
@@ -229,9 +229,9 @@ document.getElementById("baseUrl").addEventListener("input", () => {
 function saveAndGo(token){
   const base = getBase();
   if(!base){ showError("Please enter the tenant URL."); return false; }
-  localStorage.setItem("beeple_base", base);
-  sessionStorage.setItem("beeple_token", token);
-  window.location.href = "teams.html";
+  localStorage.setItem("bwBase", base);
+  sessionStorage.setItem("bwToken", token);
+  window.location.href = "create.html";
   return true;
 }
 
@@ -292,8 +292,8 @@ document.getElementById("formToken").addEventListener("submit", e => {
 /* Init */
 (function init(){
   /* Redirect if already logged in */
-  if(sessionStorage.getItem("beeple_token") && localStorage.getItem("beeple_base")){
-    window.location.href = "teams.html";
+  if(sessionStorage.getItem("bwToken") && localStorage.getItem("bwBase")){
+    window.location.href = "create.html";
     return;
   }
   const t = localStorage.getItem("theme") || "light";

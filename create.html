@@ -732,7 +732,23 @@ els.autoName.addEventListener("change", () => els.teamNameWrap.classList.toggle(
   els.teamNameWrap.classList.toggle("hidden", els.autoName.value === "yes");
   toggleSection(el("sec-created"), true);
 
-  loadTenant();
+  /* Pre-select project/subproject from URL params (linked from planning.html FAB) */
+  const urlParams = new URLSearchParams(location.search);
+  const urlProject    = urlParams.get("project");
+  const urlSubproject = urlParams.get("subproject");
+
+  loadTenant().then(() => {
+    if(urlProject && Array.from(els.projectSelect.options).some(o => o.value === urlProject)){
+      els.projectSelect.value = urlProject;
+      savePerTenant("project", urlProject);
+      loadSubprojectsForProject(urlProject).then(() => {
+        if(urlSubproject && Array.from(els.subprojectSelect.options).some(o => o.value === urlSubproject)){
+          els.subprojectSelect.value = urlSubproject;
+          savePerTenant("subproject", urlSubproject);
+        }
+      });
+    }
+  });
 })();
 
 /* ---- PWA: Service Worker + Install ---- */

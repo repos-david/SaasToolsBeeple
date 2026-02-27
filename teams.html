@@ -330,8 +330,8 @@ const DEBUG     = (new URLSearchParams(location.search).get("debug") || "").toUp
                   || new URLSearchParams(location.search).get("debug") === "1";
 
 /* Read credentials from storage */
-const BASE  = localStorage.getItem("beeple_base")  || "";
-const TOKEN = sessionStorage.getItem("beeple_token") || "";
+const BASE  = localStorage.getItem("bwBase")  || "";
+const TOKEN = sessionStorage.getItem("bwToken") || "";
 
 if(!BASE || !TOKEN){ window.location.href = "index.html"; }
 
@@ -393,7 +393,7 @@ document.getElementById("themeMenuBtn").addEventListener("click", () => {
 });
 
 document.getElementById("logoutBtn").addEventListener("click", () => {
-  sessionStorage.removeItem("beeple_token");
+  sessionStorage.removeItem("bwToken");
   window.location.href = "index.html";
 });
 
