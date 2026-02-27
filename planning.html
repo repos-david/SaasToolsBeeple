@@ -437,12 +437,9 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     </div>
     <!-- Date bar: only shown when listing teams (not subprojects) -->
     <div id="teamDateBar" class="hidden" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-      <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">Teams from</label>
       <input id="teamDateFrom" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
-      <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);">to</label>
+      <span style="font-size:13px;color:var(--muted);">→</span>
       <input id="teamDateTo" type="date" style="font-size:13px;padding:6px 10px;width:auto;">
-      <button class="btn secondary btn-sm" id="teamDateApply">Apply</button>
-      <button class="btn btn-sm" id="teamDateReset" style="color:var(--muted);">Reset</button>
     </div>
     <div id="subprojectGrid" class="card-grid"></div>
   </div>
@@ -1047,12 +1044,8 @@ function initDateBar(){
   bar.classList.remove("hidden");
   if(_dateBarInited) return;
   _dateBarInited = true;
-  document.getElementById("teamDateApply").addEventListener("click", () => reloadCurrentTeamGrid());
-  document.getElementById("teamDateReset").addEventListener("click", () => {
-    from.value = defaultDateFrom();
-    to.value   = defaultDateTo();
-    reloadCurrentTeamGrid();
-  });
+  from.addEventListener("change", () => reloadCurrentTeamGrid());
+  to.addEventListener("change",   () => reloadCurrentTeamGrid());
 }
 
 function reloadCurrentTeamGrid(){
@@ -1227,7 +1220,7 @@ async function searchCollaborators(page){
 
   const searchVal = document.getElementById("fSearch").value.trim();
   const query = {
-    search:        searchVal   || undefined,
+    q:             searchVal   || undefined,
     function_id:   document.getElementById("fFunction").value  || undefined,
     language:      document.getElementById("fLanguage").value  || undefined,
     archived:      document.getElementById("fArchived").value === "true" ? true : undefined,
@@ -1319,15 +1312,15 @@ document.addEventListener("click", async function(ev){
   btn.disabled = true; btn.textContent = "…";
 
   try {
-    /* Endpoint: POST api/v1/admin/teams/{team_id}/enrolments */
-    const res = await apiPOST(`api/v1/admin/teams/${state.selectedTeam.id}/enrolments`, {
-      enrolment: {
-        volunteer_id:  collabId,
-        contract_type: contractType,
-        invitation:    isInvite
+    const res = await apiPOST(`api/v1/admin/collaborators/enrolments`, {
+      team_registration: {
+        collaborator_id: collabId,
+        team_id:         state.selectedTeam.id,
+        contract_type:   contractType,
+        invitation:      isInvite
       }
     });
-    const enrolId = (res.enrolment && res.enrolment.id) || res.id || "?";
+    const enrolId = (res.team_registration && res.team_registration.id) || (res.enrolment && res.enrolment.id) || res.id || "?";
     const action  = isInvite ? "Invitation sent" : "Enrolled";
     appendResult(log, "success",
       `<b>${action}:</b> ${escHtml(collabName)} → "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
