@@ -148,7 +148,7 @@ input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow
 
     <p class="page-heading">Sign in with API token</p>
 
-    <form id="formToken" autocomplete="on" onsubmit="return false;">
+    <form id="formToken" autocomplete="on" method="post">
       <label for="tkBase">Tenant URL</label>
       <input id="tkBase" type="url" name="username" autocomplete="username"
              inputmode="url" placeholder="https://acme.beepleapp.com">
@@ -221,7 +221,8 @@ function showMsg(elId, type, html){
 }
 
 /* ---- Login with API token (verify by loading projects) ---- */
-document.getElementById("loginTokenBtn").addEventListener("click", async () => {
+document.getElementById("formToken").addEventListener("submit", async (e) => {
+  e.preventDefault();
   const baseRaw = document.getElementById("tkBase").value.trim();
   const token   = document.getElementById("tkToken").value.trim();
 
@@ -258,11 +259,6 @@ document.getElementById("loginTokenBtn").addEventListener("click", async () => {
   } finally {
     btn.disabled = false; btn.textContent = "Connect";
   }
-});
-
-/* ---- Allow Enter key in form ---- */
-document.getElementById("formToken").addEventListener("keydown", e => {
-  if(e.key === "Enter") document.getElementById("loginTokenBtn").click();
 });
 
 /* ---- Save base URL on blur ---- */

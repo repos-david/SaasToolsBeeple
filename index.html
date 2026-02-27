@@ -142,7 +142,7 @@ input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow
 
     <p class="page-heading">Sign in with email &amp; password</p>
 
-    <form id="formPassword" autocomplete="on" onsubmit="return false;">
+    <form id="formPassword" autocomplete="on" method="post">
       <label for="pwBase">Tenant URL</label>
       <input id="pwBase" type="url" name="url" autocomplete="url"
              inputmode="url" placeholder="https://acme.beepleapp.com">
@@ -217,11 +217,13 @@ function showMsg(elId, type, html){
 /* ---- Helper: extract token from API response ---- */
 function extractToken(json){
   return json.token || json.auth_token || json.access_token || json.api_token ||
-         (json.user && json.user.token) || (json.data && json.data.token) || null;
+         (json.user && json.user.token) || (json.data && json.data.token) ||
+         (json.session && json.session.token) || null;
 }
 
 /* ---- Login with email + password ---- */
-document.getElementById("loginPwBtn").addEventListener("click", async () => {
+document.getElementById("formPassword").addEventListener("submit", async (e) => {
+  e.preventDefault();
   const baseRaw = document.getElementById("pwBase").value.trim();
   const email   = document.getElementById("pwEmail").value.trim();
   const pass    = document.getElementById("pwPassword").value;
@@ -234,12 +236,14 @@ document.getElementById("loginPwBtn").addEventListener("click", async () => {
   const btn  = document.getElementById("loginPwBtn");
   btn.disabled = true; btn.textContent = "Logging in…";
 
+  const expiryDate = new Date(Date.now() + 365*24*60*60*1000).toISOString().slice(0,10);
+
   try {
-    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/sessions")}${DEBUG?"&debug=1":""}`;
+    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/authenticate")}${DEBUG?"&debug=1":""}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password: pass })
+      body: JSON.stringify({ session: { email, password: pass, display: "Team Wizard", expiry_date: expiryDate } })
     });
     const txt = await res.text();
     let json = {};
@@ -263,11 +267,6 @@ document.getElementById("loginPwBtn").addEventListener("click", async () => {
   } finally {
     btn.disabled = false; btn.textContent = "Log in";
   }
-});
-
-/* ---- Allow Enter key in form ---- */
-document.getElementById("formPassword").addEventListener("keydown", e => {
-  if(e.key === "Enter") document.getElementById("loginPwBtn").click();
 });
 
 /* ---- Save base URL on blur ---- */
