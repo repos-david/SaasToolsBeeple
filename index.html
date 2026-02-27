@@ -34,54 +34,37 @@ body {
   color:var(--text);
   font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   font-size:15px; line-height:1.55;
+  min-height:100vh;
   -webkit-text-size-adjust:100%; text-size-adjust:100%;
 }
-.accent-strip {
-  height:4px; background:linear-gradient(90deg,var(--accent),var(--accent2));
-  flex-shrink:0;
-}
+/* TOP BAR */
 .topbar {
   position:sticky; top:0; z-index:30;
   background:var(--card); border-bottom:1px solid var(--border);
-  display:flex; align-items:center; gap:14px;
-  padding:12px 20px;
-  box-shadow:0 1px 3px rgba(15,23,42,.06);
+  display:flex; align-items:center; gap:12px;
+  padding:10px 16px;
 }
 .topbar .brand img { height:22px; width:auto; display:block; }
-.topbar .title {
-  font-weight:700; font-size:15px; flex:1; text-align:center;
-  color:var(--muted); letter-spacing:.01em;
-}
+.topbar .title { font-weight:800; font-size:clamp(15px,3vw,20px); flex:1; text-align:center; }
 .icon-btn {
-  width:36px; height:36px; border-radius:8px; border:1px solid var(--border);
-  background:var(--card); cursor:pointer; display:flex; align-items:center;
-  justify-content:center; flex-shrink:0; color:var(--muted);
-  transition:background .15s,color .15s;
+  width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
+  background:var(--accentSoft); cursor:pointer; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0; color:var(--accent); font-size:18px;
 }
-.icon-btn:hover { background:var(--accentSoft); color:var(--accent); }
-[data-theme="dark"] .icon-btn { color:var(--muted); }
-[data-theme="dark"] .icon-btn:hover { color:var(--accent2); }
-.icon-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-.login-wrap {
-  min-height:calc(100vh - 59px);
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  padding:28px 16px;
+[data-theme="dark"] .icon-btn { color:var(--accent2); }
+.icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+/* CONTAINER */
+.container {
+  width:100%; max-width:480px; margin:40px auto; padding:0 16px 60px;
 }
-.login-card {
-  width:min(100%, 440px);
-  background:var(--card); border:1px solid var(--border);
-  border-radius:var(--radius-lg); padding:28px 24px;
-  box-shadow:var(--shadow);
+/* CARD */
+.card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:24px; box-shadow:var(--shadow); overflow:hidden;
 }
-.login-logo { text-align:center; margin-bottom:24px; }
-.login-logo img { height:28px; width:auto; }
-.page-heading {
-  font-size:17px; font-weight:700; color:var(--text);
-  margin:0 0 20px; text-align:center;
-}
-label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
-label:first-child { margin-top:0; }
+.card h2 { margin:0 0 4px; font-size:20px; }
+.card-sub { color:var(--muted); font-size:13px; margin:0 0 20px; }
+/* FORM */
 input, select {
   display:block; width:100%; padding:11px 12px;
   border:1px solid var(--fieldBorder); border-radius:var(--radius);
@@ -92,104 +75,114 @@ input, select {
 }
 input::placeholder { color:var(--muted); opacity:.6; }
 input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
+label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
+label:first-child { margin-top:0; }
+.required::after { content:" *"; color:var(--accent); }
+/* BUTTONS */
 .btn {
   display:inline-flex; align-items:center; justify-content:center;
-  width:auto; border:none; border-radius:var(--radius);
-  padding:11px 18px; font-family:inherit; font-size:14px; font-weight:700; line-height:1.2;
-  cursor:pointer; min-height:44px; white-space:nowrap;
+  width:100%; border:none; border-radius:var(--radius);
+  padding:12px 18px; font-family:inherit; font-size:15px; font-weight:700; line-height:1.2;
+  cursor:pointer; min-height:46px; white-space:nowrap;
   transition:filter .15s,opacity .15s;
 }
 .btn.primary { background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; }
 .btn.primary:hover { filter:brightness(1.08); }
-.btn.full { width:100%; margin-top:16px; }
-.alert { padding:12px 14px; border-radius:var(--radius); font-size:14px; margin-top:12px; word-break:break-word; }
-.alert-error   { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
-.alert-success { background:var(--successSoft); border:1px solid #86efac; color:#166534; }
-[data-theme="dark"] .alert-error   { color:#fca5a5; }
-[data-theme="dark"] .alert-success { color:#86efac; }
+.btn.secondary { background:#edf2ff; color:#0f172a; border:1px solid var(--border); }
+[data-theme="dark"] .btn.secondary { background:#1e2a45; color:#e5e7eb; }
+.btn:disabled { opacity:.6; cursor:default; }
+/* LOGIN TABS */
+.login-tabs {
+  display:flex; gap:0; border:1px solid var(--border); border-radius:var(--radius);
+  overflow:hidden; margin:20px 0 0;
+}
+.login-tab {
+  flex:1; padding:10px; font-family:inherit; font-size:14px; font-weight:600;
+  border:none; cursor:pointer; background:transparent; color:var(--muted);
+  transition:background .15s,color .15s;
+}
+.login-tab.active { background:var(--accentSoft); color:var(--accent); }
+[data-theme="dark"] .login-tab.active { color:var(--accent2); }
+/* FORMS */
+.login-form { margin-top:16px; }
 .hidden { display:none !important; }
-.switch-page {
-  margin-top:20px; text-align:center; font-size:13px; color:var(--muted);
+/* DIVIDER */
+.divider {
+  display:flex; align-items:center; gap:10px; margin:16px 0 0;
+  color:var(--muted); font-size:13px;
 }
-.switch-page a {
-  color:var(--accent); font-weight:600; text-decoration:none;
+.divider::before,.divider::after { content:""; flex:1; height:1px; background:var(--border); }
+/* ALERT */
+.alert {
+  padding:12px 14px; border-radius:var(--radius); font-size:14px;
+  margin-top:14px; word-break:break-word;
 }
-.switch-page a:hover { text-decoration:underline; }
+.alert-error { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
+[data-theme="dark"] .alert-error { color:#fca5a5; }
+/* BTN ROW */
+.btn-row { margin-top:16px; }
 </style>
 </head>
 <body>
 
-<!-- ACCENT STRIP -->
-<div class="accent-strip"></div>
-
-<!-- TOP BAR -->
 <div class="topbar">
-  <div class="brand">
-    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
-  </div>
+  <div style="width:40px;"></div>
+  <div class="brand" style="flex:0;"><img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg"></div>
   <div class="title">Team Wizard</div>
   <button class="icon-btn" id="themeBtn" title="Toggle dark/light mode">
     <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
   </button>
 </div>
 
-<!-- LOGIN PAGE: EMAIL + PASSWORD -->
-<main class="login-wrap">
-  <div class="login-card">
-    <div class="login-logo">
-      <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
-    </div>
-
-    <p class="page-heading">Sign in with email &amp; password</p>
+<div class="container">
+  <div class="card">
+    <h2>Connect to Beeple</h2>
+    <p class="card-sub">Enter your tenant URL to get started.</p>
 
     <form id="formPassword" autocomplete="on" method="post">
       <label for="pwBase">Tenant URL</label>
       <input id="pwBase" type="url" name="url" autocomplete="url"
              inputmode="url" placeholder="https://acme.beepleapp.com">
 
-      <label for="pwEmail">Email</label>
-      <input id="pwEmail" type="email" name="username" autocomplete="username"
-             inputmode="email" placeholder="you@example.com">
+    <!-- Tab selector -->
+    <div class="login-tabs">
+      <button class="login-tab active" data-tab="password" type="button">Email &amp; password</button>
+      <button class="login-tab" data-tab="token" type="button">API token</button>
+    </div>
 
-      <label for="pwPassword">Password</label>
-      <input id="pwPassword" type="password" name="password" autocomplete="current-password"
-             placeholder="Password">
-
-      <button id="loginPwBtn" class="btn primary full" type="submit">Log in</button>
-      <div id="pwMsg"></div>
+    <!-- EMAIL + PASSWORD FORM -->
+    <form id="formPassword" class="login-form" autocomplete="on" novalidate>
+      <label class="required">Email</label>
+      <input id="email" type="email" name="email" autocomplete="email" placeholder="you@example.com">
+      <label class="required">Password</label>
+      <input id="password" type="password" name="password" autocomplete="current-password" placeholder="Password">
+      <div class="btn-row">
+        <button id="loginBtn" type="submit" class="btn primary">Log in</button>
+      </div>
     </form>
 
-    <div class="switch-page">
-      Have an API token? <a href="login-token.html">Use API token instead &rarr;</a>
-    </div>
+    <!-- API TOKEN FORM -->
+    <form id="formToken" class="login-form hidden" autocomplete="on" novalidate>
+      <label class="required">API token</label>
+      <!-- name="username" on URL makes browser pair URL+token as saved credential -->
+      <input id="tokenUrlHint" type="text" name="username" autocomplete="username"
+             style="display:none;" aria-hidden="true">
+      <input id="tokenInput" type="password" name="password" autocomplete="current-password"
+             placeholder="Paste your API token here">
+      <div class="btn-row">
+        <button id="tokenLoginBtn" type="submit" class="btn primary">Connect</button>
+      </div>
+    </form>
+
+    <div id="loginError" class="alert alert-error hidden"></div>
   </div>
-</main>
+</div>
 
 <script>
 const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
-const debugParam = new URLSearchParams(location.search).get("debug");
-const DEBUG = debugParam === "1" || debugParam === "Y" || debugParam === "y";
 
-function originOf(u){ try{ return new URL(u).origin; }catch{ return u; } }
-
-/* ---- Storage helpers ---- */
-function saveBase(v){ if(v) localStorage.setItem("bwBase", v); }
-function loadBase(){ return localStorage.getItem("bwBase") || ""; }
-function saveToken(v){ if(v) sessionStorage.setItem("bwToken", v); }
-function loadToken(){ return sessionStorage.getItem("bwToken") || ""; }
-
-/* ---- If already logged in, go straight to create page ---- */
-if(loadToken() && loadBase()){
-  window.location.replace("create.html");
-}
-
-/* ---- Theme ---- */
-(function(){
-  const t = localStorage.getItem("theme") || "light";
-  document.documentElement.setAttribute("data-theme", t);
-  syncThemeIcon();
-})();
-function syncThemeIcon(){
+/* Theme */
+function syncTheme(){
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
   document.getElementById("themeIcon").innerHTML = dark
     ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
@@ -199,19 +192,35 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
-  syncThemeIcon();
+  syncTheme();
 });
 
-/* ---- Pre-fill base URL from localStorage ---- */
-const storedBase = loadBase();
-if(storedBase){
-  document.getElementById("pwBase").value = storedBase;
+/* Tab switching */
+document.querySelectorAll(".login-tab").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".login-tab").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.getElementById("formPassword").classList.toggle("hidden", tab !== "password");
+    document.getElementById("formToken").classList.toggle("hidden", tab !== "token");
+    clearError();
+  });
+});
+
+function clearError(){ document.getElementById("loginError").classList.add("hidden"); }
+function showError(msg){ const el=document.getElementById("loginError"); el.textContent=msg; el.classList.remove("hidden"); }
+
+function originOf(u){ try{ return new URL(u).origin; }catch{ return u; } }
+
+function getBase(){
+  return originOf(document.getElementById("baseUrl").value.trim());
 }
 
-/* ---- Helper: show message ---- */
-function showMsg(elId, type, html){
-  const el = document.getElementById(elId);
-  el.innerHTML = `<div class="alert alert-${type}">${html}</div>`;
+/* Keep baseUrl synced from localStorage */
+function loadSavedBase(){
+  const saved = localStorage.getItem("bwBase") || "";
+  if(saved) document.getElementById("baseUrl").value = saved;
+  document.getElementById("tokenUrlHint").value = saved;
 }
 
 /* ---- Helper: extract token from API response ---- */
@@ -228,13 +237,9 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
   const email   = document.getElementById("pwEmail").value.trim();
   const pass    = document.getElementById("pwPassword").value;
 
-  if(!baseRaw || !email || !pass){
-    showMsg("pwMsg","error","Please fill in all fields.");
-    return;
-  }
-  const base = originOf(baseRaw);
-  const btn  = document.getElementById("loginPwBtn");
+  const btn = document.getElementById("loginBtn");
   btn.disabled = true; btn.textContent = "Logging in…";
+  clearError();
 
   const expiryDate = new Date(Date.now() + 365*24*60*60*1000).toISOString().slice(0,10);
 
@@ -249,21 +254,21 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
     let json = {};
     try { json = JSON.parse(txt); } catch {}
 
-    if(DEBUG) console.log("Login response:", res.status, txt);
-
-    const token = extractToken(json);
-    if(!res.ok || !token){
-      const errMsg = json.error || json.message || ("HTTP " + res.status);
-      const detail = DEBUG ? `<br><small>${escHtml(txt.slice(0,400))}</small>` : "";
-      showMsg("pwMsg", "error", `Login failed: ${escHtml(errMsg)}${detail}`);
-      return;
+    if(!res.ok){
+      const msg = (json && (json.error || json.message)) || ("Login failed (HTTP " + res.status + ")");
+      throw new Error(msg);
     }
-    saveBase(base);
-    saveToken(token);
-    sessionStorage.setItem("bwJustLoggedIn","1");
-    window.location.replace("create.html");
-  } catch(e){
-    showMsg("pwMsg","error","Network error: " + escHtml(e.message));
+
+    const token = json.api_token
+      || json.token
+      || (json.user && (json.user.api_token || json.user.token))
+      || (json.data && json.data.api_token)
+      || null;
+
+    if(!token) throw new Error("Login succeeded but no API token found in response. Try logging in with an API token instead.");
+    saveAndGo(token);
+  } catch(err){
+    showError(err.message);
   } finally {
     btn.disabled = false; btn.textContent = "Log in";
   }
