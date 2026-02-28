@@ -292,21 +292,13 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
     </div>
   </section>
   <!-- Created -->
-  <section class="card collapsible" id="sec-created">
-    <div class="head">
-      <h2>Created teams</h2>
-      <div class="tools">
-        <button class="btn btn-ghost" data-toggle="#sec-created" data-role="collapse">Collapse</button>
-        <button class="btn btn-ghost hidden" data-toggle="#sec-created">Expand</button>
-      </div>
-    </div>
-    <div class="body">
-      <div class="table-wrap">
+  <section class="card" id="sec-created">
+    <h2>Created teams</h2>
+    <div class="table-wrap" style="margin-top:10px;">
         <table>
           <thead><tr><th>ID</th><th>Project</th><th>Subproject</th><th>Name</th><th>Function</th><th>Address</th><th>Comp.</th><th>Shift</th><th>Action</th></tr></thead>
           <tbody id="createdTbody"><tr><td class="table-note" colspan="9">Nothing created yet.</td></tr></tbody>
         </table>
-      </div>
     </div>
   </section>
   <!-- Logs -->
@@ -361,6 +353,7 @@ const addGap = () => { els.log.textContent += "\n"; };
 const extractErr = e => { if(!e) return "Unknown error"; if(typeof e==="string") return e; if(e.message) return e.message; try{ return JSON.stringify(e); }catch{ return String(e); } };
 
 function escHtml(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+const TRASH_SVG = `<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
 
 const tenantKey = () => BASE.replace(/^https?:\/\//,"").replace(/[^\w.-]/g,"_");
 const savePerTenant = (k,v) => { const t=tenantKey(); if(t) localStorage.setItem(`beeple_${t}_${k}`,v); };
@@ -540,7 +533,7 @@ function currentFormRow(){
 function buildApiPayload(row){
   const team = {
     auto_generate_name: row.autoName === "yes",
-    name: row.autoName === "yes" ? undefined : (row.name || undefined),
+    name: row.autoName === "yes" ? '' : (row.name || undefined),
     volunteers_needed: row.volunteers ? parseInt(row.volunteers, 10) : undefined,
     function_id: row.functionId || undefined, work_location_id: row.addressId || undefined,
     team_compensation_id: row.compensationId || undefined, published: row.draft !== "yes",
@@ -572,7 +565,7 @@ function renderCreated(){
   state.created.forEach(item => {
     const shift = (item.start && item.end) ? `${item.start} — ${item.end}` : "";
     const tr = document.createElement("tr"); tr.setAttribute("data-id", item.id);
-    tr.innerHTML = `<td>${escHtml(item.id)}</td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td>${escHtml(item.name)}</td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td><button class="btn btn-ghost" data-del="${escHtml(item.id)}">Delete</button></td>`;
+    tr.innerHTML = `<td>${escHtml(item.id)}</td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td>${escHtml(item.name)}</td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td><button class="btn btn-ghost" style="padding:5px 8px;min-height:32px;color:var(--danger);" data-del="${escHtml(item.id)}" title="Delete team">${TRASH_SVG}</button></td>`;
     els.createdTbody.appendChild(tr);
   });
 }
@@ -616,7 +609,7 @@ async function createSingleTeam(){
 
 async function deleteCreated(id){
   const btn = document.querySelector(`[data-del="${CSS.escape(id)}"]`);
-  if(btn){ btn.textContent = "…"; btn.disabled = true; }
+  if(btn){ btn.innerHTML = "…"; btn.disabled = true; }
   try{
     await proxyDELETE(`api/v1/admin/teams/${encodeURIComponent(id)}`);
     const row = document.querySelector(`tr[data-id="${CSS.escape(id)}"]`);
@@ -624,7 +617,7 @@ async function deleteCreated(id){
     state.created = state.created.filter(x=>String(x.id)!==String(id));
     if(!state.created.length) renderCreated();
   }catch(e){
-    if(btn){ btn.textContent = "Delete"; btn.disabled = false; }
+    if(btn){ btn.innerHTML = TRASH_SVG; btn.disabled = false; }
     alert("Delete failed: " + extractErr(e));
   }
 }

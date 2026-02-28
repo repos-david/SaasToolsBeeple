@@ -19,7 +19,6 @@
   --border:rgba(15,23,42,.10); --field:#ffffff; --fieldBorder:#e5e7eb;
   --tableHead:#eef2ff; --radius:10px; --radius-lg:14px;
   --shadow:0 4px 20px rgba(15,23,42,.08),0 1px 0 rgba(15,23,42,.04);
-  --sidebar:240px;
 }
 [data-theme="dark"] {
   --bg:#0b1020; --bg2:#0e1428; --card:#0f1630; --text:#e8ecff; --muted:#b8c3ef;
@@ -58,12 +57,9 @@ body {
 }
 [data-theme="dark"] .icon-btn { color:var(--accent2); }
 .icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-/* sidebar toggle only visible on mobile */
-.sidebar-toggle-btn { display:none; }
-@media(max-width:700px){ .sidebar-toggle-btn { display:flex; } }
 /* NAV MENU */
 .nav-menu {
-  position:fixed; top:53px; left:0; z-index:25;
+  position:fixed; top:59px; left:0; z-index:25;
   background:var(--card); border:1px solid var(--border);
   border-radius:0 0 var(--radius-lg) 0;
   box-shadow:var(--shadow);
@@ -73,7 +69,7 @@ body {
 }
 .nav-menu.open { transform:translateX(0); }
 .nav-item {
-  display:flex; align-items:center; min-height:50px;
+  display:flex; align-items:center; gap:12px; min-height:50px;
   padding:0 20px; font-weight:600; font-size:15px;
   color:var(--text); text-decoration:none; cursor:pointer;
   border-bottom:1px solid var(--border); margin:0; line-height:1.4;
@@ -94,36 +90,7 @@ button.nav-item.danger { color:var(--danger); }
 }
 .nav-overlay.show { display:block; }
 /* LAYOUT */
-.layout { display:flex; height:calc(100vh - 55px); overflow:hidden; }
-.content-area { flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden; }
-/* SIDEBAR */
-.sidebar {
-  width:var(--sidebar); flex-shrink:0;
-  background:var(--card); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; transition:transform .3s ease; position:relative;
-}
-@media(max-width:700px){
-  .sidebar {
-    position:fixed; left:0; top:55px; bottom:0; z-index:20;
-    transform:translateX(-100%); box-shadow:4px 0 20px rgba(0,0,0,.15);
-  }
-  .sidebar.open { transform:translateX(0); }
-  .sidebar-overlay { display:block; }
-}
-.sidebar-overlay { display:none; position:fixed; inset:0; z-index:19; background:rgba(0,0,0,.4); }
-.sidebar-overlay.show { display:block; }
-.sidebar-header { padding:16px; font-weight:800; font-size:13px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; border-bottom:1px solid var(--border); }
-.sidebar-search { padding:10px 12px; border-bottom:1px solid var(--border); }
-.sidebar-search input { width:100%; padding:8px 12px; border:1px solid var(--fieldBorder); border-radius:var(--radius); background:var(--field); color:var(--text); font-size:14px; -webkit-appearance:none; appearance:none; }
-.sidebar-search input:focus { outline:none; border-color:var(--accent); }
-.proj-list { flex:1; overflow-y:auto; }
-.proj-item { display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .15s; }
-.proj-item:hover { background:var(--accentSoft); }
-.proj-item.active { background:var(--accentSoft); border-left:3px solid var(--accent); }
-.proj-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-.proj-name { font-weight:600; font-size:14px; flex:1; min-width:0; }
-.proj-name small { display:block; font-weight:400; font-size:12px; color:var(--muted); margin-top:1px; }
-.proj-badge { font-size:11px; font-weight:700; padding:2px 6px; border-radius:6px; background:var(--accentSoft); color:var(--accent); }
+.content-area { display:flex; flex-direction:column; height:calc(100vh - 59px); }
 /* MAIN */
 .main { flex:1; min-width:0; padding:20px 16px 40px; overflow-y:auto; }
 .proj-search { margin-bottom:12px; }
@@ -202,8 +169,30 @@ label:first-child { margin-top:0; }
 .btn-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
 @media(max-width:440px){ .btn-row{flex-direction:column;} .btn-row .btn{width:100%;} }
 /* FILTERS */
-.filters { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:16px; box-shadow:var(--shadow); }
-.filters h4 { margin:0 0 10px; font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+.filters { margin-bottom:14px; }
+/* VIEW TOGGLE */
+.view-toggle { display:flex; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.view-btn { padding:5px 10px; border:none; background:none; cursor:pointer; font-size:12px; font-weight:600; color:var(--muted); font-family:inherit; display:flex; align-items:center; gap:4px; }
+.view-btn.active { background:var(--accent); color:#fff; }
+.view-btn:not(.active):hover { background:var(--accentSoft); color:var(--text); }
+/* TIMELINE */
+.timeline-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.timeline-table { border-collapse:collapse; min-width:100%; }
+.timeline-table th { background:var(--tableHead); font-size:12px; font-weight:700; padding:8px 12px; text-align:center; border:1px solid var(--fieldBorder); min-width:130px; color:#0b1740; }
+.timeline-table th.tl-today { background:var(--accentSoft); color:var(--accent); }
+[data-theme="dark"] .timeline-table th { color:#d9e3ff; }
+.timeline-table td { border:1px solid var(--fieldBorder); padding:6px; vertical-align:top; min-width:130px; }
+.tl-team { background:var(--accentSoft); border:1px solid var(--accent2); border-radius:8px; padding:6px 8px; margin-bottom:4px; cursor:pointer; font-size:12px; transition:background .15s; }
+.tl-team:hover { background:var(--accent); color:#fff; }
+.tl-team-name { font-weight:700; white-space:normal; word-break:break-word; }
+.tl-team-meta { color:var(--muted); font-size:11px; margin-top:2px; }
+.tl-team:hover .tl-team-meta { color:rgba(255,255,255,.8); }
+.tl-empty { font-size:12px; color:var(--muted); padding:8px; text-align:center; }
+/* ADVANCED FILTER TOGGLE */
+.adv-toggle { background:none; border:none; font-family:inherit; font-size:13px; font-weight:600; color:var(--accent); cursor:pointer; padding:0; display:inline-flex; align-items:center; gap:4px; }
+.adv-toggle:hover { text-decoration:underline; }
+/* NAV ITEM ICONS */
+.nav-item svg { width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
 .filter-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
 .filter-grid input,.filter-grid select { font-size:14px; padding:8px 10px; }
 .filter-grid select { padding-right:32px; }
@@ -341,50 +330,51 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <button class="icon-btn sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle sidebar" aria-label="Toggle sidebar">
+  <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
   <div class="brand">
     <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
   </div>
   <div class="title">SaasTools.eu<span class="page-subtitle">Planning</span></div>
-  <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
-    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-  </button>
+  <div style="width:40px;"></div>
 </div>
 
 <!-- NAV MENU -->
 <nav id="navMenu" class="nav-menu" aria-label="Main navigation">
-  <a href="create.html" class="nav-item">Quick team creation</a>
-  <a href="planning.html" class="nav-item active">Planning</a>
-  <button id="navInvitationsBtn" class="nav-item">Pending invitations</button>
-  <button id="debugToggleBtn" class="nav-item">Debug mode</button>
+  <a href="teams.html" class="nav-item">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Team creation
+  </a>
+  <a href="planning.html" class="nav-item active">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Planning
+  </a>
+  <button id="navInvitationsBtn" class="nav-item">
+    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    Pending invitations
+  </button>
+  <button id="debugToggleBtn" class="nav-item">
+    <svg viewBox="0 0 24 24"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M5.6 3.8A9 9 0 0 1 12 2a9 9 0 0 1 6.4 1.8"/><line x1="2" y1="13" x2="22" y2="13"/></svg>
+    Debug mode
+  </button>
   <button id="themeMenuBtn" class="nav-item">
-    <svg id="themeMenuIcon" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-right:10px;flex-shrink:0;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg id="themeMenuIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     <span id="themeMenuLabel">Dark mode</span>
   </button>
-  <button id="pwaMenuBtn" class="nav-item hidden">Install as app</button>
-  <button id="logoutBtn" class="nav-item danger">Log out</button>
+  <button id="pwaMenuBtn" class="nav-item hidden">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Install as app
+  </button>
+  <button id="logoutBtn" class="nav-item danger">
+    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Log out
+  </button>
 </nav>
 <div id="navOverlay" class="nav-overlay"></div>
 
 <!-- Debug banner -->
 <div id="debugBanner" class="debug-banner hidden">Debug mode active — full API responses shown in logs.</div>
-
-<!-- LAYOUT: sidebar + content area -->
-<div class="layout">
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">Projects</div>
-  <div class="sidebar-search">
-    <input id="projSearch" type="search" placeholder="Filter projects…" autocomplete="off">
-  </div>
-  <div class="proj-list" id="projList">
-    <div class="empty" style="padding:20px;"><div class="spinner"></div></div>
-  </div>
-</aside>
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- CONTENT AREA -->
 <div class="content-area">
@@ -399,7 +389,18 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
       <input id="teamDateTo" type="date" class="toolbar-date-input">
     </div>
   </div>
-  <div class="toolbar-right"></div>
+  <div class="toolbar-right">
+    <div class="view-toggle" id="viewToggle">
+      <button class="view-btn active" id="viewGridBtn" title="Grid view">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Grid
+      </button>
+      <button class="view-btn" id="viewTimelineBtn" title="Timeline view">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Timeline
+      </button>
+    </div>
+  </div>
 </div>
 
 
@@ -441,7 +442,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   <!-- PROJECT LIST VIEW -->
   <div id="viewProjects" class="hidden">
     <h1 class="section-title">Select a project</h1>
-    <p class="section-sub">Choose a project from the sidebar to view its teams.</p>
+    <p class="section-sub">Click a project to view its teams.</p>
     <div id="projectGrid" class="card-grid"></div>
   </div>
 
@@ -494,7 +495,6 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
       <!-- Filters -->
       <div class="filters">
-        <h4>Filter collaborators</h4>
         <div class="filter-grid">
           <div>
             <label>Name search</label>
@@ -535,14 +535,64 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
             <input id="fMinAge" type="number" inputmode="numeric" min="16" max="99" placeholder="Any">
           </div>
         </div>
-        <div class="btn-row">
+        <!-- Advanced fields -->
+        <div id="advFilterWrap" class="hidden" style="margin-top:10px;">
+          <div class="filter-grid">
+            <div>
+              <label>City</label>
+              <input id="fCity" type="text" placeholder="Brussels…" autocomplete="off">
+            </div>
+            <div>
+              <label>Postal code</label>
+              <input id="fPostalCode" type="text" placeholder="1000…" autocomplete="off">
+            </div>
+            <div>
+              <label>Max distance (km)</label>
+              <input id="fDistance" type="number" inputmode="numeric" min="0" placeholder="50">
+            </div>
+            <div>
+              <label>Available from</label>
+              <input id="fAvailableFrom" type="date">
+            </div>
+            <div>
+              <label>Available to</label>
+              <input id="fAvailableTo" type="date">
+            </div>
+            <div>
+              <label>Gender</label>
+              <select id="fGender">
+                <option value="">Any</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label>Nationality</label>
+              <input id="fNationality" type="text" placeholder="BE…" autocomplete="off">
+            </div>
+            <div>
+              <label>Driver's license</label>
+              <select id="fDriverLicense">
+                <option value="">Any</option>
+                <option value="true">Has license</option>
+                <option value="false">No license</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:10px;">
           <button id="searchCollabBtn" class="btn primary btn-sm">Search</button>
           <button id="clearFiltersBtn" class="btn secondary btn-sm">Clear</button>
+          <button id="advFilterBtn" class="adv-toggle">
+            <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            Advanced filters
+          </button>
         </div>
       </div>
 
-      <!-- Contract type selector — applies to all enrol/invite actions -->
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+      <!-- Contract type selector — shown only when results are visible -->
+      <div id="contractTypeWrap" class="hidden" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
         <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;">Contract type</label>
         <select id="globalContractType" style="width:auto;min-width:170px;font-size:14px;padding:7px 32px 7px 10px;">
           <option value="">(select)</option>
@@ -573,7 +623,6 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
 </main>
 </div><!-- /content-area -->
-</div><!-- /layout -->
 
 <!-- Floating action button -->
 <a id="fabBtn" href="create.html" class="fab hidden" title="Create team for this project">+</a>
@@ -638,19 +687,6 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   window.location.replace("index.html");
 });
 
-/* ================================================================
-   SIDEBAR TOGGLE (mobile)
-   ================================================================ */
-const sidebar        = document.getElementById("sidebar");
-const sidebarOverlay = document.getElementById("sidebarOverlay");
-document.getElementById("sidebarToggleBtn").addEventListener("click", () => {
-  sidebar.classList.toggle("open");
-  sidebarOverlay.classList.toggle("show");
-});
-sidebarOverlay.addEventListener("click", () => {
-  sidebar.classList.remove("open");
-  sidebarOverlay.classList.remove("show");
-});
 
 
 /* ================================================================
@@ -658,7 +694,9 @@ sidebarOverlay.addEventListener("click", () => {
    ================================================================ */
 function syncDebug(){
   document.getElementById("debugBanner").classList.toggle("hidden", !DEBUG);
-  document.getElementById("debugToggleBtn").textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
+  const dbgBtn = document.getElementById("debugToggleBtn");
+  const dbgLbl = dbgBtn.lastChild;
+  if(dbgLbl && dbgLbl.nodeType === Node.TEXT_NODE) dbgLbl.textContent = DEBUG ? "\n    Debug mode (on)\n  " : "\n    Debug mode\n  ";
   document.getElementById("debugLogWrap").classList.toggle("hidden", !DEBUG);
 }
 document.getElementById("debugToggleBtn").addEventListener("click", () => {
@@ -910,18 +948,13 @@ async function loadProjects(){
 
 function renderProjectGrid(projects){
   const grid = document.getElementById("projectGrid");
-  const list = document.getElementById("projList");
   grid.innerHTML = "";
-  list.innerHTML = "";
   if(!projects.length){
     grid.innerHTML = `<div class="empty"><p>No projects found.</p></div>`;
-    list.innerHTML = `<div class="empty" style="padding:16px;font-size:13px;">No projects</div>`;
     return;
   }
   projects.forEach(p => {
     const color = p.color_code || "#4e6bff";
-
-    /* Main card grid */
     const el = document.createElement("div");
     el.className = "card";
     el.innerHTML = `
@@ -944,35 +977,9 @@ function renderProjectGrid(projects){
       </div>`;
     el.addEventListener("click",()=>selectProject(p));
     grid.appendChild(el);
-
-    /* Sidebar list item */
-    const item = document.createElement("div");
-    item.className = "proj-item";
-    item.dataset.projectId = String(p.id);
-    item.innerHTML = `
-      <span class="proj-dot" style="background:${escHtml(color)};"></span>
-      <div class="proj-name">
-        ${escHtml(p.name)}
-        <small>${p.department ? escHtml(p.department.name) : ""}</small>
-      </div>
-      <span class="proj-badge">${p.registrations_count||0}</span>`;
-    item.addEventListener("click", () => selectProject(p));
-    list.appendChild(item);
   });
 }
 
-/* ================================================================
-   PROJECT SEARCH FILTER
-   ================================================================ */
-document.getElementById("projSearch").addEventListener("input", function(){
-  const q = this.value.toLowerCase();
-  document.querySelectorAll("#projList .proj-item").forEach(el => {
-    el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
-  });
-  document.querySelectorAll("#projectGrid .card").forEach(el => {
-    el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
-  });
-});
 
 /* Grid search — filters the subproject/team grid */
 document.getElementById("gridSearch").addEventListener("input", function(){
@@ -990,14 +997,6 @@ async function selectProject(project, noPush){
   state.selectedSubproject = null;
   state.selectedTeam       = null;
   state.departmentId       = project.department ? project.department.id : null;
-
-  // Mark active item in sidebar
-  document.querySelectorAll("#projList .proj-item").forEach(el => {
-    el.classList.toggle("active", el.dataset.projectId === String(project.id));
-  });
-  // Close sidebar on mobile
-  sidebar.classList.remove("open");
-  sidebarOverlay.classList.remove("show");
 
   if(!noPush) pushNav({ view:"project", project, search:"?view=project&id="+project.id });
 
@@ -1151,6 +1150,23 @@ document.getElementById("todayBtn").addEventListener("click", () => {
   reloadCurrentTeamGrid();
 });
 
+/* VIEW MODE: grid / timeline */
+let viewMode = "grid";
+const _tlTeamMap = {};
+
+document.getElementById("viewGridBtn").addEventListener("click", () => {
+  viewMode = "grid";
+  document.getElementById("viewGridBtn").classList.add("active");
+  document.getElementById("viewTimelineBtn").classList.remove("active");
+  reloadCurrentTeamGrid();
+});
+document.getElementById("viewTimelineBtn").addEventListener("click", () => {
+  viewMode = "timeline";
+  document.getElementById("viewTimelineBtn").classList.add("active");
+  document.getElementById("viewGridBtn").classList.remove("active");
+  reloadCurrentTeamGrid();
+});
+
 async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const path = subprojectId
     ? `api/v1/admin/subprojects/${subprojectId}/teams`
@@ -1163,22 +1179,96 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     grid.innerHTML = `<div class="empty"><p>No teams found in the selected date range.</p></div>`;
     return;
   }
-  grid.innerHTML = "";
+  if(viewMode === "timeline"){
+    renderTimeline(grid, teams, fromVal, toVal);
+  } else {
+    grid.innerHTML = "";
+    teams.forEach(t => {
+      const el = document.createElement("div");
+      el.className = "card";
+      el.innerHTML = `
+        <h3>${escHtml(t.name||"(auto-named)")}</h3>
+        <div class="meta">
+          <div title="Shift">📅 ${fmtShift(t)}</div>
+          <div style="margin-top:4px;">
+            <span class="chip chip-${t.published?"green":"grey"}">${t.published?"Published":"Draft"}</span>
+            <span class="chip chip-blue">${t.registrations_count||0}/${t.volunteers_needed||0} filled</span>
+          </div>
+          ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
+          ${t.address  ? `<div title="Location">📍 ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
+        </div>`;
+      el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
+    });
+  }
+}
+
+function renderTimeline(grid, teams, fromVal, toVal){
+  // Index teams for click handlers
+  teams.forEach(t => { _tlTeamMap[String(t.id)] = t; });
+
+  // Generate date columns
+  const dates = [];
+  const today = isoDate(new Date());
+  for(let d = new Date(fromVal + "T00:00:00"); isoDate(d) <= toVal; d.setDate(d.getDate()+1)){
+    dates.push(isoDate(new Date(d)));
+  }
+
+  // Group teams by shift start date
+  const byDate = {};
+  dates.forEach(d => { byDate[d] = []; });
   teams.forEach(t => {
-    const el = document.createElement("div");
-    el.className = "card";
-    el.innerHTML = `
-      <h3>${escHtml(t.name||"(auto-named)")}</h3>
-      <div class="meta">
-        <div title="Shift">📅 ${fmtShift(t)}</div>
-        <div style="margin-top:4px;">
-          <span class="chip chip-${t.published?"green":"grey"}">${t.published?"Published":"Draft"}</span>
-          <span class="chip chip-blue">${t.registrations_count||0}/${t.volunteers_needed||0} filled</span>
-        </div>
-        ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
-        ${t.address  ? `<div title="Location">📍 ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
-      </div>`;
-    el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
+    const shiftDate = t.shifts && t.shifts[0] && t.shifts[0].start_datetime
+      ? t.shifts[0].start_datetime.slice(0, 10) : null;
+    if(shiftDate && byDate[shiftDate] !== undefined) byDate[shiftDate].push(t);
+  });
+
+  // Build table
+  let html = `<div class="timeline-wrap"><table class="timeline-table"><thead><tr>`;
+  dates.forEach(d => {
+    const dt = new Date(d + "T00:00:00");
+    const lbl = dt.toLocaleDateString(undefined, {weekday:"short", day:"numeric", month:"short"});
+    html += `<th class="${d === today ? "tl-today" : ""}">${escHtml(lbl)}${d === today ? ' <span class="chip chip-blue" style="font-size:10px;padding:1px 5px;">Today</span>' : ""}</th>`;
+  });
+  html += `</tr></thead><tbody><tr>`;
+  dates.forEach(d => {
+    html += `<td>`;
+    const dayTeams = byDate[d] || [];
+    if(!dayTeams.length){
+      html += `<div class="tl-empty">—</div>`;
+    } else {
+      dayTeams.forEach(t => {
+        const name   = escHtml(t.name || "(auto-named)");
+        const filled = `${t.registrations_count||0}/${t.volunteers_needed||0}`;
+        const statusClass = t.published ? "chip-green" : "chip-grey";
+        const timeStr = (() => {
+          if(t.shifts && t.shifts[0]){
+            const s = new Date(t.shifts[0].start_datetime);
+            const e = new Date(t.shifts[0].end_datetime);
+            if(!isNaN(s.getTime()) && !isNaN(e.getTime())){
+              return s.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}) + "–" +
+                     e.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+            }
+          }
+          return "";
+        })();
+        html += `<div class="tl-team" data-tl-id="${escHtml(String(t.id))}">
+          <div class="tl-team-name">${name}</div>
+          <div class="tl-team-meta">${timeStr ? escHtml(timeStr) + " · " : ""}${escHtml(filled)} <span class="chip ${statusClass}" style="font-size:10px;padding:1px 5px;">${t.published?"Pub":"Draft"}</span></div>
+          ${t.function ? `<div class="tl-team-meta">⚙ ${escHtml(t.function.name)}</div>` : ""}
+        </div>`;
+      });
+    }
+    html += `</td>`;
+  });
+  html += `</tr></tbody></table></div>`;
+  grid.innerHTML = html;
+
+  // Wire click handlers
+  grid.querySelectorAll(".tl-team").forEach(el => {
+    el.addEventListener("click", () => {
+      const t = _tlTeamMap[el.dataset.tlId];
+      if(t) selectTeam(t);
+    });
   });
 }
 
@@ -1234,6 +1324,7 @@ async function selectTeam(team, noPush){
    ================================================================ */
 async function loadEnrolments(teamId){
   const feed = document.getElementById("enrolmentsFeed");
+  if(!feed) return; // enrolments panel not present in this view
   feed.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading enrolments…</p></div>`;
   try {
     const data   = await apiGET(`api/v1/admin/teams/${teamId}/enrolments`);
@@ -1304,15 +1395,24 @@ async function searchCollaborators(page){
   pagDiv.innerHTML = "";
 
   const searchVal = document.getElementById("fSearch").value.trim();
+  const driverLicVal = document.getElementById("fDriverLicense").value;
   const query = {
-    q:             searchVal   || undefined,
-    search:        searchVal   || undefined,
-    function_id:   document.getElementById("fFunction").value  || undefined,
-    language:      document.getElementById("fLanguage").value  || undefined,
-    archived:      document.getElementById("fArchived").value === "true" ? true : undefined,
-    blocked:       document.getElementById("fBlocked").value  === "true" ? true : undefined,
-    minimum_age:   document.getElementById("fMinAge").value    || undefined,
-    department_id: state.departmentId                          || undefined,
+    q:                  searchVal   || undefined,
+    search:             searchVal   || undefined,
+    function_id:        document.getElementById("fFunction").value      || undefined,
+    language:           document.getElementById("fLanguage").value      || undefined,
+    archived:           document.getElementById("fArchived").value === "true" ? true : undefined,
+    blocked:            document.getElementById("fBlocked").value  === "true" ? true : undefined,
+    minimum_age:        document.getElementById("fMinAge").value         || undefined,
+    city:               document.getElementById("fCity").value           || undefined,
+    postal_code:        document.getElementById("fPostalCode").value     || undefined,
+    distance:           document.getElementById("fDistance").value       || undefined,
+    available_from:     document.getElementById("fAvailableFrom").value  || undefined,
+    available_to:       document.getElementById("fAvailableTo").value    || undefined,
+    gender:             document.getElementById("fGender").value         || undefined,
+    nationality:        document.getElementById("fNationality").value    || undefined,
+    has_driver_license: driverLicVal === "" ? undefined : (driverLicVal === "true"),
+    department_id:      state.departmentId                               || undefined,
     page
   };
   Object.keys(query).forEach(k => query[k]===undefined && delete query[k]);
@@ -1326,6 +1426,7 @@ async function searchCollaborators(page){
 
     if(!collabs.length){
       container.innerHTML = `<div class="empty"><p>No collaborators found.</p></div>`;
+      document.getElementById("contractTypeWrap").classList.add("hidden");
       return;
     }
 
@@ -1358,6 +1459,7 @@ async function searchCollaborators(page){
       list.appendChild(card);
     });
     container.appendChild(list);
+    document.getElementById("contractTypeWrap").classList.remove("hidden");
 
     const totalPages = Math.ceil(state.collabTotal / perPage);
     if(totalPages > 1) renderPagination(pagDiv, page, totalPages, searchCollaborators);
@@ -1370,10 +1472,19 @@ async function searchCollaborators(page){
 document.getElementById("searchCollabBtn").addEventListener("click", () => searchCollaborators(1));
 document.getElementById("fSearch").addEventListener("keydown", e => { if(e.key==="Enter") searchCollaborators(1); });
 document.getElementById("clearFiltersBtn").addEventListener("click", () => {
-  ["fSearch","fMinAge"].forEach(id => document.getElementById(id).value = "");
-  ["fFunction","fLanguage","fArchived","fBlocked"].forEach(id => document.getElementById(id).selectedIndex = 0);
+  ["fSearch","fMinAge","fCity","fPostalCode","fDistance","fNationality","fAvailableFrom","fAvailableTo"].forEach(id => document.getElementById(id).value = "");
+  ["fFunction","fLanguage","fArchived","fBlocked","fGender","fDriverLicense"].forEach(id => document.getElementById(id).selectedIndex = 0);
   document.getElementById("collabResults").innerHTML    = "";
   document.getElementById("collabPagination").innerHTML = "";
+  document.getElementById("contractTypeWrap").classList.add("hidden");
+});
+
+document.getElementById("advFilterBtn").addEventListener("click", function(){
+  const wrap = document.getElementById("advFilterWrap");
+  const isHidden = wrap.classList.toggle("hidden");
+  const arrow = this.querySelector("svg");
+  if(arrow) arrow.style.transform = isHidden ? "" : "rotate(180deg)";
+  this.childNodes[1] && (this.lastChild.textContent = isHidden ? " Advanced filters" : " Hide advanced");
 });
 
 /* ================================================================
@@ -1536,11 +1647,8 @@ async function loadFunctions(){
 }
 
 /* DEBUG CLEAR */
-if(DEBUG){
-  document.getElementById("debugClearBtn").addEventListener("click",()=>{
-    document.getElementById("debugLog").textContent="";
-  });
-}
+const _dbgClearBtn = document.getElementById("debugClearBtn");
+if(_dbgClearBtn) _dbgClearBtn.addEventListener("click",()=>{ document.getElementById("debugLog").textContent=""; });
 
 /* INIT */
 (function init(){
@@ -1560,9 +1668,7 @@ if(DEBUG){
   }
 
   if(!BASE||!TOKEN){
-    showView("viewNotConnected");
-    document.getElementById("projListMsg").innerHTML=
-      `<span style="color:var(--warn);">Please <a href="index.html">log in first</a>.</span>`;
+    window.location.replace("index.html");
     return;
   }
 
