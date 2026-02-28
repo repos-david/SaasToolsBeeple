@@ -139,10 +139,10 @@ label:first-child { margin-top:0; }
     <h2>Connect to Beeple</h2>
     <p class="card-sub">Enter your tenant URL to get started.</p>
 
-    <form id="formPassword" autocomplete="on" method="post">
-      <label for="pwBase">Tenant URL</label>
-      <input id="pwBase" type="url" name="url" autocomplete="url"
-             inputmode="url" placeholder="https://acme.beepleapp.com">
+    <!-- Shared tenant URL field (used by both tabs) -->
+    <label for="baseUrl" class="required">Tenant URL</label>
+    <input id="baseUrl" type="url" name="url" autocomplete="url"
+           inputmode="url" placeholder="https://acme.beepleapp.com">
 
     <!-- Tab selector -->
     <div class="login-tabs">
@@ -164,7 +164,7 @@ label:first-child { margin-top:0; }
     <!-- API TOKEN FORM -->
     <form id="formToken" class="login-form hidden" autocomplete="on" novalidate>
       <label class="required">API token</label>
-      <!-- name="username" on URL makes browser pair URL+token as saved credential -->
+      <!-- hidden username field lets the browser pair tenant URL + token as a saved credential -->
       <input id="tokenUrlHint" type="text" name="username" autocomplete="username"
              style="display:none;" aria-hidden="true">
       <input id="tokenInput" type="password" name="password" autocomplete="current-password"
@@ -180,8 +180,15 @@ label:first-child { margin-top:0; }
 
 <script>
 const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
+const debugParam = new URLSearchParams(location.search).get("debug");
+const DEBUG = debugParam === "1" || debugParam === "Y" || debugParam === "y";
 
-/* Theme */
+/* ---- Theme ---- */
+(function(){
+  const t = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", t);
+  syncTheme();
+})();
 function syncTheme(){
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
   document.getElementById("themeIcon").innerHTML = dark
@@ -195,7 +202,7 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   syncTheme();
 });
 
-/* Tab switching */
+/* ---- Tab switching ---- */
 document.querySelectorAll(".login-tab").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".login-tab").forEach(b => b.classList.remove("active"));
@@ -216,12 +223,25 @@ function getBase(){
   return originOf(document.getElementById("baseUrl").value.trim());
 }
 
-/* Keep baseUrl synced from localStorage */
+/* ---- Storage helpers ---- */
+function saveBase(v){ if(v) localStorage.setItem("bwBase", v); }
+function saveToken(v){ if(v) sessionStorage.setItem("bwToken", v); }
+
+function saveAndGo(token){
+  const base = getBase();
+  saveBase(base);
+  saveToken(token);
+  sessionStorage.setItem("bwJustLoggedIn", "1");
+  window.location.replace("create.html");
+}
+
+/* ---- Pre-fill tenant URL from localStorage ---- */
 function loadSavedBase(){
   const saved = localStorage.getItem("bwBase") || "";
   if(saved) document.getElementById("baseUrl").value = saved;
   document.getElementById("tokenUrlHint").value = saved;
 }
+loadSavedBase();
 
 /* ---- Helper: extract token from API response ---- */
 function extractToken(json){
@@ -233,9 +253,9 @@ function extractToken(json){
 /* ---- Login with email + password ---- */
 document.getElementById("formPassword").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const baseRaw = document.getElementById("pwBase").value.trim();
-  const email   = document.getElementById("pwEmail").value.trim();
-  const pass    = document.getElementById("pwPassword").value;
+  const base  = getBase();
+  const email = document.getElementById("email").value.trim();
+  const pass  = document.getElementById("password").value;
 
   const btn = document.getElementById("loginBtn");
   btn.disabled = true; btn.textContent = "Logging in…";
@@ -274,9 +294,45 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
   }
 });
 
+/* ---- Login with API token ---- */
+document.getElementById("formToken").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const base  = getBase();
+  const token = document.getElementById("tokenInput").value.trim();
+
+  if(!base || !token){
+    showError("Please fill in both the tenant URL and API token.");
+    return;
+  }
+
+  const btn = document.getElementById("tokenLoginBtn");
+  btn.disabled = true; btn.textContent = "Connecting…";
+  clearError();
+
+  try {
+    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/admin/projects")}${DEBUG?"&debug=1":""}`;
+    const res = await fetch(url, { headers: { "X-Beeple-Token": token } });
+    const txt = await res.text();
+    let json = {};
+    try { json = JSON.parse(txt); } catch {}
+
+    if(DEBUG) console.log("Token verify response:", res.status, txt);
+
+    if(!res.ok){
+      const msg = (json && (json.error || json.message)) || ("HTTP " + res.status);
+      throw new Error("Connection failed: " + msg);
+    }
+    saveAndGo(token);
+  } catch(err){
+    showError(err.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Connect";
+  }
+});
+
 /* ---- Save base URL on blur ---- */
-document.getElementById("pwBase").addEventListener("blur", () => {
-  const v = document.getElementById("pwBase").value.trim();
+document.getElementById("baseUrl").addEventListener("blur", () => {
+  const v = document.getElementById("baseUrl").value.trim();
   saveBase(originOf(v));
 });
 
