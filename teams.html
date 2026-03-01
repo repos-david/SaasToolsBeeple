@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SaasTools.eu — Teams</title>
+<title>SaasTools.eu for Beeple — Teams</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="icon" href="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/6601688c81ef6ab1df9e63ad_favicon-beeple.png">
+<link rel="icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#4e6bff">
 <style>
 :root {
   --bg:#f6f8ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
@@ -37,7 +42,7 @@ body {
   display:flex; align-items:center; gap:12px;
   padding:10px 16px;
 }
-.topbar .brand img { height:22px; width:auto; display:block; }
+.topbar .brand img { height:28px; width:28px; border-radius:6px; display:block; }
 .topbar .title { font-weight:800; font-size:clamp(14px,3vw,17px); flex:1; text-align:center; display:flex; flex-direction:column; align-items:center; line-height:1.2; gap:1px; }
 .topbar .page-subtitle { font-size:11px; font-weight:500; color:var(--muted); letter-spacing:.03em; text-transform:uppercase; }
 .icon-btn {
@@ -156,14 +161,13 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 <body>
 
 <div class="topbar">
+  <div class="brand">
+    <img alt="SaasTools.eu" src="icon.svg">
+  </div>
+  <div class="title">SaasTools.eu for Beeple<span class="page-subtitle">Teams</span></div>
   <button class="icon-btn" id="menuBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
-  <div class="brand">
-    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
-  </div>
-  <div class="title">SaasTools.eu<span class="page-subtitle">Teams</span></div>
-  <div style="width:40px;"></div>
 </div>
 
 <!-- MENU OVERLAY + PANEL -->
@@ -175,7 +179,7 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
-  <a class="menu-item active" href="teams.html">
+  <a class="menu-item active" href="javascript:void(0)">
     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     Team creation
   </a>
@@ -185,9 +189,17 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
   </a>
   <div class="menu-spacer"></div>
   <div class="menu-divider"></div>
+  <button class="menu-item" id="debugToggleMenuBtn">
+    <svg viewBox="0 0 24 24"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M5.6 3.8A9 9 0 0 1 12 2a9 9 0 0 1 6.4 1.8"/><line x1="2" y1="13" x2="22" y2="13"/></svg>
+    <span id="debugMenuLabel">Debug mode</span>
+  </button>
   <button class="menu-item" id="themeMenuBtn">
     <svg id="themeMenuIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
     <span id="themeMenuLabel">Dark mode</span>
+  </button>
+  <button class="menu-item hidden" id="installMenuBtn">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Install as app
   </button>
   <div class="menu-divider"></div>
   <button class="menu-item" id="logoutBtn" style="color:var(--danger);">
@@ -319,7 +331,7 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 
 <script>
 const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
-const DEBUG     = (new URLSearchParams(location.search).get("debug") || "").toUpperCase() === "Y"
+let DEBUG     = (new URLSearchParams(location.search).get("debug") || "").toUpperCase() === "Y"
                   || new URLSearchParams(location.search).get("debug") === "1";
 
 /* Read credentials from storage */
@@ -363,8 +375,8 @@ const loadPerTenant = k => { const t=tenantKey(); return t ? (localStorage.getIt
 function syncTheme(){
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
   const icon = dark
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
   document.getElementById("themeMenuIcon").innerHTML = icon;
   document.getElementById("themeMenuLabel").textContent = dark ? "Light mode" : "Dark mode";
 }
@@ -388,6 +400,31 @@ document.getElementById("themeMenuBtn").addEventListener("click", () => {
 document.getElementById("logoutBtn").addEventListener("click", () => {
   sessionStorage.removeItem("bwToken");
   window.location.replace("index.html");
+});
+
+/* Debug toggle */
+function syncDebug(){
+  document.getElementById("sec-logs").classList.toggle("hidden", !DEBUG);
+  document.getElementById("debugMenuLabel").textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
+}
+syncDebug();
+document.getElementById("debugToggleMenuBtn").addEventListener("click", () => {
+  DEBUG = !DEBUG;
+  syncDebug();
+  closeMenu();
+});
+
+/* PWA install */
+let _deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  _deferredInstall = e;
+  document.getElementById("installMenuBtn").classList.remove("hidden");
+});
+document.getElementById("installMenuBtn").addEventListener("click", () => {
+  closeMenu();
+  if(_deferredInstall){ _deferredInstall.prompt(); _deferredInstall.userChoice.then(() => { _deferredInstall = null; document.getElementById("installMenuBtn").classList.add("hidden"); }); }
+  else { alert("App is already installed or installation is not supported by your browser."); }
 });
 
 /* Collapsible */

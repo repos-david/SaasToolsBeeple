@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SaasTools.eu — Planning</title>
+<title>SaasTools.eu for Beeple — Planning</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="icon" href="icon.svg">
 <link rel="manifest" href="manifest.json">
@@ -47,7 +47,7 @@ body {
   background:var(--card); border-bottom:1px solid var(--border);
   display:flex; align-items:center; gap:12px; padding:10px 16px;
 }
-.topbar .brand img { height:22px; width:auto; display:block; }
+.topbar .brand img { height:28px; width:28px; border-radius:6px; display:block; }
 .topbar .title { font-weight:800; font-size:clamp(14px,3vw,17px); flex:1; text-align:center; display:flex; flex-direction:column; align-items:center; line-height:1.2; gap:1px; }
 .topbar .page-subtitle { font-size:11px; font-weight:500; color:var(--muted); letter-spacing:.03em; text-transform:uppercase; }
 .icon-btn {
@@ -59,12 +59,12 @@ body {
 .icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 /* NAV MENU */
 .nav-menu {
-  position:fixed; top:59px; left:0; z-index:25;
+  position:fixed; top:59px; right:0; z-index:25;
   background:var(--card); border:1px solid var(--border);
-  border-radius:0 0 var(--radius-lg) 0;
+  border-radius:0 0 0 var(--radius-lg);
   box-shadow:var(--shadow);
   min-width:210px;
-  transform:translateX(-110%);
+  transform:translateX(110%);
   transition:transform .25s ease;
 }
 .nav-menu.open { transform:translateX(0); }
@@ -76,7 +76,7 @@ body {
   box-sizing:border-box;
 }
 .nav-item:hover { background:var(--accentSoft); }
-.nav-item.active { color:var(--accent); background:var(--accentSoft); border-left:3px solid var(--accent); }
+.nav-item.active { color:var(--accent); background:var(--accentSoft); border-right:3px solid var(--accent); }
 button.nav-item {
   width:100%; text-align:left; background:none; border:none;
   border-bottom:1px solid var(--border);
@@ -114,7 +114,11 @@ button.nav-item.danger { color:var(--danger); }
 .tab-btn:hover { color:var(--text); }
 .tab-btn.tab-active { color:var(--accent); border-bottom-color:var(--accent); }
 /* BREADCRUMB */
-.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; }
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 0 8px; }
+/* SORT */
+.sort-bar { display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:12px; color:var(--muted); }
+.sort-bar label { margin:0; font-size:12px; font-weight:600; }
+.sort-bar select { width:auto; font-size:12px; padding:4px 28px 4px 8px; min-height:auto; border-radius:6px; }
 .breadcrumb a { color:var(--accent); cursor:pointer; text-decoration:none; }
 .breadcrumb a:hover { text-decoration:underline; }
 /* SECTION TITLE */
@@ -330,14 +334,13 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
 <!-- TOP BAR -->
 <div class="topbar">
+  <div class="brand">
+    <img alt="SaasTools.eu" src="icon.svg">
+  </div>
+  <div class="title">SaasTools.eu for Beeple<span class="page-subtitle">Planning</span></div>
   <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
-  <div class="brand">
-    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
-  </div>
-  <div class="title">SaasTools.eu<span class="page-subtitle">Planning</span></div>
-  <div style="width:40px;"></div>
 </div>
 
 <!-- NAV MENU -->
@@ -346,7 +349,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     Team creation
   </a>
-  <a href="planning.html" class="nav-item active">
+  <a href="javascript:void(0)" class="nav-item active" onclick="navMenu.classList.remove('open');navOverlay.classList.remove('show');">
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     Planning
   </a>
@@ -390,6 +393,12 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     </div>
   </div>
   <div class="toolbar-right">
+    <select id="teamSort" title="Sort teams" style="width:auto;font-size:12px;padding:5px 28px 5px 8px;min-height:auto;border-radius:6px;">
+      <option value="date-asc">Date ↑</option>
+      <option value="date-desc">Date ↓</option>
+      <option value="name-asc">Name A–Z</option>
+      <option value="name-desc">Name Z–A</option>
+    </select>
     <div class="view-toggle" id="viewToggle">
       <button class="view-btn active" id="viewGridBtn" title="Grid view">
         <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -443,6 +452,15 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   <div id="viewProjects" class="hidden">
     <h1 class="section-title">Select a project</h1>
     <p class="section-sub">Click a project to view its teams.</p>
+    <div class="sort-bar">
+      <label>Sort by</label>
+      <select id="projectSort">
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="date-asc">Start date ↑</option>
+        <option value="date-desc">Start date ↓</option>
+      </select>
+    </div>
     <div id="projectGrid" class="card-grid"></div>
   </div>
 
@@ -469,6 +487,15 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <div class="breadcrumb" id="breadcrumb"></div>
     <h1 class="section-title" id="viewProjectTitle"></h1>
     <p class="section-sub" id="viewProjectSub"></p>
+    <div id="subSortBar" class="sort-bar hidden">
+      <label>Sort by</label>
+      <select id="subprojectSort">
+        <option value="name-asc">Name A–Z</option>
+        <option value="name-desc">Name Z–A</option>
+        <option value="date-asc">Start date ↑</option>
+        <option value="date-desc">Start date ↓</option>
+      </select>
+    </div>
     <div id="subprojectGrid" class="card-grid"></div>
   </div>
 
@@ -591,6 +618,15 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
         </div>
       </div>
 
+      <!-- Sort bar for collaborators -->
+      <div id="collabSortBar" class="sort-bar hidden">
+        <label>Sort by</label>
+        <select id="collabSort" onchange="searchCollaborators(1)">
+          <option value="name-asc">Name A–Z</option>
+          <option value="name-desc">Name Z–A</option>
+        </select>
+      </div>
+
       <!-- Contract type selector — shown only when results are visible -->
       <div id="contractTypeWrap" class="hidden" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
         <label style="margin:0;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;">Contract type</label>
@@ -654,8 +690,8 @@ if(!BASE || !TOKEN){ window.location.replace("index.html"); }
 function syncTheme(){
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
   const icon = dark
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
   const el = document.getElementById("themeMenuIcon");
   if(el) el.innerHTML = icon;
   const lbl = document.getElementById("themeMenuLabel");
@@ -772,6 +808,8 @@ const state = {
    UTILS
    ================================================================ */
 function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+const ICON_CAL = '<svg style="width:13px;height:13px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+const ICON_PIN = '<svg style="width:13px;height:13px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
 
 function parseApiErrors(json){
   if(!json) return "Unknown error.";
@@ -812,8 +850,8 @@ function showView(id){
   ["viewLoading","viewProjects","viewProject","viewTeam","viewInvitations"].forEach(v => {
     document.getElementById(v).classList.toggle("hidden", v!==id);
   });
-  const showChrome = (id === "viewProject" || id === "viewTeam");
-  document.getElementById("toolbar").classList.toggle("hidden", !showChrome);
+  const showToolbar = (id === "viewProject");
+  document.getElementById("toolbar").classList.toggle("hidden", !showToolbar);
   // Hide FAB unless shown explicitly by caller
   if(id !== "viewProject" && id !== "viewTeam"){
     document.getElementById("fabBtn").classList.add("hidden");
@@ -949,6 +987,15 @@ async function loadProjects(){
 function renderProjectGrid(projects){
   const grid = document.getElementById("projectGrid");
   grid.innerHTML = "";
+  // Apply sort
+  const sortSel = document.getElementById("projectSort");
+  if(sortSel){
+    const sv = sortSel.value;
+    if(sv === "name-asc")  projects.sort((a,b) => (a.name||"").localeCompare(b.name||""));
+    if(sv === "name-desc") projects.sort((a,b) => (b.name||"").localeCompare(a.name||""));
+    if(sv === "date-asc")  projects.sort((a,b) => (a.start_date||"").localeCompare(b.start_date||""));
+    if(sv === "date-desc") projects.sort((a,b) => (b.start_date||"").localeCompare(a.start_date||""));
+  }
   if(!projects.length){
     grid.innerHTML = `<div class="empty"><p>No projects found.</p></div>`;
     return;
@@ -973,7 +1020,6 @@ function renderProjectGrid(projects){
       <div style="margin-top:8px;">
         <span class="chip chip-${p.published?"green":"grey"}">${p.published?"Published":"Draft"}</span>
         <span class="chip chip-blue">${p.registrations_count||0}/${p.volunteers_needed||0} enrolled</span>
-        ${p.subprojects_enabled?'<span class="chip chip-yellow">Subprojects</span>':""}
       </div>`;
     el.addEventListener("click",()=>selectProject(p));
     grid.appendChild(el);
@@ -989,9 +1035,45 @@ document.getElementById("gridSearch").addEventListener("input", function(){
   });
 });
 
+/* Project sort */
+document.getElementById("projectSort").addEventListener("change", () => {
+  if(state.projects.length) renderProjectGrid([...state.projects]);
+});
+document.getElementById("subprojectSort").addEventListener("change", () => {
+  if(state._currentSubs && state._currentSubs.length) renderSubprojectGrid(state._currentSubs);
+});
+
 /* ================================================================
    SELECT PROJECT
    ================================================================ */
+function renderSubprojectGrid(subs){
+  const grid = document.getElementById("subprojectGrid");
+  const sortSel = document.getElementById("subprojectSort");
+  const sorted = [...subs];
+  if(sortSel){
+    const sv = sortSel.value;
+    if(sv === "name-asc")  sorted.sort((a,b) => (a.name||"").localeCompare(b.name||""));
+    if(sv === "name-desc") sorted.sort((a,b) => (b.name||"").localeCompare(a.name||""));
+    if(sv === "date-asc")  sorted.sort((a,b) => (a.start_date||"").localeCompare(b.start_date||""));
+    if(sv === "date-desc") sorted.sort((a,b) => (b.start_date||"").localeCompare(a.start_date||""));
+  }
+  grid.innerHTML = "";
+  sorted.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "card";
+    el.innerHTML = `
+      <h3>${escHtml(s.name)}</h3>
+      <div class="meta">
+        <span title="Date">${ICON_CAL} ${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span>
+      </div>
+      <div style="margin-top:8px;">
+        <span class="chip chip-blue">${s.registrations_count||0}/${s.volunteers_needed||0}</span>
+      </div>`;
+    el.addEventListener("click", () => selectSubproject(s));
+    grid.appendChild(el);
+  });
+}
+
 async function selectProject(project, noPush){
   state.selectedProject    = project;
   state.selectedSubproject = null;
@@ -1021,25 +1103,15 @@ async function selectProject(project, noPush){
       const data = await apiGET(`api/v1/admin/projects/${project.id}/subprojects`);
       const subs = data.subprojects||[];
       if(!subs.length){ grid.innerHTML=`<div class="empty"><p>No subprojects found.</p></div>`; return; }
-      grid.innerHTML = "";
-      subs.forEach(s => {
-        const el = document.createElement("div");
-        el.className = "card";
-        el.innerHTML = `
-          <h3>${escHtml(s.name)}</h3>
-          <div class="meta">
-            <span title="Date">📅 ${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span>
-          </div>
-          <div style="margin-top:8px;">
-            <span class="chip chip-blue">${s.registrations_count||0}/${s.volunteers_needed||0}</span>
-          </div>`;
-        el.addEventListener("click", () => selectSubproject(s));
-        grid.appendChild(el);
-      });
+      state._currentSubs = subs;
+      document.getElementById("subSortBar").classList.remove("hidden");
+      renderSubprojectGrid(subs);
     } else {
       // Direct teams view — show date bar + FAB
       initDateBar();
       sub.textContent = "All teams in this project:";
+      document.getElementById("subSortBar").classList.add("hidden");
+      state._currentSubs = null;
       showFab(project.id, null);
       await loadTeamsIntoGrid(grid, project.id, null);
     }
@@ -1125,8 +1197,15 @@ function reloadCurrentTeamGrid(){
   const p=state.selectedProject; const s=state.selectedSubproject;
   if(!p) return;
   grid.innerHTML=`<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
-  loadTeamsIntoGrid(grid,p.id,s?s.id:null).catch(e=>{
+  loadTeamsIntoGrid(grid,p.id,s?s.id:null).then(()=>applyGridSearch()).catch(e=>{
     grid.innerHTML=`<div class="alert alert-error">Error: ${escHtml(e.message)}</div>`;
+  });
+}
+function applyGridSearch(){
+  const q = (document.getElementById("gridSearch").value||"").toLowerCase();
+  if(!q) return;
+  document.querySelectorAll("#subprojectGrid .card, #subprojectGrid .tl-team").forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none";
   });
 }
 
@@ -1166,6 +1245,7 @@ document.getElementById("viewTimelineBtn").addEventListener("click", () => {
   document.getElementById("viewGridBtn").classList.remove("active");
   reloadCurrentTeamGrid();
 });
+document.getElementById("teamSort").addEventListener("change", () => reloadCurrentTeamGrid());
 
 async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const path = subprojectId
@@ -1179,6 +1259,15 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     grid.innerHTML = `<div class="empty"><p>No teams found in the selected date range.</p></div>`;
     return;
   }
+  // Apply sort
+  const teamSortSel = document.getElementById("teamSort");
+  if(teamSortSel){
+    const sv = teamSortSel.value;
+    if(sv === "name-asc")  teams.sort((a,b) => (a.name||"").localeCompare(b.name||""));
+    if(sv === "name-desc") teams.sort((a,b) => (b.name||"").localeCompare(a.name||""));
+    if(sv === "date-asc")  teams.sort((a,b) => (a.shifts?.[0]?.start_datetime||"").localeCompare(b.shifts?.[0]?.start_datetime||""));
+    if(sv === "date-desc") teams.sort((a,b) => (b.shifts?.[0]?.start_datetime||"").localeCompare(a.shifts?.[0]?.start_datetime||""));
+  }
   if(viewMode === "timeline"){
     renderTimeline(grid, teams, fromVal, toVal);
   } else {
@@ -1189,13 +1278,13 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
       el.innerHTML = `
         <h3>${escHtml(t.name||"(auto-named)")}</h3>
         <div class="meta">
-          <div title="Shift">📅 ${fmtShift(t)}</div>
+          <div title="Shift">${ICON_CAL} ${fmtShift(t)}</div>
           <div style="margin-top:4px;">
             <span class="chip chip-${t.published?"green":"grey"}">${t.published?"Published":"Draft"}</span>
             <span class="chip chip-blue">${t.registrations_count||0}/${t.volunteers_needed||0} filled</span>
           </div>
           ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
-          ${t.address  ? `<div title="Location">📍 ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
+          ${t.address  ? `<div title="Location">${ICON_PIN} ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
         </div>`;
       el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
     });
@@ -1309,7 +1398,7 @@ async function selectTeam(team, noPush){
   document.getElementById("teamMeta").innerHTML =
     [fmtShift(team),
      team.function ? `<span title="Function">⚙ ${escHtml(team.function.name)}</span>` : "",
-     team.address  ? `<span title="Location">📍 ${escHtml(team.address.name||team.address.city||"")}</span>` : ""
+     team.address  ? `<span title="Location">${ICON_PIN} ${escHtml(team.address.name||team.address.city||"")}</span>` : ""
     ].filter(Boolean).join(" &nbsp;·&nbsp; ");
 
   document.getElementById("enrolResults").innerHTML  = "";
@@ -1394,11 +1483,9 @@ async function searchCollaborators(page){
   container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
   pagDiv.innerHTML = "";
 
-  const searchVal = document.getElementById("fSearch").value.trim();
+  const searchVal = document.getElementById("fSearch").value.trim().toLowerCase();
   const driverLicVal = document.getElementById("fDriverLicense").value;
   const query = {
-    q:                  searchVal   || undefined,
-    search:             searchVal   || undefined,
     function_id:        document.getElementById("fFunction").value      || undefined,
     language:           document.getElementById("fLanguage").value      || undefined,
     archived:           document.getElementById("fArchived").value === "true" ? true : undefined,
@@ -1413,21 +1500,39 @@ async function searchCollaborators(page){
     nationality:        document.getElementById("fNationality").value    || undefined,
     has_driver_license: driverLicVal === "" ? undefined : (driverLicVal === "true"),
     department_id:      state.departmentId                               || undefined,
-    page
+    page,
+    per_page:           100
   };
   Object.keys(query).forEach(k => query[k]===undefined && delete query[k]);
 
   try {
     const data    = await apiGET("api/v1/admin/collaborators", query);
-    const collabs = data.volunteers || data.collaborators || [];
+    let collabs = data.volunteers || data.collaborators || [];
     const meta    = data.meta || {};
-    state.collabTotal = meta.total_count || collabs.length;
-    const perPage = meta.per_page || 20;
+
+    // Local name filter
+    if(searchVal){
+      collabs = collabs.filter(c => {
+        const full = ((c.first_name||"")+" "+(c.last_name||"")).toLowerCase();
+        return full.includes(searchVal);
+      });
+    }
+
+    state.collabTotal = collabs.length;
 
     if(!collabs.length){
       container.innerHTML = `<div class="empty"><p>No collaborators found.</p></div>`;
       document.getElementById("contractTypeWrap").classList.add("hidden");
+      document.getElementById("collabSortBar").classList.add("hidden");
       return;
+    }
+
+    // Sort
+    const sortSel = document.getElementById("collabSort");
+    if(sortSel){
+      const sv = sortSel.value;
+      if(sv === "name-asc") collabs.sort((a,b) => ((a.last_name||"")+(a.first_name||"")).localeCompare((b.last_name||"")+(b.first_name||"")));
+      if(sv === "name-desc") collabs.sort((a,b) => ((b.last_name||"")+(b.first_name||"")).localeCompare((a.last_name||"")+(a.first_name||"")));
     }
 
     container.innerHTML = "";
@@ -1460,8 +1565,10 @@ async function searchCollaborators(page){
     });
     container.appendChild(list);
     document.getElementById("contractTypeWrap").classList.remove("hidden");
+    document.getElementById("collabSortBar").classList.remove("hidden");
 
-    const totalPages = Math.ceil(state.collabTotal / perPage);
+    const perPage = meta.per_page || 100;
+    const totalPages = Math.ceil((meta.total_count || collabs.length) / perPage);
     if(totalPages > 1) renderPagination(pagDiv, page, totalPages, searchCollaborators);
 
   } catch(e) {
@@ -1477,6 +1584,7 @@ document.getElementById("clearFiltersBtn").addEventListener("click", () => {
   document.getElementById("collabResults").innerHTML    = "";
   document.getElementById("collabPagination").innerHTML = "";
   document.getElementById("contractTypeWrap").classList.add("hidden");
+  document.getElementById("collabSortBar").classList.add("hidden");
 });
 
 document.getElementById("advFilterBtn").addEventListener("click", function(){
@@ -1506,7 +1614,9 @@ document.addEventListener("click", async function(ev){
   if(!contractType){ alert("Please select a contract type above before enrolling or inviting."); return; }
 
   const log = document.getElementById("enrolResults");
-  btn.disabled = true; btn.textContent = "…";
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;"></span>';
 
   try {
     const res = await apiPOST(`api/v1/admin/collaborators/enrolments`, {
@@ -1519,13 +1629,24 @@ document.addEventListener("click", async function(ev){
     });
     const enrolId = (res.team_registration && res.team_registration.id) || (res.enrolment && res.enrolment.id) || res.id || "?";
     const action  = isInvite ? "Invitation sent" : "Enrolled";
+    // Replace any existing error block, keep successes
+    const oldErr = log.querySelector(".alert-error");
+    if(oldErr) oldErr.remove();
     appendResult(log, "success",
       `<b>${action}:</b> ${escHtml(collabName)} → "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
     btn.textContent = isInvite ? "✓ Invited" : "✓ Enrolled";
     if(!isInvite) loadEnrolments(state.selectedTeam.id);
   } catch(e) {
-    appendResult(log, "error", `<b>Failed for ${escHtml(collabName)}:</b> ${e.message}`);
-    btn.disabled = false; btn.textContent = isInvite ? "Invite" : "Enrol";
+    // Replace existing error block instead of adding new one
+    const oldErr = log.querySelector(".alert-error");
+    if(oldErr) oldErr.remove();
+    // Format errors as bulleted list
+    const errParts = e.message.split(/[;,]\s*/);
+    const errHtml = errParts.length > 1
+      ? `<b>Error overview</b> — ${escHtml(collabName)}<ul style="margin:6px 0 0;padding-left:20px;">${errParts.map(p => `<li>${escHtml(p.trim())}</li>`).join("")}</ul>`
+      : `<b>Error overview</b> — ${escHtml(collabName)}: ${escHtml(e.message)}`;
+    appendResult(log, "error", errHtml);
+    btn.disabled = false; btn.textContent = origText;
   }
 });
 
@@ -1593,6 +1714,44 @@ async function openCollabModal(collabId){
         html += `<div class="detail-item"><label>${escHtml(p.name||p.label||"")}</label><span>${escHtml(String(p.value||p.answer||"—"))}</span></div>`;
       });
       html += `</div>`;
+    }
+
+    // Availabilities around team start date
+    const teamStartDate = state.selectedTeam?.shifts?.[0]?.start_datetime?.slice(0,10);
+    if(teamStartDate){
+      try{
+        const d0 = new Date(teamStartDate + "T00:00:00");
+        const d1 = new Date(d0); d1.setDate(d1.getDate()-7);
+        const d2 = new Date(d0); d2.setDate(d2.getDate()+7);
+        const fromDate = isoDate(d1);
+        const toDate   = isoDate(d2);
+        const avData   = await apiGET(`api/v1/admin/collaborators/${collabId}/availabilities`, { from: fromDate, to: toDate });
+        const avList   = avData.availabilities || avData.volunteer_availabilities || [];
+        html += `<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">`;
+        html += `<div style="font-weight:700;font-size:13px;color:var(--muted);margin-bottom:10px;">Availabilities <span style="font-weight:400;">(${fmtDate(fromDate)} – ${fmtDate(toDate)})</span></div>`;
+        if(avList.length){
+          html += `<div style="display:flex;flex-direction:column;gap:0;">`;
+          avList.forEach(a => {
+            const dateStr = a.date || a.start_date || (a.from_datetime?.slice(0,10)) || (a.starts_at?.slice(0,10)) || "";
+            const t1 = a.start_time || a.from_time || a.starts_at?.slice(11,16) || "";
+            const t2 = a.end_time   || a.to_time   || a.ends_at?.slice(11,16)   || "";
+            const timeStr = t1 && t2 ? `${t1} – ${t2}` : (t1 || t2 || "All day");
+            const unavail = a.available === false || a.type === "unavailable";
+            const color = unavail ? "var(--danger)" : "var(--accent)";
+            const label = unavail ? "Unavailable" : (a.type ? a.type.charAt(0).toUpperCase()+a.type.slice(1) : "Available");
+            html += `<div style="display:flex;gap:12px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);">
+              <span style="min-width:90px;">${fmtDate(dateStr)}</span>
+              <span style="flex:1;color:var(--muted);">${escHtml(timeStr)}</span>
+              <span style="color:${color};font-weight:600;">${escHtml(label)}</span>
+            </div>`;
+          });
+          html += `</div>`;
+        } else {
+          html += `<p style="font-size:13px;color:var(--muted);margin:0;">No availabilities recorded for this period.</p>`;
+        }
+      }catch(avErr){
+        dLog("Availabilities error:", avErr.message);
+      }
     }
 
     body.innerHTML = html;
