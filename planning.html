@@ -139,6 +139,8 @@ button.nav-item.danger { color:var(--danger); }
 .chip-red    { background:#fee2e2;             color:#dc2626; }
 .chip-blue   { background:var(--accentSoft);   color:var(--accent); }
 .chip-grey   { background:#f1f5f9; color:#64748b; }
+.card.card-ended { opacity:.55; }
+.card.card-ended:hover { transform:none; box-shadow:var(--shadow); }
 /* TEAM HEADER CARD */
 .team-header-card {
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
@@ -944,6 +946,7 @@ function extractErrorList(json){
 }
 function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase(); }
 function fmtDate(d){ if(!d)return"—"; return new Date(d).toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"}); }
+function isEnded(d){ if(!d)return false; return d < new Date().toISOString().slice(0,10); }
 
 function fmtShift(team){
   if(!team) return "—";
@@ -1118,11 +1121,12 @@ function renderProjectGrid(projects){
   }
   projects.forEach(p => {
     const color = p.color_code || "#4e6bff";
+    const ended = isEnded(p.end_date);
     const el = document.createElement("div");
-    el.className = "card";
+    el.className = ended ? "card card-ended" : "card";
     el.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-        <span style="background:${escHtml(color)};width:12px;height:12px;border-radius:3px;flex-shrink:0;display:inline-block;"></span>
+        <span style="background:${escHtml(color)};width:12px;height:12px;border-radius:3px;flex-shrink:0;display:inline-block;${ended?"filter:grayscale(1);":""}""></span>
         <h3 style="margin:0;flex:1;min-width:0;">${escHtml(p.name)}</h3>
         <span style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">${p.published?ICON_PUBLISHED:ICON_DRAFT}${p.published?"Published":"Draft"}</span>
       </div>
@@ -1136,6 +1140,7 @@ function renderProjectGrid(projects){
       </div>
       <div style="margin-top:8px;">
         <span class="chip chip-blue">${p.registrations_count||0}/${p.volunteers_needed||0} enrolled</span>
+        ${ended ? '<span class="chip chip-grey">Ended</span>' : ""}
       </div>`;
     el.addEventListener("click",()=>selectProject(p));
     grid.appendChild(el);
@@ -1175,8 +1180,9 @@ function renderSubprojectGrid(subs){
   }
   grid.innerHTML = "";
   sorted.forEach(s => {
+    const ended = isEnded(s.end_date);
     const el = document.createElement("div");
-    el.className = "card";
+    el.className = ended ? "card card-ended" : "card";
     el.innerHTML = `
       <h3>${escHtml(s.name)}</h3>
       <div class="meta">
@@ -1184,6 +1190,7 @@ function renderSubprojectGrid(subs){
       </div>
       <div style="margin-top:8px;">
         <span class="chip chip-blue">${s.registrations_count||0}/${s.volunteers_needed||0}</span>
+        ${ended ? '<span class="chip chip-grey">Ended</span>' : ""}
       </div>`;
     el.addEventListener("click", () => selectSubproject(s));
     grid.appendChild(el);
