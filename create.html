@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SaasTools.eu — Create Team</title>
+<title>SaasTools.eu for Beeple — Create Team</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link rel="icon" href="icon.svg">
 <link rel="manifest" href="manifest.json">
@@ -49,7 +49,7 @@ body {
   padding:12px 20px;
   box-shadow:0 1px 3px rgba(15,23,42,.06);
 }
-.topbar .brand img { height:22px; width:auto; display:block; }
+.topbar .brand img { height:28px; width:28px; border-radius:6px; display:block; }
 .topbar .title {
   font-weight:800; font-size:clamp(14px,3vw,17px); flex:1; text-align:center;
   display:flex; flex-direction:column; align-items:center; line-height:1.2; gap:1px;
@@ -67,24 +67,25 @@ body {
 .icon-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 /* NAV MENU */
 .nav-menu {
-  position:fixed; top:53px; left:0; z-index:25;
+  position:fixed; top:59px; right:0; z-index:25;
   background:var(--card); border:1px solid var(--border);
-  border-radius:0 0 var(--radius-lg) 0;
+  border-radius:0 0 0 var(--radius-lg);
   box-shadow:var(--shadow);
   min-width:210px;
-  transform:translateX(-110%);
+  transform:translateX(110%);
   transition:transform .25s ease;
 }
 .nav-menu.open { transform:translateX(0); }
 .nav-item {
-  display:flex; align-items:center; min-height:50px;
+  display:flex; align-items:center; gap:12px; min-height:50px;
   padding:0 20px; font-weight:600; font-size:15px;
   color:var(--text); text-decoration:none; cursor:pointer;
   border-bottom:1px solid var(--border); margin:0; line-height:1.4;
   box-sizing:border-box;
 }
 .nav-item:hover { background:var(--accentSoft); }
-.nav-item.active { color:var(--accent); background:var(--accentSoft); border-left:3px solid var(--accent); }
+.nav-item.active { color:var(--accent); background:var(--accentSoft); border-right:3px solid var(--accent); }
+.nav-item svg { width:17px; height:17px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
 button.nav-item {
   width:100%; text-align:left; background:none; border:none;
   border-bottom:1px solid var(--border);
@@ -176,6 +177,9 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 /* ANIMATION */
 @keyframes slideRight { to { opacity:0; transform:translateX(60%); } }
 .slideRight { animation:slideRight .35s ease forwards; }
+/* SPINNER */
+.spinner { display:inline-block; width:18px; height:18px; border:2px solid var(--fieldBorder); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
+@keyframes spin { to { transform:rotate(360deg); } }
 /* DEBUG BANNER */
 .debug-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--radius); padding:8px 14px; font-size:13px; color:#92400e; }
 [data-theme="dark"] .debug-banner { background:#451a03; color:#fbbf24; border-color:#b45309; }
@@ -189,33 +193,55 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="brand">
-    <img alt="Beeple" src="https://cdn.prod.website-files.com/64dc9a6f21257128d0afb983/65f86aca8cc32ec9836e8a29_beeple-textlogo.svg">
+    <img alt="SaasTools.eu" src="icon.svg">
   </div>
-  <div class="title">SaasTools.eu<span class="page-subtitle">Create Team</span></div>
-  <button class="icon-btn" id="themeBtn" title="Toggle dark/light mode" aria-label="Toggle theme">
-    <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-  </button>
-  <button class="icon-btn" id="hamburgerBtn" aria-label="Menu">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="19" r="1.2"/></svg>
+  <div class="title">SaasTools.eu for Beeple<span class="page-subtitle">Create Team</span></div>
+  <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
+    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </div>
 
 <!-- NAV MENU -->
 <nav id="navMenu" class="nav-menu" aria-label="Main navigation">
-  <a href="create.html" class="nav-item active">Team creation</a>
-  <a href="planning.html" class="nav-item">Planning</a>
-  <button id="installBtn" class="nav-item hidden">Install as app</button>
-  <button id="debugToggleBtn" class="nav-item">Debug mode</button>
-  <button id="logoutBtn" class="nav-item danger">Log out</button>
+  <a href="javascript:void(0)" class="nav-item active" onclick="navMenu.classList.remove('open');navOverlay.classList.remove('show');">
+    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Team creation
+  </a>
+  <a href="planning.html" class="nav-item">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Planning
+  </a>
+  <button id="debugToggleBtn" class="nav-item">
+    <svg viewBox="0 0 24 24"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M5.6 3.8A9 9 0 0 1 12 2a9 9 0 0 1 6.4 1.8"/><line x1="2" y1="13" x2="22" y2="13"/></svg>
+    <span id="debugToggleLabel">Debug mode</span>
+  </button>
+  <button id="themeMenuBtn" class="nav-item">
+    <svg id="themeMenuIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    <span id="themeMenuLabel">Dark mode</span>
+  </button>
+  <button id="installBtn" class="nav-item hidden">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Install as app
+  </button>
+  <button id="logoutBtn" class="nav-item danger">
+    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Log out
+  </button>
 </nav>
 <div id="navOverlay" class="nav-overlay"></div>
 
 <main class="container">
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" style="text-align:center;padding:40px 20px;color:var(--muted);">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto 12px;"></div>
+    <p style="margin:0;">Loading tenant data…</p>
+  </div>
+
   <!-- Debug banner (only shown when debug=Y) -->
   <div id="debugBanner" class="debug-banner hidden">Debug mode active — full API responses shown in logs.</div>
 
   <!-- Create single team -->
-  <section class="card" id="sec-single">
+  <section class="card hidden" id="sec-single">
     <h2>Create team</h2>
       <div id="projectBlock" class="hidden">
         <label class="required">Project</label>
@@ -301,7 +327,6 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
       </div>
       <div class="btn-row">
         <button id="createSingleBtn" class="btn primary">Create team</button>
-        <button id="loadBtn" class="btn secondary">Reload tenant data</button>
       </div>
       <div id="createResult" style="margin-top:8px;"></div>
   </section>
@@ -348,26 +373,32 @@ if(!BASE || !TOKEN){
 (function(){
   const t = localStorage.getItem("theme") || "light";
   document.documentElement.setAttribute("data-theme", t);
-  syncThemeBtn();
+  syncTheme();
 })();
-function syncThemeBtn(){
+function syncTheme(){
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
-  document.getElementById("themeIcon").innerHTML = dark
-    ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
-    : '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  const icon = dark
+    ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  const el = document.getElementById("themeMenuIcon");
+  if(el) el.innerHTML = icon;
+  const lbl = document.getElementById("themeMenuLabel");
+  if(lbl) lbl.textContent = dark ? "Light mode" : "Dark mode";
 }
-document.getElementById("themeBtn").addEventListener("click", () => {
+document.getElementById("themeMenuBtn").addEventListener("click", () => {
   const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
-  syncThemeBtn();
+  syncTheme();
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
 });
 
 /* ---- Debug ---- */
 function syncDebug(){
   document.getElementById("debugBanner").classList.toggle("hidden", !DEBUG);
   document.getElementById("sec-logs").classList.toggle("hidden", !DEBUG);
-  document.getElementById("debugToggleBtn").textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
+  const lbl = document.getElementById("debugToggleLabel");
+  if(lbl) lbl.textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
 }
 syncDebug();
 
@@ -522,6 +553,9 @@ function fillSelect(sel, items){
 
 /* ---- Load tenant data ---- */
 async function loadTenant(){
+  const overlay = el("loadingOverlay");
+  if(overlay) overlay.classList.remove("hidden");
+  el("sec-single").classList.add("hidden");
   ["projectBlock","subprojectBlock","functionBlock","addressBlock","compBlock"]
     .forEach(id => el(id).classList.add("hidden"));
   try {
@@ -570,6 +604,11 @@ async function loadTenant(){
     const ss = loadPerTenant("subproject"); if(ss) els.subprojectSelect.value = ss;
 
   } catch(e){ alert("Load failed: " + extractErr(e)); }
+  finally {
+    const overlay = el("loadingOverlay");
+    if(overlay) overlay.classList.add("hidden");
+    el("sec-single").classList.remove("hidden");
+  }
 }
 
 async function loadSubprojectsForProject(pid){
@@ -731,7 +770,7 @@ document.addEventListener("click", ev => {
   const t = ev.target.closest("button") || ev.target;
   if(t.dataset.toggle){ toggleSection(document.querySelector(t.dataset.toggle), t.dataset.role !== "collapse"); return; }
   if(t.id === "createSingleBtn"){ createTeam(); return; }
-  if(t.id === "loadBtn"){ loadTenant(); return; }
+
   if(t.dataset.del){ deleteCreated(t.dataset.del); return; }
 });
 
