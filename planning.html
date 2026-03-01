@@ -92,7 +92,7 @@ button.nav-item.danger { color:var(--danger); }
 /* LAYOUT */
 .content-area { display:flex; flex-direction:column; height:calc(100vh - 59px); }
 /* MAIN */
-.main { flex:1; min-width:0; padding:20px 16px 40px; overflow-y:auto; }
+.main { flex:1; min-width:0; padding:20px 16px 40px; overflow-y:auto; overflow-x:hidden; }
 .proj-search { margin-bottom:12px; }
 /* TOOLBAR */
 .toolbar {
@@ -355,12 +355,8 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     Planning
   </a>
-  <button id="navInvitationsBtn" class="nav-item">
-    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-    Pending invitations
-  </button>
   <button id="debugToggleBtn" class="nav-item">
-    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <svg id="debugToggleIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
     <span id="debugToggleLabel">Debug mode</span>
   </button>
   <button id="themeMenuBtn" class="nav-item">
@@ -486,7 +482,13 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   <!-- SUBPROJECT / TEAMS VIEW -->
   <div id="viewProject" class="hidden">
     <div class="breadcrumb" id="breadcrumb"></div>
-    <h1 class="section-title" id="viewProjectTitle"></h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+      <h1 class="section-title" id="viewProjectTitle" style="margin:0;flex:1;min-width:0;"></h1>
+      <button id="projectInvitationsBtn" class="btn secondary btn-sm" style="flex-shrink:0;">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Invitations
+      </button>
+    </div>
     <p class="section-sub" id="viewProjectSub"></p>
     <div id="subSortBar" class="sort-bar hidden">
       <label>Sort by</label>
@@ -515,6 +517,12 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
           <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="teamMeta"></div>
         </div>
       </div>
+    </div>
+
+    <!-- Enrolments card -->
+    <div id="enrolmentsCard" class="sec-card">
+      <h3>Enrolments</h3>
+      <div id="enrolmentsFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
     <!-- Candidacies card (shown only when there are candidacies) -->
@@ -735,24 +743,31 @@ document.getElementById("logoutBtn").addEventListener("click", function() {
   window.location.href = "index.html";
 });
 
-document.getElementById("navInvitationsBtn").addEventListener("click", () => {
-  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+document.getElementById("projectInvitationsBtn").addEventListener("click", () => {
+  const project = state.selectedProject;
+  if(!project) return;
   showView("viewInvitations");
   setBreadcrumb("viewInvitations", [
     { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
+    { label: project.name, action: () => selectProject(project) },
     { label:"Pending Invitations" }
   ]);
-  // Populate project select
+  // Pre-select the current project
   const sel = document.getElementById("invProjectSelect");
   sel.innerHTML = '<option value="">— select project —</option>';
   (state.projects || []).forEach(p => {
     const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; sel.appendChild(o);
   });
+  sel.value = project.id;
 });
 
 document.getElementById("invBackBtn").addEventListener("click", () => {
-  showView("viewProjects");
-  history.pushState({view:"projects"}, "");
+  if(state.selectedProject){
+    selectProject(state.selectedProject);
+  } else {
+    showView("viewProjects");
+    history.pushState({view:"projects"}, "");
+  }
 });
 
 document.getElementById("loadInvitationsBtn").addEventListener("click", async () => {
@@ -815,7 +830,11 @@ function syncDebug(){
     banner.classList.add("hidden");
   }
   const lbl = document.getElementById("debugToggleLabel");
-  if(lbl) lbl.textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
+  if(lbl) lbl.textContent = "Debug mode";
+  const ico = document.getElementById("debugToggleIcon");
+  if(ico) ico.innerHTML = DEBUG
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
   document.getElementById("debugLogWrap").classList.toggle("hidden", !DEBUG);
 }
 document.getElementById("debugToggleBtn").addEventListener("click", () => {
@@ -853,12 +872,6 @@ document.getElementById("pwaDismissBtn").addEventListener("click", () => {
   document.getElementById("pwaOverlay").classList.add("hidden");
   localStorage.setItem("pwa_install_dismissed", "1");
 });
-// Show overlay after 5 s (once)
-setTimeout(() => {
-  if(pwaPrompt && !localStorage.getItem("pwa_installed") && !localStorage.getItem("pwa_install_dismissed")){
-    document.getElementById("pwaOverlay").classList.remove("hidden");
-  }
-}, 5000);
 
 /* ================================================================
    SERVICE WORKER
@@ -1108,9 +1121,10 @@ function renderProjectGrid(projects){
     const el = document.createElement("div");
     el.className = "card";
     el.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
         <span style="background:${escHtml(color)};width:12px;height:12px;border-radius:3px;flex-shrink:0;display:inline-block;"></span>
-        <h3 style="margin:0;">${escHtml(p.name)}</h3>
+        <h3 style="margin:0;flex:1;min-width:0;">${escHtml(p.name)}</h3>
+        <span style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">${p.published?ICON_PUBLISHED:ICON_DRAFT}${p.published?"Published":"Draft"}</span>
       </div>
       <div class="meta">
         <span title="Date">
@@ -1121,7 +1135,6 @@ function renderProjectGrid(projects){
         ${p.customer   ? `<span title="Client"><svg style="width:12px;height:12px;vertical-align:-1px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${escHtml(p.customer.name)}</span>` : ""}
       </div>
       <div style="margin-top:8px;">
-        <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${p.published?ICON_PUBLISHED:ICON_DRAFT}${p.published?"Published":"Draft"}</span>
         <span class="chip chip-blue">${p.registrations_count||0}/${p.volunteers_needed||0} enrolled</span>
       </div>`;
     el.addEventListener("click",()=>selectProject(p));
@@ -1272,6 +1285,7 @@ function hideDateBar(){
   const bar = document.getElementById("teamDateBar");
   bar.style.display = "none";
   bar.classList.add("hidden");
+  document.getElementById("teamSort").classList.add("hidden");
 }
 
 /* ================================================================
@@ -1290,6 +1304,7 @@ function initDateBar(){
   if(!to.value)   to.value   = defaultDateTo();
   bar.style.display = "flex";
   bar.classList.remove("hidden");
+  document.getElementById("teamSort").classList.remove("hidden");
   if(_dateBarInited) return;
   _dateBarInited = true;
   from.addEventListener("change", () => reloadCurrentTeamGrid());
@@ -1374,7 +1389,7 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
           <div title="Shift">${ICON_CAL} ${fmtShift(t)}</div>
           <div style="margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${t.published?ICON_PUBLISHED:ICON_DRAFT}${t.published?"Published":"Draft"}</span>
-            <span class="chip chip-blue">${t.registrations_count||0}/${t.volunteers_needed||0} filled</span>
+            <span class="chip chip-blue">${t.registrations_count||t.team_registrations_count||0}/${t.volunteers_needed||t.volunteers_needed_count||0} filled</span>
           </div>
           ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
           ${t.address  ? `<div title="Location">${ICON_PIN} ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
@@ -1420,7 +1435,7 @@ function renderTimeline(grid, teams, fromVal, toVal){
     } else {
       dayTeams.forEach(t => {
         const name   = escHtml(t.name || "(auto-named)");
-        const filled = `${t.registrations_count||0}/${t.volunteers_needed||0}`;
+        const filled = `${t.registrations_count||t.team_registrations_count||0}/${t.volunteers_needed||t.volunteers_needed_count||0}`;
         const timeStr = (() => {
           if(t.shifts && t.shifts[0]){
             const s = new Date(t.shifts[0].start_datetime);
@@ -1476,9 +1491,9 @@ async function selectTeam(team, noPush){
   const sub     = state.selectedSubproject;
 
   const crumbs = [
-    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
-    { label: project.name, action: () => selectProject(project) }
+    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } }
   ];
+  if(project) crumbs.push({ label: project.name, action: () => selectProject(project) });
   if(sub) crumbs.push({ label: sub.name, action: () => selectSubproject(sub) });
   crumbs.push({ label: team.name || "(team)" });
   setBreadcrumb("viewTeam", crumbs);
@@ -1486,7 +1501,7 @@ async function selectTeam(team, noPush){
   document.getElementById("teamTitle").textContent = team.name || "(auto-named)";
   document.getElementById("teamChips").innerHTML =
     `<span style="font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${team.published?ICON_PUBLISHED:ICON_DRAFT}${team.published?"Published":"Draft"}</span>
-     <span class="chip chip-blue">${team.registrations_count||0}/${team.volunteers_needed||0} filled</span>`;
+     <span class="chip chip-blue">${team.registrations_count||team.team_registrations_count||0}/${team.volunteers_needed||team.volunteers_needed_count||0} filled</span>`;
   document.getElementById("teamMeta").innerHTML =
     [fmtShift(team),
      team.function ? `<span title="Function">⚙ ${escHtml(team.function.name)}</span>` : "",
@@ -1498,6 +1513,26 @@ async function selectTeam(team, noPush){
   document.getElementById("collabSentinel").innerHTML = "";
   document.getElementById("candidaciesCard").classList.add("hidden");
   document.getElementById("candidaciesFeed").innerHTML = "";
+  document.getElementById("enrolmentsFeed").innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading enrolments…</p></div>`;
+
+  // Fetch individual team to get accurate counts (volunteers_needed + registrations_count)
+  apiGET(`api/v1/admin/teams/${team.id}`).then(td => {
+    const t = td.team || td;
+    const needed = t.volunteers_needed || t.volunteers_needed_count || team.volunteers_needed || team.volunteers_needed_count || 0;
+    const enrolled = t.registrations_count || t.team_registrations_count || team.registrations_count || team.team_registrations_count || 0;
+    // Update state with fresh data
+    if(state.selectedTeam && String(state.selectedTeam.id) === String(team.id)){
+      state.selectedTeam.volunteers_needed = needed;
+      state.selectedTeam.registrations_count = enrolled;
+    }
+    const chipsEl = document.getElementById("teamChips");
+    if(chipsEl){
+      const chip = chipsEl.querySelector(".chip-blue");
+      if(chip) chip.textContent = `${enrolled}/${needed} filled`;
+    }
+    // Also update title/meta if team has fresher name/info
+    if(t.name) document.getElementById("teamTitle").textContent = t.name;
+  }).catch(()=>{});
 
   loadEnrolments(team.id);
   loadCandidacies(team.id);
@@ -1508,11 +1543,23 @@ async function selectTeam(team, noPush){
    ================================================================ */
 async function loadEnrolments(teamId){
   const feed = document.getElementById("enrolmentsFeed");
-  if(!feed) return; // enrolments panel not present in this view
+  if(!feed) return;
   feed.innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading enrolments…</p></div>`;
   try {
     const data   = await apiGET(`api/v1/admin/teams/${teamId}/enrolments`);
-    const enrols = data.enrolments || [];
+    const enrols = data.enrolments || data.team_registrations || [];
+    // Update the filled count chip with the actual enrolment count
+    const activeCount = enrols.filter(e => !e.cancelled).length;
+    const chipsEl = document.getElementById("teamChips");
+    if(chipsEl){
+      const chip = chipsEl.querySelector(".chip-blue");
+      if(chip){
+        const needed = state.selectedTeam
+          ? (state.selectedTeam.volunteers_needed || state.selectedTeam.volunteers_needed_count || 0)
+          : 0;
+        chip.textContent = `${activeCount}/${needed} filled`;
+      }
+    }
     if(!enrols.length){
       feed.innerHTML = `<div class="empty"><p>No enrolments yet for this team.</p></div>`;
       return;
@@ -2068,13 +2115,32 @@ if(_dbgClearBtn) _dbgClearBtn.addEventListener("click",()=>{ document.getElement
 
   loadFunctions();
 
-  /* Load projects, then pre-select from URL params if navigated via FAB */
+  /* Load projects, then pre-select from URL params if navigated via FAB or create page */
   const sp = new URLSearchParams(location.search);
   const targetProject = sp.get("project");
   const targetSub     = sp.get("subproject");
+  const targetTeam    = sp.get("team");
   (async () => {
     await loadProjects();
-    if(targetProject){
+    if(targetTeam){
+      // Navigate directly to team detail page
+      try {
+        const td = await apiGET(`api/v1/admin/teams/${targetTeam}`);
+        const team = td.team || td;
+        // Try to find the project in the loaded list, or build a minimal object from team data
+        const projId = team.project_id || (team.project && team.project.id) || (team.subproject && team.subproject.project_id);
+        const projObj = state.projects.find(x => String(x.id) === String(projId))
+          || (team.project ? team.project : (projId ? { id: projId, name: "Project" } : null));
+        if(projObj){
+          state.selectedProject = projObj;
+          const subObj = team.subproject || null;
+          if(subObj) state.selectedSubproject = subObj;
+        }
+        await selectTeam(team);
+      } catch(e) {
+        // Fall back to projects view
+      }
+    } else if(targetProject){
       const p = state.projects.find(x => String(x.id) === targetProject);
       if(p){
         await selectProject(p);

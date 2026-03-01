@@ -122,6 +122,13 @@ label:first-child { margin-top:0; }
 [data-theme="dark"] .alert-error { color:#fca5a5; }
 /* BTN ROW */
 .btn-row { margin-top:16px; }
+/* SECURITY NOTICE */
+.security-notice {
+  margin-top:14px; padding:10px 12px;
+  border:1px dashed #f59e0b; border-radius:10px;
+  background:rgba(245,158,11,.10); color:#92400e; font-size:13px;
+}
+[data-theme="dark"] .security-notice { color:#fcd34d; }
 </style>
 </head>
 <body>
@@ -168,6 +175,9 @@ label:first-child { margin-top:0; }
       <label class="required">API token</label>
       <input id="tokenInput" type="password" name="password" autocomplete="current-password"
              placeholder="Paste your API token here">
+      <div class="security-notice">
+        <b>Security notice:</b> Your API token is confidential. Never share it with others and handle it as securely as you would a password.
+      </div>
       <div class="btn-row">
         <button id="tokenLoginBtn" type="submit" class="btn primary">Connect</button>
       </div>
@@ -298,7 +308,12 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
     try { json = JSON.parse(txt); } catch {}
 
     if(!res.ok){
-      const msg = (json && (json.error || json.message)) || ("Login failed (HTTP " + res.status + ")");
+      let msg = (json && (json.error || json.message)) || txt.trim() || ("Login failed (HTTP " + res.status + ")");
+      if(msg.toLowerCase().includes("missing x-beeple-token") || msg.toLowerCase().includes("x-beeple-token")){
+        msg = "Email & password login is not supported by this API configuration. Please use the API Token tab instead.";
+        // Switch to token tab automatically
+        document.querySelector('[data-tab="token"]').click();
+      }
       throw new Error(msg);
     }
 
