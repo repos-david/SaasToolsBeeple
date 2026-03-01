@@ -106,7 +106,8 @@ button.nav-item.danger { color:var(--danger); }
 .toolbar-date-input { width:auto !important; font-size:13px !important; padding:5px 8px !important; min-height:auto !important; display:inline-block !important; }
 .toolbar-search { width:160px; font-size:13px !important; padding:6px 10px !important; min-height:auto !important; }
 /* FAB */
-.fab { position:fixed; bottom:24px; right:20px; z-index:40; width:56px; height:56px; border-radius:50%; background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; font-size:28px; font-weight:300; line-height:1; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 4px 16px rgba(78,107,255,.45); transition:filter .15s; }
+.fab { position:fixed; bottom:24px; right:20px; z-index:40; width:56px; height:56px; border-radius:50%; background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 4px 16px rgba(78,107,255,.45); transition:filter .15s; }
+.fab svg { width:28px; height:28px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; }
 .fab:hover { filter:brightness(1.1); }
 /* VIEW TABS */
 .view-tabs { display:flex; align-items:center; border-bottom:1px solid var(--border); background:var(--card); overflow-x:auto; flex-shrink:0; padding:0 6px; }
@@ -114,7 +115,7 @@ button.nav-item.danger { color:var(--danger); }
 .tab-btn:hover { color:var(--text); }
 .tab-btn.tab-active { color:var(--accent); border-bottom-color:var(--accent); }
 /* BREADCRUMB */
-.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 0 8px; }
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; position:sticky; top:0; z-index:5; background:var(--bg); padding:20px 16px 8px; margin-top:-20px; margin-left:-16px; margin-right:-16px; }
 /* SORT */
 .sort-bar { display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:12px; color:var(--muted); }
 .sort-bar label { margin:0; font-size:12px; font-weight:600; }
@@ -180,7 +181,7 @@ label:first-child { margin-top:0; }
 .view-btn.active { background:var(--accent); color:#fff; }
 .view-btn:not(.active):hover { background:var(--accentSoft); color:var(--text); }
 /* TIMELINE */
-.timeline-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.timeline-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -16px; padding:0 4px; }
 .timeline-table { border-collapse:collapse; min-width:100%; }
 .timeline-table th { background:var(--tableHead); font-size:12px; font-weight:700; padding:8px 12px; text-align:center; border:1px solid var(--fieldBorder); min-width:130px; color:#0b1740; }
 .timeline-table th.tl-today { background:var(--accentSoft); color:var(--accent); }
@@ -206,6 +207,7 @@ label:first-child { margin-top:0; }
   background:var(--field); border:1px solid var(--fieldBorder); border-radius:var(--radius);
   padding:12px 14px; display:grid; grid-template-columns:40px 1fr; column-gap:12px; row-gap:8px;
 }
+.collab-card-error { grid-column:1/-1; }
 .collab-avatar { grid-row:span 2; align-self:start; }
 .collab-actions { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .collab-avatar {
@@ -217,7 +219,7 @@ label:first-child { margin-top:0; }
 .collab-avatar:hover { background:var(--accent); color:#fff; }
 .collab-info { flex:1; min-width:0; cursor:pointer; }
 .collab-info:hover .collab-name { color:var(--accent); }
-.collab-name { font-weight:700; font-size:14px; }
+.collab-name { font-weight:700; font-size:14px; color:var(--accent); }
 .collab-meta { font-size:12px; color:var(--muted); margin-top:2px; }
 .collab-actions { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 /* ENROLMENT LIST */
@@ -334,10 +336,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="brand">
+  <div class="brand" onclick="return false;" style="cursor:default;">
     <img alt="SaasTools.eu" src="icon.svg">
   </div>
-  <div class="title">SaasTools.eu for Beeple<span class="page-subtitle">Planning</span></div>
+  <div class="title" onclick="return false;" style="cursor:default;">SaasTools.eu for Beeple<span class="page-subtitle">Planning</span></div>
   <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -358,8 +360,8 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     Pending invitations
   </button>
   <button id="debugToggleBtn" class="nav-item">
-    <svg viewBox="0 0 24 24"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M5.6 3.8A9 9 0 0 1 12 2a9 9 0 0 1 6.4 1.8"/><line x1="2" y1="13" x2="22" y2="13"/></svg>
-    Debug mode
+    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span id="debugToggleLabel">Debug mode</span>
   </button>
   <button id="themeMenuBtn" class="nav-item">
     <svg id="themeMenuIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -385,8 +387,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 <!-- TOOLBAR (shown when a project is selected) -->
 <div id="toolbar" class="toolbar hidden">
   <div class="toolbar-left">
-    <input id="gridSearch" type="search" placeholder="Search…" autocomplete="off" class="toolbar-search">
-    <button class="btn secondary btn-sm" id="todayBtn">Today</button>
+    <input id="gridSearch" type="search" placeholder="Search by name…" autocomplete="off" class="toolbar-search">
     <div id="teamDateBar" class="hidden" style="display:none;align-items:center;gap:6px;">
       <input id="teamDateFrom" type="date" class="toolbar-date-input">
       <input id="teamDateTo" type="date" class="toolbar-date-input">
@@ -621,9 +622,11 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
       <!-- Sort bar for collaborators -->
       <div id="collabSortBar" class="sort-bar hidden">
         <label>Sort by</label>
-        <select id="collabSort" onchange="searchCollaborators(1)">
+        <select id="collabSort">
           <option value="name-asc">Name A–Z</option>
           <option value="name-desc">Name Z–A</option>
+          <option value="email-asc">Email A–Z</option>
+          <option value="email-desc">Email Z–A</option>
         </select>
       </div>
 
@@ -643,7 +646,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
       <!-- Results -->
       <div id="collabResults"></div>
-      <div id="collabPagination" class="pagination"></div>
+      <div id="collabSentinel" style="height:40px;display:flex;align-items:center;justify-content:center;"></div>
 
       <!-- Result log -->
       <div id="enrolResults" class="result-feed mt16"></div>
@@ -661,7 +664,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 </div><!-- /content-area -->
 
 <!-- Floating action button -->
-<a id="fabBtn" href="create.html" class="fab hidden" title="Create team for this project">+</a>
+<a id="fabBtn" href="create.html" class="fab hidden" title="Create team for this project"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
 
 <!-- COOKIE BANNER -->
 <div id="cookie" class="cookie hidden">
@@ -810,6 +813,9 @@ const state = {
 function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
 const ICON_CAL = '<svg style="width:13px;height:13px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
 const ICON_PIN = '<svg style="width:13px;height:13px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+const ICON_PERSON = '<svg style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+const ICON_PUBLISHED = '<svg style="width:13px;height:13px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>';
+const ICON_DRAFT = '<svg style="width:13px;height:13px;vertical-align:-2px;stroke:currentColor;fill:none;stroke-width:2;stroke-dasharray:4 2;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>';
 
 function parseApiErrors(json){
   if(!json) return "Unknown error.";

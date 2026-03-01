@@ -171,6 +171,21 @@ label:first-child { margin-top:0; }
       <div class="btn-row">
         <button id="tokenLoginBtn" type="submit" class="btn primary">Connect</button>
       </div>
+      <details style="margin-top:16px;font-size:13px;">
+        <summary style="cursor:pointer;color:var(--accent);font-weight:600;list-style:none;display:flex;align-items:center;gap:6px;user-select:none;">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          How to get your API token?
+        </summary>
+        <div style="margin-top:10px;padding:12px 14px;background:var(--accentSoft);border-radius:var(--radius);color:var(--muted);line-height:1.7;">
+          <ol style="margin:0;padding-left:18px;">
+            <li>Log in to Beeple as an <strong>admin</strong></li>
+            <li>Click the <strong>profile menu</strong> (top-right of Beeple)</li>
+            <li>Choose <strong>Admin profile</strong></li>
+            <li>Scroll to the <strong>API token</strong> section</li>
+            <li>Generate or copy your existing token and paste it above</li>
+          </ol>
+        </div>
+      </details>
     </form>
 
     <div id="loginError" class="alert alert-error hidden"></div>
