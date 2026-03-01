@@ -563,7 +563,8 @@ async function loadTenant(){
     .forEach(id => el(id).classList.add("hidden"));
   try {
     const pData = await proxyGET("api/v1/admin/projects");
-    const projects = (pData.projects || []).filter(p => !p.deleted && !p.deleted_at);
+    const today = new Date().toISOString().slice(0,10);
+    const projects = (pData.projects || []).filter(p => !p.deleted && !p.deleted_at && !(p.end_date && p.end_date < today));
     fillSelect(els.projectSelect, projects.map(p => ({value:p.id, label:p.name||"Project #"+p.id})));
     state.maps.projects = Object.fromEntries(projects.map(p => [String(p.id), p.name||"Project #"+p.id]));
     if(projects.length) els.projectBlock.classList.remove("hidden");
@@ -572,7 +573,7 @@ async function loadTenant(){
     for(const p of projects){
       try {
         const sData = await proxyGET(`api/v1/admin/projects/${p.id}/subprojects`);
-        (sData.subprojects||[]).filter(s => !s.deleted && !s.deleted_at).forEach(s => allSubs.push({id:String(s.id), name:s.name||"Sub #"+s.id, project_id:String(p.id)}));
+        (sData.subprojects||[]).filter(s => !s.deleted && !s.deleted_at && !(s.end_date && s.end_date < today)).forEach(s => allSubs.push({id:String(s.id), name:s.name||"Sub #"+s.id, project_id:String(p.id)}));
       } catch(e){ L("Sub err project", p.id, ":", extractErr(e)); }
     }
 
@@ -618,7 +619,8 @@ async function loadSubprojectsForProject(pid){
   if(!pid){ els.subprojectBlock.classList.add("hidden"); return; }
   try {
     const sData = await proxyGET(`api/v1/admin/projects/${pid}/subprojects`);
-    const subs = sData.subprojects || [];
+    const today2 = new Date().toISOString().slice(0,10);
+    const subs = (sData.subprojects || []).filter(s => !s.deleted && !s.deleted_at && !(s.end_date && s.end_date < today2));
     if(subs.length){
       fillSelect(els.subprojectSelect, subs.map(s => ({value:s.id, label:s.name||"Sub #"+s.id})));
       state.maps.subprojects = Object.fromEntries(subs.map(s => [String(s.id), s.name||"Sub #"+s.id]));
