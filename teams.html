@@ -153,6 +153,9 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 /* ANIMATION */
 @keyframes slideRight { to { opacity:0; transform:translateX(60%); } }
 .slideRight { animation:slideRight .35s ease forwards; }
+/* SPINNER */
+.spinner { display:inline-block; width:18px; height:18px; border:2px solid var(--fieldBorder); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; vertical-align:middle; }
+@keyframes spin { to { transform:rotate(360deg); } }
 /* FAB */
 .fab { position:fixed; bottom:24px; right:20px; z-index:40; width:56px; height:56px; border-radius:50%; background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; font-size:28px; font-weight:300; line-height:1; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; font-family:inherit; box-shadow:0 4px 16px rgba(78,107,255,.45); transition:filter .15s; }
 .fab:hover { filter:brightness(1.1); }
@@ -397,7 +400,9 @@ document.getElementById("themeMenuBtn").addEventListener("click", () => {
   syncTheme();
 });
 
-document.getElementById("logoutBtn").addEventListener("click", () => {
+document.getElementById("logoutBtn").addEventListener("click", function() {
+  this.disabled = true;
+  this.innerHTML = `<span class="spinner" style="width:16px;height:16px;border-width:2px;margin-right:8px;"></span> Logging out…`;
   sessionStorage.removeItem("bwToken");
   window.location.replace("index.html");
 });
@@ -491,7 +496,7 @@ async function loadTenant(){
   ["projectBlock","subprojectBlock","functionBlock","addressBlock","compBlock"].forEach(id=>els[id].classList.add("hidden"));
   try{
     const pData = await proxyGET("api/v1/admin/projects");
-    const projects = pData.projects || [];
+    const projects = (pData.projects || []).filter(p => !p.deleted && !p.deleted_at);
     fillSelect(els.projectSelect, projects.map(p=>({value:p.id, label:p.name||"Project #"+p.id})));
     state.maps.projects = Object.fromEntries(projects.map(p=>[String(p.id), p.name||"Project #"+p.id]));
     if(projects.length) els.projectBlock.classList.remove("hidden");
@@ -537,7 +542,7 @@ async function loadSubprojectsForProject(pid){
   if(!pid){ els.subprojectBlock.classList.add("hidden"); return; }
   try{
     const sData = await proxyGET(`api/v1/admin/projects/${pid}/subprojects`);
-    const subs = sData.subprojects || [];
+    const subs = (sData.subprojects || []).filter(s => !s.deleted && !s.deleted_at);
     if(subs.length){
       fillSelect(els.subprojectSelect, subs.map(s=>({value:s.id, label:s.name||"Sub #"+s.id})));
       state.maps.subprojects = Object.fromEntries(subs.map(s=>[String(s.id), s.name||"Sub #"+s.id]));
