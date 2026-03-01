@@ -607,7 +607,7 @@ function renderCreated(){
   state.created.forEach(item => {
     const shift = (item.start && item.end) ? `${item.start} — ${item.end}` : "";
     const tr = document.createElement("tr"); tr.setAttribute("data-id", item.id);
-    tr.innerHTML = `<td>${escHtml(item.id)}</td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td>${escHtml(item.name)}</td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td><button class="btn btn-ghost" style="padding:5px 8px;min-height:32px;color:var(--danger);" data-del="${escHtml(item.id)}" title="Delete team">${TRASH_SVG}</button></td>`;
+    tr.innerHTML = `<td><a href="planning.html?team=${encodeURIComponent(item.id)}" style="color:var(--accent);font-weight:600;text-decoration:none;">${escHtml(item.id)}</a></td><td>${escHtml(item.projectName)}</td><td>${escHtml(item.subprojectName)}</td><td><a href="planning.html?team=${encodeURIComponent(item.id)}" style="color:var(--accent);font-weight:600;text-decoration:none;">${escHtml(item.name)}</a></td><td>${escHtml(item.functionName)}</td><td>${escHtml(item.addressName)}</td><td>${escHtml(item.compensationName)}</td><td>${escHtml(shift)}</td><td><button class="btn btn-ghost" style="padding:5px 8px;min-height:32px;color:var(--danger);" data-del="${escHtml(item.id)}" title="Delete team">${TRASH_SVG}</button></td>`;
     els.createdTbody.appendChild(tr);
   });
 }
