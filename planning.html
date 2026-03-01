@@ -517,6 +517,12 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
       </div>
     </div>
 
+    <!-- Candidacies card (shown only when there are candidacies) -->
+    <div id="candidaciesCard" class="sec-card hidden">
+      <h3>Candidacies</h3>
+      <div id="candidaciesFeed"></div>
+    </div>
+
     <!-- Find & add collaborators card -->
     <div class="sec-card">
       <h3>Find &amp; add collaborator</h3>
@@ -721,7 +727,9 @@ navOverlay.addEventListener("click", () => {
   navMenu.classList.remove("open");
   navOverlay.classList.remove("show");
 });
-document.getElementById("logoutBtn").addEventListener("click", () => {
+document.getElementById("logoutBtn").addEventListener("click", function() {
+  this.disabled = true;
+  this.innerHTML = `<span class="spinner" style="width:16px;height:16px;border-width:2px;margin-right:8px;"></span> Logging out…`;
   sessionStorage.removeItem("bwToken");
   localStorage.removeItem("bwBase");
   window.location.href = "index.html";
@@ -1068,7 +1076,7 @@ async function loadProjects(){
   showView("viewLoading");
   try {
     const data = await apiGET("api/v1/admin/projects");
-    state.projects = data.projects || [];
+    state.projects = (data.projects || []).filter(p => !p.deleted && !p.deleted_at);
     renderProjectGrid(state.projects);
     showView("viewProjects");
   } catch(e) {
@@ -1196,7 +1204,7 @@ async function selectProject(project, noPush){
       document.getElementById("fabBtn").classList.add("hidden");
       sub.textContent = "Select a subproject to see its teams.";
       const data = await apiGET(`api/v1/admin/projects/${project.id}/subprojects`);
-      const subs = data.subprojects||[];
+      const subs = (data.subprojects||[]).filter(s => !s.deleted && !s.deleted_at);
       if(!subs.length){ grid.innerHTML=`<div class="empty"><p>No subprojects found.</p></div>`; return; }
       state._currentSubs = subs;
       document.getElementById("subSortBar").classList.remove("hidden");
@@ -1488,8 +1496,11 @@ async function selectTeam(team, noPush){
   document.getElementById("enrolResults").innerHTML  = "";
   document.getElementById("collabResults").innerHTML = "";
   document.getElementById("collabSentinel").innerHTML = "";
+  document.getElementById("candidaciesCard").classList.add("hidden");
+  document.getElementById("candidaciesFeed").innerHTML = "";
 
   loadEnrolments(team.id);
+  loadCandidacies(team.id);
 }
 
 /* ================================================================
@@ -1556,6 +1567,75 @@ document.addEventListener("click", async function(ev){
 });
 
 /* ================================================================
+   CANDIDACIES
+   ================================================================ */
+async function loadCandidacies(teamId){
+  const card = document.getElementById("candidaciesCard");
+  const feed = document.getElementById("candidaciesFeed");
+  if(!card || !feed) return;
+  try {
+    const data = await apiGET(`api/v1/admin/teams/${teamId}/candidacies`);
+    const candidacies = data.candidacies || [];
+    if(!candidacies.length){ card.classList.add("hidden"); return; }
+    card.classList.remove("hidden");
+    feed.innerHTML = `<div class="enrol-list" id="candidaciesListInner"></div>`;
+    const list = document.getElementById("candidaciesListInner");
+    candidacies.forEach(cand => {
+      const c = cand.collaborator || cand.volunteer || {};
+      const nm = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
+      const av = initials(c.first_name, c.last_name) || "?";
+      const row = document.createElement("div");
+      row.className = "enrol-item";
+      row.dataset.candidacyId = cand.id;
+      row.innerHTML = `
+        <div class="collab-avatar" style="cursor:pointer;" title="View details" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(av)}</div>
+        <div class="enrol-info">
+          <div class="enrol-name">${escHtml(nm)}</div>
+          <div style="font-size:12px;color:var(--muted);">${c.email ? escHtml(c.email) : ""}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-success btn-sm" data-accept-candidacy="${escHtml(String(cand.id))}">Accept</button>
+          <button class="btn btn-danger btn-sm" data-reject-candidacy="${escHtml(String(cand.id))}">Reject</button>
+        </div>`;
+      list.appendChild(row);
+    });
+  } catch(ex) {
+    card.classList.add("hidden");
+  }
+}
+
+document.addEventListener("click", async function(ev){
+  const acceptBtn = ev.target.closest("[data-accept-candidacy]");
+  const rejectBtn = ev.target.closest("[data-reject-candidacy]");
+  if(!acceptBtn && !rejectBtn) return;
+
+  const isAccept = !!acceptBtn;
+  const btn = isAccept ? acceptBtn : rejectBtn;
+  const candId = btn.dataset[isAccept ? "acceptCandidacy" : "rejectCandidacy"];
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;"></span>';
+
+  try {
+    await apiDELETEorPOST("POST", `api/v1/admin/candidacies/${candId}/${isAccept ? "accept" : "reject"}`, {});
+    const row = btn.closest(".enrol-item");
+    if(row){
+      row.style.opacity = ".4";
+      row.querySelectorAll("button").forEach(b => b.disabled = true);
+      const chip = document.createElement("span");
+      chip.className = isAccept ? "chip chip-green" : "chip chip-red";
+      chip.textContent = isAccept ? "Accepted" : "Rejected";
+      chip.style.marginLeft = "6px";
+      row.querySelector(".enrol-info").appendChild(chip);
+    }
+    btn.textContent = isAccept ? "Accepted" : "Rejected";
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = isAccept ? "Accept" : "Reject";
+    alert((isAccept ? "Accept" : "Reject") + " failed: " + e.message);
+  }
+});
+
+/* ================================================================
    COLLABORATOR SEARCH — INFINITE SCROLL
    ================================================================ */
 let _collabQuery = null;
@@ -1568,6 +1648,7 @@ let _collabObserver = null;
 function _buildCollabQuery(){
   const driverLicVal = document.getElementById("fDriverLicense").value;
   return {
+    q:                  document.getElementById("fSearch").value.trim() || undefined,
     function_id:        document.getElementById("fFunction").value      || undefined,
     language:           document.getElementById("fLanguage").value      || undefined,
     archived:           document.getElementById("fArchived").value === "true" ? true : undefined,

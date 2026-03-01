@@ -419,7 +419,9 @@ navOverlay.addEventListener("click", () => {
   navMenu.classList.remove("open");
   navOverlay.classList.remove("show");
 });
-document.getElementById("logoutBtn").addEventListener("click", () => {
+document.getElementById("logoutBtn").addEventListener("click", function() {
+  this.disabled = true;
+  this.innerHTML = `<span class="spinner" style="width:16px;height:16px;border-width:2px;margin-right:8px;"></span> Logging out…`;
   sessionStorage.removeItem("bwToken");
   window.location.replace("index.html");
 });
@@ -560,7 +562,7 @@ async function loadTenant(){
     .forEach(id => el(id).classList.add("hidden"));
   try {
     const pData = await proxyGET("api/v1/admin/projects");
-    const projects = pData.projects || [];
+    const projects = (pData.projects || []).filter(p => !p.deleted && !p.deleted_at);
     fillSelect(els.projectSelect, projects.map(p => ({value:p.id, label:p.name||"Project #"+p.id})));
     state.maps.projects = Object.fromEntries(projects.map(p => [String(p.id), p.name||"Project #"+p.id]));
     if(projects.length) els.projectBlock.classList.remove("hidden");
@@ -569,7 +571,7 @@ async function loadTenant(){
     for(const p of projects){
       try {
         const sData = await proxyGET(`api/v1/admin/projects/${p.id}/subprojects`);
-        (sData.subprojects||[]).forEach(s => allSubs.push({id:String(s.id), name:s.name||"Sub #"+s.id, project_id:String(p.id)}));
+        (sData.subprojects||[]).filter(s => !s.deleted && !s.deleted_at).forEach(s => allSubs.push({id:String(s.id), name:s.name||"Sub #"+s.id, project_id:String(p.id)}));
       } catch(e){ L("Sub err project", p.id, ":", extractErr(e)); }
     }
 
