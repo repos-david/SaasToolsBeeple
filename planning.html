@@ -723,19 +723,91 @@ navOverlay.addEventListener("click", () => {
 });
 document.getElementById("logoutBtn").addEventListener("click", () => {
   sessionStorage.removeItem("bwToken");
-  window.location.replace("index.html");
+  localStorage.removeItem("bwBase");
+  window.location.href = "index.html";
 });
 
+document.getElementById("navInvitationsBtn").addEventListener("click", () => {
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+  showView("viewInvitations");
+  setBreadcrumb("viewInvitations", [
+    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
+    { label:"Pending Invitations" }
+  ]);
+  // Populate project select
+  const sel = document.getElementById("invProjectSelect");
+  sel.innerHTML = '<option value="">— select project —</option>';
+  (state.projects || []).forEach(p => {
+    const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; sel.appendChild(o);
+  });
+});
 
+document.getElementById("invBackBtn").addEventListener("click", () => {
+  showView("viewProjects");
+  history.pushState({view:"projects"}, "");
+});
+
+document.getElementById("loadInvitationsBtn").addEventListener("click", async () => {
+  const projectId = document.getElementById("invProjectSelect").value;
+  if(!projectId){ alert("Please select a project first."); return; }
+  const feed = document.getElementById("invitationsFeed");
+  feed.innerHTML = '<div class="empty"><div class="spinner"></div><p>Loading invitations…</p></div>';
+  try {
+    const fromVal = "2020-01-01", toVal = "2030-12-31";
+    const data = await apiGET(`api/v1/admin/projects/${projectId}/teams`, { start_date: fromVal, end_date: toVal, per_page: 200 });
+    const teams = (data.teams || []).filter(t => !t.deleted && !t.deleted_at);
+    if(!teams.length){ feed.innerHTML = '<div class="empty"><p>No teams found for this project.</p></div>'; return; }
+    const allInvitations = [];
+    await Promise.allSettled(teams.slice(0, 50).map(async team => {
+      try {
+        const ed = await apiGET(`api/v1/admin/teams/${team.id}/enrolments`);
+        const enrols = ed.enrolments || ed.team_registrations || [];
+        enrols.filter(e => e.invitation && !e.confirmed && !e.cancelled).forEach(e => allInvitations.push({ ...e, _team: team }));
+      } catch{}
+    }));
+    if(!allInvitations.length){ feed.innerHTML = '<div class="empty"><p>No pending invitations found.</p></div>'; return; }
+    feed.innerHTML = '';
+    const byTeam = {};
+    allInvitations.forEach(inv => {
+      const tid = String(inv._team.id);
+      if(!byTeam[tid]) byTeam[tid] = { team: inv._team, invitations: [] };
+      byTeam[tid].invitations.push(inv);
+    });
+    Object.values(byTeam).forEach(({ team, invitations }) => {
+      const sec = document.createElement("div"); sec.className = "sec-card";
+      sec.innerHTML = `<h3>${escHtml(team.name||"(auto-named)")} <span style="font-weight:400;font-size:13px;color:var(--muted);">${fmtShift(team)}</span></h3>`;
+      const ul = document.createElement("div"); ul.className = "enrol-list";
+      invitations.forEach(inv => {
+        const c = inv.collaborator || inv.volunteer || {};
+        const nm = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
+        const av = initials(c.first_name, c.last_name) || "?";
+        const row = document.createElement("div"); row.className = "enrol-item";
+        row.innerHTML = `<div class="collab-avatar" style="cursor:pointer" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(av)}</div>
+          <div class="enrol-info"><div class="enrol-name">${escHtml(nm)}</div>
+          <div style="font-size:12px;color:var(--muted);">${c.email?escHtml(c.email)+" · ":""}Invited ${inv.created_at?fmtDate(inv.created_at.slice(0,10)):""}</div></div>`;
+        ul.appendChild(row);
+      });
+      sec.appendChild(ul); feed.appendChild(sec);
+    });
+  } catch(e) {
+    feed.innerHTML = `<div class="alert alert-error"><b>Could not load invitations:</b> ${escHtml(e.message)}</div>`;
+  }
+});
 
 /* ================================================================
    DEBUG TOGGLE
    ================================================================ */
 function syncDebug(){
-  document.getElementById("debugBanner").classList.toggle("hidden", !DEBUG);
-  const dbgBtn = document.getElementById("debugToggleBtn");
-  const dbgLbl = dbgBtn.lastChild;
-  if(dbgLbl && dbgLbl.nodeType === Node.TEXT_NODE) dbgLbl.textContent = DEBUG ? "\n    Debug mode (on)\n  " : "\n    Debug mode\n  ";
+  const banner = document.getElementById("debugBanner");
+  if(DEBUG){
+    banner.classList.remove("hidden");
+    clearTimeout(window._debugBannerTimer);
+    window._debugBannerTimer = setTimeout(() => banner.classList.add("hidden"), 3000);
+  } else {
+    banner.classList.add("hidden");
+  }
+  const lbl = document.getElementById("debugToggleLabel");
+  if(lbl) lbl.textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
   document.getElementById("debugLogWrap").classList.toggle("hidden", !DEBUG);
 }
 document.getElementById("debugToggleBtn").addEventListener("click", () => {
@@ -834,7 +906,22 @@ function parseApiErrors(json){
   return null;
 }
 
-function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase()||"?"; }
+function extractErrorList(json){
+  if(!json) return ["Unknown error"];
+  if(json.errors){
+    const errs = json.errors;
+    if(Array.isArray(errs) && errs.length) return errs.map(String);
+    if(typeof errs === "object" && !Array.isArray(errs)){
+      return Object.entries(errs).flatMap(([k,v]) => {
+        const msgs = Array.isArray(v) ? v : [String(v)];
+        return k === "base" ? msgs : msgs.map(m => `${k}: ${m}`);
+      });
+    }
+  }
+  if(json.error) return [String(json.error)];
+  return ["Unknown error"];
+}
+function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase(); }
 function fmtDate(d){ if(!d)return"—"; return new Date(d).toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"}); }
 
 function fmtShift(team){
@@ -908,7 +995,9 @@ async function apiPOST(path, payload){
   try { json = JSON.parse(txt); } catch {}
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
-    throw new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
+    const err = new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
+    err.apiErrors = extractErrorList(json);
+    throw err;
   }
   return json;
 }
@@ -1024,7 +1113,7 @@ function renderProjectGrid(projects){
         ${p.customer   ? `<span title="Client"><svg style="width:12px;height:12px;vertical-align:-1px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${escHtml(p.customer.name)}</span>` : ""}
       </div>
       <div style="margin-top:8px;">
-        <span class="chip chip-${p.published?"green":"grey"}">${p.published?"Published":"Draft"}</span>
+        <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${p.published?ICON_PUBLISHED:ICON_DRAFT}${p.published?"Published":"Draft"}</span>
         <span class="chip chip-blue">${p.registrations_count||0}/${p.volunteers_needed||0} enrolled</span>
       </div>`;
     el.addEventListener("click",()=>selectProject(p));
@@ -1225,16 +1314,6 @@ function shiftDateBar(days){
   from.value = isoDate(f); to.value = isoDate(t);
   reloadCurrentTeamGrid();
 }
-document.getElementById("todayBtn").addEventListener("click", () => {
-  const from = document.getElementById("teamDateFrom");
-  const to   = document.getElementById("teamDateTo");
-  const d = new Date();
-  from.value = isoDate(d);
-  const end = new Date(d); end.setDate(end.getDate() + 7);
-  to.value = isoDate(end);
-  reloadCurrentTeamGrid();
-});
-
 /* VIEW MODE: grid / timeline */
 let viewMode = "grid";
 const _tlTeamMap = {};
@@ -1260,7 +1339,7 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const fromVal = document.getElementById("teamDateFrom").value || defaultDateFrom();
   const toVal   = document.getElementById("teamDateTo").value   || defaultDateTo();
   const data  = await apiGET(path, { start_date: fromVal, end_date: toVal });
-  const teams = data.teams || [];
+  const teams = (data.teams || []).filter(t => !t.deleted && !t.deleted_at);
   if(!teams.length){
     grid.innerHTML = `<div class="empty"><p>No teams found in the selected date range.</p></div>`;
     return;
@@ -1285,8 +1364,8 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
         <h3>${escHtml(t.name||"(auto-named)")}</h3>
         <div class="meta">
           <div title="Shift">${ICON_CAL} ${fmtShift(t)}</div>
-          <div style="margin-top:4px;">
-            <span class="chip chip-${t.published?"green":"grey"}">${t.published?"Published":"Draft"}</span>
+          <div style="margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${t.published?ICON_PUBLISHED:ICON_DRAFT}${t.published?"Published":"Draft"}</span>
             <span class="chip chip-blue">${t.registrations_count||0}/${t.volunteers_needed||0} filled</span>
           </div>
           ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
@@ -1334,7 +1413,6 @@ function renderTimeline(grid, teams, fromVal, toVal){
       dayTeams.forEach(t => {
         const name   = escHtml(t.name || "(auto-named)");
         const filled = `${t.registrations_count||0}/${t.volunteers_needed||0}`;
-        const statusClass = t.published ? "chip-green" : "chip-grey";
         const timeStr = (() => {
           if(t.shifts && t.shifts[0]){
             const s = new Date(t.shifts[0].start_datetime);
@@ -1348,7 +1426,7 @@ function renderTimeline(grid, teams, fromVal, toVal){
         })();
         html += `<div class="tl-team" data-tl-id="${escHtml(String(t.id))}">
           <div class="tl-team-name">${name}</div>
-          <div class="tl-team-meta">${timeStr ? escHtml(timeStr) + " · " : ""}${escHtml(filled)} <span class="chip ${statusClass}" style="font-size:10px;padding:1px 5px;">${t.published?"Pub":"Draft"}</span></div>
+          <div class="tl-team-meta">${timeStr ? escHtml(timeStr) + " · " : ""}${escHtml(filled)} ${t.published?ICON_PUBLISHED:ICON_DRAFT}</div>
           ${t.function ? `<div class="tl-team-meta">⚙ ${escHtml(t.function.name)}</div>` : ""}
         </div>`;
       });
@@ -1399,7 +1477,7 @@ async function selectTeam(team, noPush){
 
   document.getElementById("teamTitle").textContent = team.name || "(auto-named)";
   document.getElementById("teamChips").innerHTML =
-    `<span class="chip chip-${team.published?"green":"grey"}">${team.published?"Published":"Draft"}</span>
+    `<span style="font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${team.published?ICON_PUBLISHED:ICON_DRAFT}${team.published?"Published":"Draft"}</span>
      <span class="chip chip-blue">${team.registrations_count||0}/${team.volunteers_needed||0} filled</span>`;
   document.getElementById("teamMeta").innerHTML =
     [fmtShift(team),
@@ -1409,7 +1487,7 @@ async function selectTeam(team, noPush){
 
   document.getElementById("enrolResults").innerHTML  = "";
   document.getElementById("collabResults").innerHTML = "";
-  document.getElementById("collabPagination").innerHTML = "";
+  document.getElementById("collabSentinel").innerHTML = "";
 
   loadEnrolments(team.id);
 }
@@ -1478,20 +1556,18 @@ document.addEventListener("click", async function(ev){
 });
 
 /* ================================================================
-   SEARCH COLLABORATORS
+   COLLABORATOR SEARCH — INFINITE SCROLL
    ================================================================ */
-async function searchCollaborators(page){
-  page = page || 1;
-  state.collabPage = page;
+let _collabQuery = null;
+let _collabPage  = 0;
+let _collabTotalPages = 1;
+let _collabLoading = false;
+let _collabAllItems = [];
+let _collabObserver = null;
 
-  const container = document.getElementById("collabResults");
-  const pagDiv    = document.getElementById("collabPagination");
-  container.innerHTML = `<div class="empty"><div class="spinner"></div><p>Searching…</p></div>`;
-  pagDiv.innerHTML = "";
-
-  const searchVal = document.getElementById("fSearch").value.trim().toLowerCase();
+function _buildCollabQuery(){
   const driverLicVal = document.getElementById("fDriverLicense").value;
-  const query = {
+  return {
     function_id:        document.getElementById("fFunction").value      || undefined,
     language:           document.getElementById("fLanguage").value      || undefined,
     archived:           document.getElementById("fArchived").value === "true" ? true : undefined,
@@ -1506,91 +1582,156 @@ async function searchCollaborators(page){
     nationality:        document.getElementById("fNationality").value    || undefined,
     has_driver_license: driverLicVal === "" ? undefined : (driverLicVal === "true"),
     department_id:      state.departmentId                               || undefined,
-    page,
     per_page:           100
   };
-  Object.keys(query).forEach(k => query[k]===undefined && delete query[k]);
-
-  try {
-    const data    = await apiGET("api/v1/admin/collaborators", query);
-    let collabs = data.volunteers || data.collaborators || [];
-    const meta    = data.meta || {};
-
-    // Local name filter
-    if(searchVal){
-      collabs = collabs.filter(c => {
-        const full = ((c.first_name||"")+" "+(c.last_name||"")).toLowerCase();
-        return full.includes(searchVal);
-      });
-    }
-
-    state.collabTotal = collabs.length;
-
-    if(!collabs.length){
-      container.innerHTML = `<div class="empty"><p>No collaborators found.</p></div>`;
-      document.getElementById("contractTypeWrap").classList.add("hidden");
-      document.getElementById("collabSortBar").classList.add("hidden");
-      return;
-    }
-
-    // Sort
-    const sortSel = document.getElementById("collabSort");
-    if(sortSel){
-      const sv = sortSel.value;
-      if(sv === "name-asc") collabs.sort((a,b) => ((a.last_name||"")+(a.first_name||"")).localeCompare((b.last_name||"")+(b.first_name||"")));
-      if(sv === "name-desc") collabs.sort((a,b) => ((b.last_name||"")+(b.first_name||"")).localeCompare((a.last_name||"")+(a.first_name||"")));
-    }
-
-    container.innerHTML = "";
-    const list = document.createElement("div");
-    list.className = "collab-list";
-    collabs.forEach(c => {
-      const card = document.createElement("div");
-      card.className = "collab-card";
-      card.innerHTML = `
-        <div class="collab-avatar" data-view-collab="${escHtml(String(c.id))}" title="View details">${escHtml(initials(c.first_name,c.last_name))}</div>
-        <div class="collab-info" data-view-collab="${escHtml(String(c.id))}">
-          <div class="collab-name">${escHtml(c.first_name||"")} ${escHtml(c.last_name||"")}</div>
-          <div class="collab-meta">
-            ${c.email    ? escHtml(c.email) : ""}
-            ${c.function ? " · <span title='Function'>⚙ " + escHtml(c.function.name) + "</span>" : ""}
-            ${c.language ? " · " + escHtml(c.language.toUpperCase()) : ""}
-            ${c.blocked  ? ' <span class="chip chip-red">Blocked</span>' : ""}
-            ${c.archived ? ' <span class="chip chip-grey">Archived</span>' : ""}
-          </div>
-        </div>
-        <div class="collab-actions">
-          <button class="btn primary btn-sm"
-                  data-enrol-id="${escHtml(String(c.id))}"
-                  data-enrol-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Enrol</button>
-          <button class="btn btn-success btn-sm"
-                  data-invite-id="${escHtml(String(c.id))}"
-                  data-invite-name="${escHtml((c.first_name||"")+" "+(c.last_name||""))}">Invite</button>
-        </div>`;
-      list.appendChild(card);
-    });
-    container.appendChild(list);
-    document.getElementById("contractTypeWrap").classList.remove("hidden");
-    document.getElementById("collabSortBar").classList.remove("hidden");
-
-    const perPage = meta.per_page || 100;
-    const totalPages = Math.ceil((meta.total_count || collabs.length) / perPage);
-    if(totalPages > 1) renderPagination(pagDiv, page, totalPages, searchCollaborators);
-
-  } catch(e) {
-    container.innerHTML = `<div class="alert alert-error"><b>Search failed:</b> ${escHtml(e.message)}</div>`;
-  }
 }
 
-document.getElementById("searchCollabBtn").addEventListener("click", () => searchCollaborators(1));
-document.getElementById("fSearch").addEventListener("keydown", e => { if(e.key==="Enter") searchCollaborators(1); });
+async function searchCollaborators(){
+  _collabPage = 0; _collabTotalPages = 1; _collabLoading = false; _collabAllItems = [];
+  const container = document.getElementById("collabResults");
+  container.innerHTML = '<div class="empty"><div class="spinner"></div><p>Searching…</p></div>';
+  document.getElementById("collabSentinel").innerHTML = "";
+  document.getElementById("contractTypeWrap").classList.add("hidden");
+  document.getElementById("collabSortBar").classList.add("hidden");
+
+  const searchVal = document.getElementById("fSearch").value.trim().toLowerCase();
+  _collabQuery = _buildCollabQuery();
+  _collabQuery._searchVal = searchVal;
+  Object.keys(_collabQuery).forEach(k => _collabQuery[k]===undefined && delete _collabQuery[k]);
+
+  await _loadCollabPage();
+
+  if(_collabObserver) _collabObserver.disconnect();
+  const sentinel = document.getElementById("collabSentinel");
+  _collabObserver = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting && !_collabLoading && _collabPage < _collabTotalPages) _loadCollabPage();
+  }, { rootMargin:"200px" });
+  _collabObserver.observe(sentinel);
+}
+
+async function _loadCollabPage(){
+  if(_collabLoading) return;
+  if(_collabPage > 0 && _collabPage >= _collabTotalPages) return;
+  _collabLoading = true;
+  const sentinel = document.getElementById("collabSentinel");
+  if(sentinel && _collabPage > 0) sentinel.innerHTML = '<div class="spinner" style="width:24px;height:24px;border-width:2px;margin:8px auto;"></div>';
+
+  const query = { ..._collabQuery };
+  const searchVal = query._searchVal || "";
+  delete query._searchVal;
+  query.page = _collabPage + 1;
+
+  try {
+    const data   = await apiGET("api/v1/admin/collaborators", query);
+    let collabs  = data.volunteers || data.collaborators || [];
+    const meta   = data.meta || {};
+
+    _collabPage = meta.current_page || query.page;
+    _collabTotalPages = meta.total_pages || Math.ceil((meta.total_count || collabs.length) / (meta.per_page || 100)) || 1;
+
+    if(searchVal) collabs = collabs.filter(c => {
+      const full = ((c.first_name||"")+" "+(c.last_name||"")).toLowerCase();
+      return full.includes(searchVal);
+    });
+
+    _collabAllItems = [..._collabAllItems, ...collabs];
+
+    const container = document.getElementById("collabResults");
+    if(_collabPage === 1) container.innerHTML = "";
+
+    if(_collabAllItems.length === 0 && _collabPage >= _collabTotalPages){
+      container.innerHTML = '<div class="empty"><p>No collaborators found.</p></div>';
+      if(sentinel) sentinel.innerHTML = "";
+      _collabLoading = false; return;
+    }
+
+    let list = container.querySelector(".collab-list");
+    if(!list){ list = document.createElement("div"); list.className = "collab-list"; container.appendChild(list); }
+    collabs.forEach(c => _renderCollabCard(c, list));
+
+    document.getElementById("contractTypeWrap").classList.remove("hidden");
+    document.getElementById("collabSortBar").classList.remove("hidden");
+    _updateCollabSort();
+
+    const allLoaded = _collabPage >= _collabTotalPages;
+    if(sentinel) sentinel.innerHTML = allLoaded ? "" : "";
+
+  } catch(e) {
+    document.getElementById("collabResults").innerHTML = `<div class="alert alert-error"><b>Search failed:</b> ${escHtml(e.message)}</div>`;
+    if(sentinel) sentinel.innerHTML = "";
+  }
+  _collabLoading = false;
+}
+
+function _updateCollabSort(){
+  const sortSel = document.getElementById("collabSort");
+  if(!sortSel) return;
+  const allLoaded = _collabPage >= _collabTotalPages;
+  sortSel.disabled = !allLoaded;
+  const bar = document.getElementById("collabSortBar");
+  if(bar) bar.title = allLoaded ? "" : "Sorting is only possible when all collaborators are loaded";
+}
+
+function _applyCollabSort(){
+  const container = document.getElementById("collabResults");
+  let list = container.querySelector(".collab-list");
+  if(!list || !_collabAllItems.length) return;
+  const sorted = [..._collabAllItems];
+  const sv = document.getElementById("collabSort").value;
+  if(sv === "name-asc")  sorted.sort((a,b) => ((a.last_name||"")+(a.first_name||"")).localeCompare((b.last_name||"")+(b.first_name||"")));
+  if(sv === "name-desc") sorted.sort((a,b) => ((b.last_name||"")+(b.first_name||"")).localeCompare((a.last_name||"")+(a.first_name||"")));
+  if(sv === "email-asc")  sorted.sort((a,b) => (a.email||"").localeCompare(b.email||""));
+  if(sv === "email-desc") sorted.sort((a,b) => (b.email||"").localeCompare(a.email||""));
+  list.innerHTML = "";
+  sorted.forEach(c => _renderCollabCard(c, list));
+}
+
+function _renderCollabCard(c, list){
+  const card = document.createElement("div");
+  card.className = "collab-card";
+  const av = initials(c.first_name, c.last_name);
+  const avatarContent = av ? escHtml(av) : ICON_PERSON;
+  const displayName = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
+  const hasRealName = !!(c.first_name || c.last_name);
+  const metaEmail = hasRealName ? (c.email || "") : "";
+  card.innerHTML = `
+    <div class="collab-avatar" data-view-collab="${escHtml(String(c.id))}" title="View details">${avatarContent}</div>
+    <div class="collab-info" data-view-collab="${escHtml(String(c.id))}">
+      <div class="collab-name">${escHtml(displayName)}</div>
+      <div class="collab-meta">
+        ${metaEmail ? escHtml(metaEmail) : ""}
+        ${c.function ? (metaEmail ? " · " : "") + "<span title='Function'>⚙ " + escHtml(c.function.name) + "</span>" : ""}
+        ${c.language ? " · " + escHtml(c.language.toUpperCase()) : ""}
+        ${c.blocked  ? ' <span class="chip chip-red">Blocked</span>' : ""}
+        ${c.archived ? ' <span class="chip chip-grey">Archived</span>' : ""}
+      </div>
+    </div>
+    <div class="collab-actions">
+      <button class="btn primary btn-sm"
+              data-enrol-id="${escHtml(String(c.id))}"
+              data-enrol-name="${escHtml(displayName)}">Enrol</button>
+      <button class="btn btn-success btn-sm"
+              data-invite-id="${escHtml(String(c.id))}"
+              data-invite-name="${escHtml(displayName)}">Invite</button>
+    </div>
+    <div class="collab-card-error" hidden></div>`;
+  list.appendChild(card);
+}
+
+document.getElementById("collabSort").addEventListener("change", () => {
+  if(_collabPage >= _collabTotalPages) _applyCollabSort();
+});
+document.getElementById("searchCollabBtn").addEventListener("click", () => searchCollaborators());
+document.getElementById("fSearch").addEventListener("keydown", e => { if(e.key==="Enter") searchCollaborators(); });
 document.getElementById("clearFiltersBtn").addEventListener("click", () => {
   ["fSearch","fMinAge","fCity","fPostalCode","fDistance","fNationality","fAvailableFrom","fAvailableTo"].forEach(id => document.getElementById(id).value = "");
   ["fFunction","fLanguage","fArchived","fBlocked","fGender","fDriverLicense"].forEach(id => document.getElementById(id).selectedIndex = 0);
   document.getElementById("collabResults").innerHTML    = "";
-  document.getElementById("collabPagination").innerHTML = "";
+  document.getElementById("collabSentinel").innerHTML  = "";
   document.getElementById("contractTypeWrap").classList.add("hidden");
   document.getElementById("collabSortBar").classList.add("hidden");
+  _collabAllItems = []; _collabPage = 0; _collabTotalPages = 1;
+  if(_collabObserver) _collabObserver.disconnect();
 });
 
 document.getElementById("advFilterBtn").addEventListener("click", function(){
@@ -1641,17 +1782,22 @@ document.addEventListener("click", async function(ev){
     appendResult(log, "success",
       `<b>${action}:</b> ${escHtml(collabName)} → "${escHtml(state.selectedTeam.name||"")}" (#${escHtml(String(enrolId))})`);
     btn.textContent = isInvite ? "✓ Invited" : "✓ Enrolled";
+    const card = btn.closest(".collab-card");
+    if(card){ const ce = card.querySelector(".collab-card-error"); if(ce) ce.hidden = true; }
     if(!isInvite) loadEnrolments(state.selectedTeam.id);
   } catch(e) {
-    // Replace existing error block instead of adding new one
-    const oldErr = log.querySelector(".alert-error");
-    if(oldErr) oldErr.remove();
-    // Format errors as bulleted list
-    const errParts = e.message.split(/[;,]\s*/);
-    const errHtml = errParts.length > 1
-      ? `<b>Error overview</b> — ${escHtml(collabName)}<ul style="margin:6px 0 0;padding-left:20px;">${errParts.map(p => `<li>${escHtml(p.trim())}</li>`).join("")}</ul>`
-      : `<b>Error overview</b> — ${escHtml(collabName)}: ${escHtml(e.message)}`;
-    appendResult(log, "error", errHtml);
+    const errList = e.apiErrors || [e.message];
+    const errHtml = `<b>Error overview</b><ul style="margin:4px 0 0;padding-left:20px;">${errList.map(p => `<li>${escHtml(String(p).trim())}</li>`).join("")}</ul>`;
+    const card = btn.closest(".collab-card");
+    const cardError = card ? card.querySelector(".collab-card-error") : null;
+    if(cardError){
+      cardError.innerHTML = `<div class="alert alert-error" style="margin:4px 0 0;padding:8px 12px;font-size:13px;">${errHtml}</div>`;
+      cardError.hidden = false;
+    } else {
+      const oldErr = log.querySelector(".alert-error");
+      if(oldErr) oldErr.remove();
+      appendResult(log, "error", errHtml);
+    }
     btn.disabled = false; btn.textContent = origText;
   }
 });
@@ -1689,7 +1835,8 @@ async function openCollabModal(collabId){
     const data = await apiGET(`api/v1/admin/collaborators/${collabId}`);
     const c    = data.volunteer || data.collaborator || data;
 
-    avatar.textContent = initials(c.first_name, c.last_name);
+    const av = initials(c.first_name, c.last_name);
+    if(av){ avatar.textContent = av; } else { avatar.innerHTML = ICON_PERSON; }
     name.textContent   = [c.first_name, c.last_name].filter(Boolean).join(" ") || "(no name)";
 
     const rows = [
@@ -1789,7 +1936,8 @@ function renderPagination(container, current, total, callback){
 
 /* BREADCRUMB */
 function setBreadcrumb(containerId, crumbs){
-  const el = document.getElementById(containerId === "viewTeam" ? "breadcrumbTeam" : "breadcrumb");
+  const idMap = { viewTeam:"breadcrumbTeam", viewInvitations:"breadcrumbInv" };
+  const el = document.getElementById(idMap[containerId] || "breadcrumb");
   el.innerHTML = "";
   crumbs.forEach((c, i) => {
     if(i > 0){ const sep = document.createElement("span"); sep.textContent = "›"; el.appendChild(sep); }
