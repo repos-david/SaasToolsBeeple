@@ -115,7 +115,7 @@ button.nav-item.danger { color:var(--danger); }
 .tab-btn:hover { color:var(--text); }
 .tab-btn.tab-active { color:var(--accent); border-bottom-color:var(--accent); }
 /* BREADCRUMB */
-.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; position:sticky; top:0; z-index:5; background:var(--bg); padding:20px 16px 8px; margin-top:-20px; margin-left:-16px; margin-right:-16px; }
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; position:sticky; top:0; z-index:5; background:var(--bg); padding:6px 16px 8px; margin-left:-16px; margin-right:-16px; }
 /* SORT */
 .sort-bar { display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:12px; color:var(--muted); }
 .sort-bar label { margin:0; font-size:12px; font-weight:600; }
@@ -338,10 +338,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="brand" onclick="return false;" style="cursor:default;">
+  <div class="brand" onclick="location.reload()" style="cursor:pointer;" title="Refresh">
     <img alt="SaasTools.eu" src="icon.svg">
   </div>
-  <div class="title" onclick="return false;" style="cursor:default;">SaasTools.eu for Beeple<span class="page-subtitle">Planning</span></div>
+  <div class="title" onclick="location.reload()" style="cursor:pointer;" title="Refresh">SaasTools.eu for Beeple<span class="page-subtitle">Planning</span></div>
   <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -349,7 +349,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
 <!-- NAV MENU -->
 <nav id="navMenu" class="nav-menu" aria-label="Main navigation">
-  <a href="teams.html" class="nav-item">
+  <a href="create.html" class="nav-item">
     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     Team creation
   </a>
@@ -394,7 +394,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   <div class="toolbar-right">
     <select id="teamSort" title="Sort teams" style="width:auto;font-size:12px;padding:5px 28px 5px 8px;min-height:auto;border-radius:6px;">
       <option value="date-asc">Date ↑</option>
-      <option value="date-desc">Date ↓</option>
+      <option value="date-desc" selected>Date ↓</option>
       <option value="name-asc">Name A–Z</option>
       <option value="name-desc">Name Z–A</option>
     </select>
@@ -457,7 +457,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
         <option value="name-asc">Name A–Z</option>
         <option value="name-desc">Name Z–A</option>
         <option value="date-asc">Start date ↑</option>
-        <option value="date-desc">Start date ↓</option>
+        <option value="date-desc" selected>Start date ↓</option>
       </select>
     </div>
     <div id="projectGrid" class="card-grid"></div>
@@ -466,18 +466,13 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   <!-- PENDING INVITATIONS VIEW -->
   <div id="viewInvitations" class="hidden">
     <div class="breadcrumb" id="breadcrumbInv"></div>
-    <h1 class="section-title">Pending Invitations</h1>
-    <p class="section-sub">Invitations sent to collaborators that are still waiting for acceptance.</p>
-    <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
-      <div style="flex:1;min-width:200px;">
-        <label style="margin-bottom:6px;">Project</label>
-        <select id="invProjectSelect" style="font-size:14px;"></select>
-      </div>
-      <button id="loadInvitationsBtn" class="btn primary btn-sm">Load invitations</button>
-      <button id="invBackBtn" class="btn secondary btn-sm">← Back to projects</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+      <h1 class="section-title">Pending Invitations</h1>
+      <button id="invBackBtn" class="btn secondary btn-sm">← Back to team</button>
     </div>
+    <p class="section-sub">Invitations sent to collaborators for this team that are still waiting for acceptance.</p>
     <div id="invitationsFeed">
-      <div class="empty"><p>Select a project and click "Load invitations".</p></div>
+      <div class="empty"><div class="spinner"></div><p>Loading invitations…</p></div>
     </div>
   </div>
 
@@ -486,10 +481,6 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <div class="breadcrumb" id="breadcrumb"></div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
       <h1 class="section-title" id="viewProjectTitle" style="margin:0;flex:1;min-width:0;"></h1>
-      <button id="projectInvitationsBtn" class="btn secondary btn-sm" style="flex-shrink:0;">
-        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Invitations
-      </button>
     </div>
     <p class="section-sub" id="viewProjectSub"></p>
     <div id="subSortBar" class="sort-bar hidden">
@@ -498,7 +489,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
         <option value="name-asc">Name A–Z</option>
         <option value="name-desc">Name Z–A</option>
         <option value="date-asc">Start date ↑</option>
-        <option value="date-desc">Start date ↓</option>
+        <option value="date-desc" selected>Start date ↓</option>
       </select>
     </div>
     <div id="subprojectGrid" class="card-grid"></div>
@@ -518,6 +509,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
           </div>
           <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="teamMeta"></div>
         </div>
+        <button id="teamInvitationsBtn" class="btn secondary btn-sm" style="flex-shrink:0;">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Invitations
+        </button>
       </div>
     </div>
 
@@ -703,6 +698,11 @@ const BASE  = localStorage.getItem("bwBase")   || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
 if(!BASE || !TOKEN){ window.location.replace("index.html"); }
 
+function redactSensitive(s){
+  if(!TOKEN || !s) return s;
+  return String(s).split(TOKEN).join("[TOKEN REDACTED]");
+}
+
 /* ================================================================
    THEME
    ================================================================ */
@@ -745,26 +745,27 @@ document.getElementById("logoutBtn").addEventListener("click", function() {
   window.location.href = "index.html";
 });
 
-document.getElementById("projectInvitationsBtn").addEventListener("click", () => {
+document.getElementById("teamInvitationsBtn").addEventListener("click", () => {
+  const team    = state.selectedTeam;
   const project = state.selectedProject;
-  if(!project) return;
+  const sub     = state.selectedSubproject;
+  if(!team) return;
+  const crumbs = [
+    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } }
+  ];
+  if(project) crumbs.push({ label: project.name, action: () => selectProject(project) });
+  if(sub)     crumbs.push({ label: sub.name,     action: () => selectSubproject(sub) });
+  crumbs.push({ label: team.name || "(team)", action: () => selectTeam(team) });
+  crumbs.push({ label: "Invitations" });
   showView("viewInvitations");
-  setBreadcrumb("viewInvitations", [
-    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
-    { label: project.name, action: () => selectProject(project) },
-    { label:"Pending Invitations" }
-  ]);
-  // Pre-select the current project
-  const sel = document.getElementById("invProjectSelect");
-  sel.innerHTML = '<option value="">— select project —</option>';
-  (state.projects || []).forEach(p => {
-    const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; sel.appendChild(o);
-  });
-  sel.value = project.id;
+  setBreadcrumb("viewInvitations", crumbs);
+  loadTeamInvitations(team);
 });
 
 document.getElementById("invBackBtn").addEventListener("click", () => {
-  if(state.selectedProject){
+  if(state.selectedTeam){
+    selectTeam(state.selectedTeam);
+  } else if(state.selectedProject){
     selectProject(state.selectedProject);
   } else {
     showView("viewProjects");
@@ -772,52 +773,39 @@ document.getElementById("invBackBtn").addEventListener("click", () => {
   }
 });
 
-document.getElementById("loadInvitationsBtn").addEventListener("click", async () => {
-  const projectId = document.getElementById("invProjectSelect").value;
-  if(!projectId){ alert("Please select a project first."); return; }
+/* ================================================================
+   TEAM INVITATIONS
+   ================================================================ */
+async function loadTeamInvitations(team){
   const feed = document.getElementById("invitationsFeed");
   feed.innerHTML = '<div class="empty"><div class="spinner"></div><p>Loading invitations…</p></div>';
   try {
-    const fromVal = "2020-01-01", toVal = "2030-12-31";
-    const data = await apiGET(`api/v1/admin/projects/${projectId}/teams`, { start_date: fromVal, end_date: toVal, per_page: 200 });
-    const teams = (data.teams || []).filter(t => !t.deleted && !t.deleted_at);
-    if(!teams.length){ feed.innerHTML = '<div class="empty"><p>No teams found for this project.</p></div>'; return; }
-    const allInvitations = [];
-    await Promise.allSettled(teams.slice(0, 50).map(async team => {
-      try {
-        const ed = await apiGET(`api/v1/admin/teams/${team.id}/enrolments`);
-        const enrols = ed.enrolments || ed.team_registrations || [];
-        enrols.filter(e => e.invitation && !e.confirmed && !e.cancelled).forEach(e => allInvitations.push({ ...e, _team: team }));
-      } catch{}
-    }));
-    if(!allInvitations.length){ feed.innerHTML = '<div class="empty"><p>No pending invitations found.</p></div>'; return; }
+    const data   = await apiGET(`api/v1/admin/teams/${team.id}/enrolments`);
+    const enrols = data.enrolments || data.team_registrations || [];
+    const invitations = enrols.filter(e => e.invitation && !e.confirmed && !e.cancelled);
+    if(!invitations.length){
+      feed.innerHTML = '<div class="empty"><p>No pending invitations for this team.</p></div>';
+      return;
+    }
     feed.innerHTML = '';
-    const byTeam = {};
-    allInvitations.forEach(inv => {
-      const tid = String(inv._team.id);
-      if(!byTeam[tid]) byTeam[tid] = { team: inv._team, invitations: [] };
-      byTeam[tid].invitations.push(inv);
+    const sec = document.createElement("div"); sec.className = "sec-card";
+    sec.innerHTML = `<h3>${escHtml(team.name||"(auto-named)")} <span style="font-weight:400;font-size:13px;color:var(--muted);">${escHtml(fmtShift(team))}</span></h3>`;
+    const ul = document.createElement("div"); ul.className = "enrol-list";
+    invitations.forEach(inv => {
+      const c  = inv.collaborator || inv.volunteer || {};
+      const nm = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
+      const av = initials(c.first_name, c.last_name) || "?";
+      const row = document.createElement("div"); row.className = "enrol-item";
+      row.innerHTML = `<div class="collab-avatar" style="cursor:pointer" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(av)}</div>
+        <div class="enrol-info"><div class="enrol-name">${escHtml(nm)}</div>
+        <div style="font-size:12px;color:var(--muted);">${c.email?escHtml(c.email)+" · ":""}Invited ${inv.created_at?fmtDate(inv.created_at.slice(0,10)):""}</div></div>`;
+      ul.appendChild(row);
     });
-    Object.values(byTeam).forEach(({ team, invitations }) => {
-      const sec = document.createElement("div"); sec.className = "sec-card";
-      sec.innerHTML = `<h3>${escHtml(team.name||"(auto-named)")} <span style="font-weight:400;font-size:13px;color:var(--muted);">${fmtShift(team)}</span></h3>`;
-      const ul = document.createElement("div"); ul.className = "enrol-list";
-      invitations.forEach(inv => {
-        const c = inv.collaborator || inv.volunteer || {};
-        const nm = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
-        const av = initials(c.first_name, c.last_name) || "?";
-        const row = document.createElement("div"); row.className = "enrol-item";
-        row.innerHTML = `<div class="collab-avatar" style="cursor:pointer" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(av)}</div>
-          <div class="enrol-info"><div class="enrol-name">${escHtml(nm)}</div>
-          <div style="font-size:12px;color:var(--muted);">${c.email?escHtml(c.email)+" · ":""}Invited ${inv.created_at?fmtDate(inv.created_at.slice(0,10)):""}</div></div>`;
-        ul.appendChild(row);
-      });
-      sec.appendChild(ul); feed.appendChild(sec);
-    });
+    sec.appendChild(ul); feed.appendChild(sec);
   } catch(e) {
     feed.innerHTML = `<div class="alert alert-error"><b>Could not load invitations:</b> ${escHtml(e.message)}</div>`;
   }
-});
+}
 
 /* ================================================================
    DEBUG TOGGLE
@@ -997,14 +985,14 @@ async function apiGET(path, queryObj){
   dLog("GET", path, qs);
   const res = await fetch(proxyUrl(path) + qs, { headers:{"X-Beeple-Token": TOKEN} });
   const txt = await res.text();
-  if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
+  if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
   let json = {};
   try{ json = JSON.parse(txt); }catch{}
   if(!res.ok){
     const msg = parseApiErrors(json) || ("HTTP " + res.status);
-    throw new Error(msg + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
+    throw new Error(msg + (DEBUG ? ` [${redactSensitive(txt.slice(0,300))}]` : ""));
   }
-  if(DEBUG) dLog(`  body: ${txt.slice(0,300)}${txt.length>300?"…":""}`);
+  if(DEBUG) dLog(`  body: ${redactSensitive(txt.slice(0,300))}${txt.length>300?"…":""}`);
   return json;
 }
 
@@ -1014,12 +1002,12 @@ async function apiPOST(path, payload){
     method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body: JSON.stringify(payload)
   });
   const txt = await res.text();
-  if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
+  if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
   let json = {};
   try { json = JSON.parse(txt); } catch {}
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
-    const err = new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
+    const err = new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${redactSensitive(txt.slice(0,300))}]` : ""));
     err.apiErrors = extractErrorList(json);
     throw err;
   }
@@ -1033,12 +1021,12 @@ async function apiDELETEorPOST(method, path, payload){
     body: payload ? JSON.stringify(payload) : undefined
   });
   const txt = await res.text();
-  if(DEBUG) dLog("<-", res.status, txt.slice(0,500));
+  if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
   let json = {};
   try { json = JSON.parse(txt); } catch {}
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
-    throw new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${txt.slice(0,300)}]` : ""));
+    throw new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${redactSensitive(txt.slice(0,300))}]` : ""));
   }
   return json;
 }
@@ -1125,10 +1113,12 @@ function renderProjectGrid(projects){
     const el = document.createElement("div");
     el.className = ended ? "card card-ended" : "card";
     el.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-        <span style="background:${escHtml(color)};width:12px;height:12px;border-radius:3px;flex-shrink:0;display:inline-block;${ended?"filter:grayscale(1);":""}""></span>
-        <h3 style="margin:0;flex:1;min-width:0;">${escHtml(p.name)}</h3>
-        <span style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">${p.published?ICON_PUBLISHED:ICON_DRAFT}${p.published?"Published":"Draft"}</span>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1;">
+          <span style="background:${escHtml(color)};width:12px;height:12px;border-radius:3px;flex-shrink:0;display:inline-block;${ended?"filter:grayscale(1);":""}"></span>
+          <h3 style="margin:0;min-width:0;">${escHtml(p.name)}</h3>
+        </div>
+        <span style="font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;flex-shrink:0;white-space:nowrap;">${p.published?ICON_PUBLISHED:ICON_DRAFT}${p.published?"Published":"Draft"}</span>
       </div>
       <div class="meta">
         <span title="Date">
@@ -1189,7 +1179,7 @@ function renderSubprojectGrid(subs){
         <span title="Date">${ICON_CAL} ${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span>
       </div>
       <div style="margin-top:8px;">
-        <span class="chip chip-blue">${s.registrations_count||0}/${s.volunteers_needed||0}</span>
+        <span class="chip chip-blue">${s.registrations_count||s.volunteers_needed?`${s.registrations_count||0}/${s.volunteers_needed||0} enrolled`:""}</span>
         ${ended ? '<span class="chip chip-grey">Ended</span>' : ""}
       </div>`;
     el.addEventListener("click", () => selectSubproject(s));
@@ -1390,19 +1380,39 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     teams.forEach(t => {
       const el = document.createElement("div");
       el.className = "card";
+      el.dataset.teamId = String(t.id);
+      const enrolled = t.registrations_count ?? t.team_registrations_count ?? null;
+      const needed   = t.volunteers_needed   ?? t.volunteers_needed_count   ?? null;
+      const countTxt = (enrolled !== null && needed !== null) ? `${enrolled}/${needed} filled` : "…/… filled";
       el.innerHTML = `
         <h3>${escHtml(t.name||"(auto-named)")}</h3>
         <div class="meta">
-          <div title="Shift">${ICON_CAL} ${fmtShift(t)}</div>
+          <div title="Shift">${ICON_CAL} ${escHtml(fmtShift(t))}</div>
           <div style="margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${t.published?ICON_PUBLISHED:ICON_DRAFT}${t.published?"Published":"Draft"}</span>
-            <span class="chip chip-blue">${t.registrations_count||t.team_registrations_count||0}/${t.volunteers_needed||t.volunteers_needed_count||0} filled</span>
+            <span class="chip chip-blue" data-count-chip>${escHtml(countTxt)}</span>
           </div>
           ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
           ${t.address  ? `<div title="Location">${ICON_PIN} ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
         </div>`;
       el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
     });
+    // Async load accurate counts per team (list API may omit registrations_count)
+    (async () => {
+      const BATCH = 5;
+      for(let i = 0; i < teams.length; i += BATCH){
+        await Promise.allSettled(teams.slice(i, i + BATCH).map(async t => {
+          try {
+            const td = await apiGET(`api/v1/admin/teams/${t.id}`);
+            const ft = td.team || td;
+            const en = ft.registrations_count ?? ft.team_registrations_count ?? 0;
+            const nd = ft.volunteers_needed   ?? ft.volunteers_needed_count   ?? 0;
+            const card = grid.querySelector(`[data-team-id="${String(t.id)}"]`);
+            if(card){ const chip = card.querySelector("[data-count-chip]"); if(chip) chip.textContent = `${en}/${nd} filled`; }
+          } catch {}
+        }));
+      }
+    })();
   }
 }
 

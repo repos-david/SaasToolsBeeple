@@ -1,5 +1,5 @@
-const CACHE = 'teamwizard-v3';
-const STATIC = ['index.html', 'login-token.html', 'create.html', 'teams.html', 'planning.html', 'manifest.json', 'icon.svg'];
+const CACHE = 'teamwizard-v4';
+const STATIC = ['index.html', 'login-token.html', 'create.html', 'planning.html', 'manifest.json', 'icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));

@@ -192,10 +192,10 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="brand">
+  <div class="brand" onclick="location.reload()" style="cursor:pointer;" title="Refresh">
     <img alt="SaasTools.eu" src="icon.svg">
   </div>
-  <div class="title">SaasTools.eu for Beeple<span class="page-subtitle">Create Team</span></div>
+  <div class="title" onclick="location.reload()" style="cursor:pointer;" title="Refresh">SaasTools.eu for Beeple<span class="page-subtitle">Create Team</span></div>
   <button class="icon-btn" id="hamburgerBtn" title="Menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -212,7 +212,7 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
     Planning
   </a>
   <button id="debugToggleBtn" class="nav-item">
-    <svg viewBox="0 0 24 24"><path d="M12 22c4.97 0 9-4.03 9-9H3c0 4.97 4.03 9 9 9z"/><path d="M5.6 3.8A9 9 0 0 1 12 2a9 9 0 0 1 6.4 1.8"/><line x1="2" y1="13" x2="22" y2="13"/></svg>
+    <svg id="debugToggleIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
     <span id="debugToggleLabel">Debug mode</span>
   </button>
   <button id="themeMenuBtn" class="nav-item">
@@ -370,6 +370,11 @@ if(!BASE || !TOKEN){
   window.location.replace("index.html");
 }
 
+function redactSensitive(s){
+  if(!TOKEN || !s) return s;
+  return String(s).split(TOKEN).join("[TOKEN REDACTED]");
+}
+
 /* ---- Theme ---- */
 (function(){
   const t = localStorage.getItem("theme") || "light";
@@ -399,7 +404,11 @@ function syncDebug(){
   document.getElementById("debugBanner").classList.toggle("hidden", !DEBUG);
   document.getElementById("sec-logs").classList.toggle("hidden", !DEBUG);
   const lbl = document.getElementById("debugToggleLabel");
-  if(lbl) lbl.textContent = DEBUG ? "Debug mode (on)" : "Debug mode";
+  if(lbl) lbl.textContent = "Debug mode";
+  const ico = document.getElementById("debugToggleIcon");
+  if(ico) ico.innerHTML = DEBUG
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
 }
 syncDebug();
 
@@ -449,20 +458,20 @@ async function proxyGET(path){
   const res = await fetch(proxyUrl(path), { headers:{"X-Beeple-Token": TOKEN} });
   const txt = await res.text();
   L("<-", res.status);
-  L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
+  L(redactSensitive(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt));
   addGap();
-  if(!res.ok) throw new Error("HTTP "+res.status+" on GET "+path+(DEBUG?" — "+txt.slice(0,200):""));
+  if(!res.ok) throw new Error("HTTP "+res.status+" on GET "+path+(DEBUG?" — "+redactSensitive(txt.slice(0,200)):""));
   try{ return txt ? JSON.parse(txt) : {}; }catch{ return{raw:txt}; }
 }
 
 async function proxyPOST(path, payload){
   const body = JSON.stringify(payload);
   L("POST", path);
-  L("Body:", body.length > 1500 ? body.slice(0,1500)+"…" : body);
+  L("Body:", redactSensitive(body.length > 1500 ? body.slice(0,1500)+"…" : body));
   const res = await fetch(proxyUrl(path), { method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body });
   const txt = await res.text();
   L("<-", res.status);
-  L(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt);
+  L(redactSensitive(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt));
   addGap();
   let json = {};
   try { json = txt ? JSON.parse(txt) : {}; } catch { json = {raw:txt}; }
@@ -502,9 +511,9 @@ async function proxyDELETE(path){
   const res = await fetch(proxyUrl(path), { method:"DELETE", headers:{"X-Beeple-Token":TOKEN} });
   const txt = await res.text();
   L("<-", res.status);
-  L(txt);
+  L(redactSensitive(txt));
   addGap();
-  if(!res.ok) throw new Error("HTTP "+res.status+(DEBUG?" — "+txt.slice(0,200):""));
+  if(!res.ok) throw new Error("HTTP "+res.status+(DEBUG?" — "+redactSensitive(txt.slice(0,200)):""));
   return true;
 }
 
