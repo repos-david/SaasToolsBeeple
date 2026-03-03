@@ -720,18 +720,30 @@ const BASE  = localStorage.getItem("bwBase")   || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
 if(!BASE || !TOKEN){ window.location.replace("index.html"); }
 
+// Write backup immediately on every successful load — this is the critical
+// step: the backup must exist before the first visibilitychange fires, so
+// that even a first-ever backgrounding is covered.
+if(TOKEN){
+  localStorage.setItem("bwTokenBackup",   TOKEN);
+  localStorage.setItem("bwTokenBackupTs", String(Date.now()));
+}
+
 function redactSensitive(s){
   if(!TOKEN || !s) return s;
   return String(s).split(TOKEN).join("[TOKEN REDACTED]");
 }
-// Persist token to localStorage whenever the tab is hidden so a
-// backgrounded/killed mobile tab can restore its session on next open.
-document.addEventListener("visibilitychange", function(){
-  if(document.visibilityState === "hidden" && TOKEN){
+// Belt-and-suspenders: also refresh the backup whenever the tab goes hidden.
+// visibilitychange covers Android Chrome; pagehide covers iOS Safari / PWAs.
+function _saveTokenBackup(){
+  if(TOKEN){
     localStorage.setItem("bwTokenBackup",   TOKEN);
     localStorage.setItem("bwTokenBackupTs", String(Date.now()));
   }
+}
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "hidden") _saveTokenBackup();
 });
+window.addEventListener("pagehide", _saveTokenBackup);
 
 /* ================================================================
    THEME

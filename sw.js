@@ -1,4 +1,4 @@
-const CACHE = 'teamwizard-v4';
+const CACHE = 'teamwizard-v5';
 const STATIC = ['index.html', 'login-token.html', 'create.html', 'planning.html', 'manifest.json', 'icon.svg'];
 
 self.addEventListener('install', e => {
