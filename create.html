@@ -219,6 +219,10 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
     <svg id="themeMenuIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     <span id="themeMenuLabel">Dark mode</span>
   </button>
+  <button id="shareUrlBtn" class="nav-item hidden">
+    <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    Share URL
+  </button>
   <button id="installBtn" class="nav-item hidden">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     Install as app
@@ -357,6 +361,19 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
   </section>
 </main>
 
+<!-- Share URL modal -->
+<div id="shareModal" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;max-width:480px;width:calc(100% - 32px);box-shadow:var(--shadow);">
+    <h2 style="margin:0 0 8px;font-size:17px;">Share this app</h2>
+    <p style="margin:0 0 14px;font-size:13px;color:var(--muted);">Anyone with this link will be logged in automatically. Only share with trusted team members.</p>
+    <div style="padding:10px 12px;background:var(--accentSoft);border-radius:var(--radius);font-size:12px;word-break:break-all;font-family:monospace;color:var(--text);" id="shareUrlText"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+      <button id="shareUrlCopyBtn" class="btn primary" style="flex:1;min-width:120px;">Copy link</button>
+      <button id="shareUrlCloseBtn" class="btn secondary" style="flex:1;min-width:80px;">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const PROXY_URL = "https://coraligo.com/team-wizard/proxy.php";
 const TRASH_SVG = `<svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
@@ -370,10 +387,70 @@ if(!BASE || !TOKEN){
   window.location.replace("index.html");
 }
 
+/* ---- Demo/staging domain check ---- */
+function isDemoOrStagingDomain(url){
+  try{ const h=new URL(url).hostname.toLowerCase(); return h.includes("demo")||h.includes("staging"); }
+  catch{ return false; }
+}
+
+/* ---- Activity tracking & auto-logout (60 min since last API call) ---- */
+function touchApiCall(){
+  localStorage.setItem("bwLastApiCall", String(Date.now()));
+}
+(function startInactivityTimer(){
+  const TIMEOUT_MS = 60 * 60 * 1000;
+  setInterval(function(){
+    const last = parseInt(localStorage.getItem("bwLastApiCall") || "0", 10);
+    if(last && Date.now() - last > TIMEOUT_MS){
+      sessionStorage.removeItem("bwToken");
+      localStorage.removeItem("bwLastApiCall");
+      window.location.replace("index.html?expired=1");
+    }
+  }, 30000);
+})();
+
 function redactSensitive(s){
   if(!TOKEN || !s) return s;
   return String(s).split(TOKEN).join("[TOKEN REDACTED]");
 }
+
+/* ---- Share URL ---- */
+(function(){
+  const shareBtn = document.getElementById("shareUrlBtn");
+  if(shareBtn && isDemoOrStagingDomain(BASE)){
+    shareBtn.classList.remove("hidden");
+  }
+})();
+
+document.getElementById("shareUrlBtn").addEventListener("click", () => {
+  const url = new URL(location.href.split("?")[0].replace(/create\.html$/, "index.html"));
+  url.searchParams.set("base", BASE);
+  url.searchParams.set("token", TOKEN);
+  document.getElementById("shareUrlText").textContent = url.toString();
+  const modal = document.getElementById("shareModal");
+  modal.style.display = "flex";
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+});
+
+document.getElementById("shareUrlCloseBtn").addEventListener("click", () => {
+  document.getElementById("shareModal").style.display = "none";
+});
+document.getElementById("shareModal").addEventListener("click", e => {
+  if(e.target === e.currentTarget) e.currentTarget.style.display = "none";
+});
+document.getElementById("shareUrlCopyBtn").addEventListener("click", () => {
+  const txt = document.getElementById("shareUrlText").textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById("shareUrlCopyBtn");
+    btn.textContent = "Copied!";
+    setTimeout(() => { btn.textContent = "Copy link"; }, 2000);
+  }).catch(() => {
+    /* fallback: select the text */
+    const el = document.getElementById("shareUrlText");
+    const range = document.createRange(); range.selectNodeContents(el);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+  });
+});
 
 /* ---- Theme ---- */
 (function(){
@@ -454,8 +531,11 @@ function extractErr(e){ if(!e)return"Unknown error"; if(typeof e==="string")retu
 function proxyUrl(path){ return `${PROXY_URL}?base=${encodeURIComponent(BASE)}&path=${encodeURIComponent(path)}${DEBUG?"&debug=1":""}`; }
 
 async function proxyGET(path){
+  touchApiCall();
   L("GET", path);
-  const res = await fetch(proxyUrl(path), { headers:{"X-Beeple-Token": TOKEN} });
+  let res;
+  try { res = await fetch(proxyUrl(path), { headers:{"X-Beeple-Token": TOKEN} }); }
+  catch(e){ throw new Error(e.message.toLowerCase().includes("failed to fetch") ? "Failed to fetch, try refreshing the page" : e.message); }
   const txt = await res.text();
   L("<-", res.status);
   L(redactSensitive(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt));
@@ -465,10 +545,13 @@ async function proxyGET(path){
 }
 
 async function proxyPOST(path, payload){
+  touchApiCall();
   const body = JSON.stringify(payload);
   L("POST", path);
   L("Body:", redactSensitive(body.length > 1500 ? body.slice(0,1500)+"…" : body));
-  const res = await fetch(proxyUrl(path), { method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body });
+  let res;
+  try { res = await fetch(proxyUrl(path), { method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body }); }
+  catch(e){ throw new Error(e.message.toLowerCase().includes("failed to fetch") ? "Failed to fetch, try refreshing the page" : e.message); }
   const txt = await res.text();
   L("<-", res.status);
   L(redactSensitive(txt.length > 2000 ? txt.slice(0,2000)+"…" : txt));
@@ -507,8 +590,11 @@ function formatApiErrors(errors){
 }
 
 async function proxyDELETE(path){
+  touchApiCall();
   L("DELETE", path);
-  const res = await fetch(proxyUrl(path), { method:"DELETE", headers:{"X-Beeple-Token":TOKEN} });
+  let res;
+  try { res = await fetch(proxyUrl(path), { method:"DELETE", headers:{"X-Beeple-Token":TOKEN} }); }
+  catch(e){ throw new Error(e.message.toLowerCase().includes("failed to fetch") ? "Failed to fetch, try refreshing the page" : e.message); }
   const txt = await res.text();
   L("<-", res.status);
   L(redactSensitive(txt));

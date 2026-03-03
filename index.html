@@ -258,10 +258,16 @@ function getBase(){
 function saveBase(v){ if(v) localStorage.setItem("bwBase", v); }
 function saveToken(v){ if(v) sessionStorage.setItem("bwToken", v); }
 
+function isDemoOrStagingDomain(url){
+  try{ const h=new URL(url).hostname.toLowerCase(); return h.includes("demo")||h.includes("staging"); }
+  catch{ return false; }
+}
+
 function saveAndGo(token){
   const base = getBase();
   saveBase(base);
   saveToken(token);
+  localStorage.setItem("bwLastApiCall", String(Date.now()));
   sessionStorage.setItem("bwJustLoggedIn", "1");
   window.location.replace("create.html");
 }
@@ -379,6 +385,35 @@ document.getElementById("formToken").addEventListener("submit", async (e) => {
 });
 
 function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
+
+/* ---- Session-expired notice ---- */
+(function(){
+  const p = new URLSearchParams(location.search);
+  if(p.get("expired") === "1"){
+    const el = document.getElementById("loginError");
+    el.textContent = "You were logged out after 60 minutes of inactivity.";
+    el.classList.remove("hidden");
+  }
+})();
+
+/* ---- Auto-login from shared URL (?base=…&token=…) ---- */
+/* Only works when the tenant domain contains "demo" or "staging".     */
+(function trySharedLink(){
+  const p = new URLSearchParams(location.search);
+  const sharedBase  = p.get("base");
+  const sharedToken = p.get("token");
+  if(!sharedBase || !sharedToken) return;
+  if(!isDemoOrStagingDomain(sharedBase)) return;
+  // Switch to the token tab and pre-fill both fields
+  document.querySelector('[data-tab="token"]').click();
+  document.getElementById("tkBaseUrl").value  = sharedBase;
+  document.getElementById("pwBaseUrl").value  = sharedBase;
+  document.getElementById("tokenInput").value = sharedToken;
+  // Auto-submit
+  document.getElementById("formToken").dispatchEvent(
+    new Event("submit", {bubbles:true, cancelable:true})
+  );
+})();
 
 /* ---- PWA: Service Worker ---- */
 if("serviceWorker" in navigator){
