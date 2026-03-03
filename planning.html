@@ -329,6 +329,9 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 .pwa-text strong { display:block; font-weight:700; margin-bottom:2px; }
 .pwa-text span { font-size:13px; color:var(--muted); }
 .pwa-actions { display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; }
+/* WORKED HOURS */
+.wh-edit-row { background:var(--accentSoft); }
+.wh-edit-row td { border-top:2px solid var(--accent2) !important; white-space:normal !important; }
 </style>
 </head>
 <body>
@@ -526,6 +529,15 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <div id="candidaciesCard" class="sec-card hidden">
       <h3>Candidacies</h3>
       <div id="candidaciesFeed"></div>
+    </div>
+
+    <!-- Worked Hours card (shown only when team has worked hours data) -->
+    <div id="workedHoursCard" class="sec-card hidden">
+      <h3 style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Worked Hours
+      </h3>
+      <div id="workedHoursFeed"></div>
     </div>
 
     <!-- Find & add collaborators card -->
@@ -951,6 +963,32 @@ function fmtShift(team){
   return "—";
 }
 
+function fmtDateTime(d){
+  if(!d) return "—";
+  const dt = typeof d === "string" ? new Date(d) : d;
+  if(isNaN(dt.getTime())) return String(d);
+  return dt.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+
+         dt.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+}
+function fmtTime(d){
+  if(!d) return "";
+  const dt = typeof d === "string" ? new Date(d) : d;
+  if(isNaN(dt.getTime())) return "";
+  return dt.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
+}
+function toDatetimeLocal(iso){
+  if(!iso) return "";
+  const dt = new Date(iso);
+  if(isNaN(dt.getTime())) return "";
+  const z = n => String(n).padStart(2,"0");
+  return `${dt.getFullYear()}-${z(dt.getMonth()+1)}-${z(dt.getDate())}T${z(dt.getHours())}:${z(dt.getMinutes())}`;
+}
+function fromDatetimeLocal(localVal){
+  if(!localVal) return null;
+  const dt = new Date(localVal);
+  return isNaN(dt.getTime()) ? null : dt.toISOString();
+}
+
 function showView(id){
   ["viewLoading","viewProjects","viewProject","viewTeam","viewInvitations"].forEach(v => {
     document.getElementById(v).classList.toggle("hidden", v!==id);
@@ -1027,6 +1065,24 @@ async function apiDELETEorPOST(method, path, payload){
   const apiErr = parseApiErrors(json);
   if(!res.ok || (apiErr && apiErr.length)){
     throw new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${redactSensitive(txt.slice(0,300))}]` : ""));
+  }
+  return json;
+}
+
+async function apiPATCH(path, payload){
+  dLog("PATCH", path, JSON.stringify(payload).slice(0,200));
+  const res = await fetch(proxyUrl(path), {
+    method:"PATCH", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body: JSON.stringify(payload)
+  });
+  const txt = await res.text();
+  if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
+  let json = {};
+  try { json = JSON.parse(txt); } catch {}
+  const apiErr = parseApiErrors(json);
+  if(!res.ok || (apiErr && apiErr.length)){
+    const err = new Error((apiErr || "HTTP " + res.status) + (DEBUG ? ` [${redactSensitive(txt.slice(0,300))}]` : ""));
+    err.apiErrors = extractErrorList(json);
+    throw err;
   }
   return json;
 }
@@ -1530,6 +1586,8 @@ async function selectTeam(team, noPush){
   document.getElementById("collabSentinel").innerHTML = "";
   document.getElementById("candidaciesCard").classList.add("hidden");
   document.getElementById("candidaciesFeed").innerHTML = "";
+  document.getElementById("workedHoursCard").classList.add("hidden");
+  document.getElementById("workedHoursFeed").innerHTML = "";
   document.getElementById("enrolmentsFeed").innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading enrolments…</p></div>`;
 
   // Fetch individual team to get accurate counts (volunteers_needed + registrations_count)
@@ -1553,6 +1611,7 @@ async function selectTeam(team, noPush){
 
   loadEnrolments(team.id);
   loadCandidacies(team.id);
+  loadWorkedHours(team.id);
 }
 
 /* ================================================================
@@ -1696,6 +1755,225 @@ document.addEventListener("click", async function(ev){
     btn.disabled = false;
     btn.textContent = isAccept ? "Accept" : "Reject";
     alert((isAccept ? "Accept" : "Reject") + " failed: " + e.message);
+  }
+});
+
+/* ================================================================
+   WORKED HOURS
+   ================================================================ */
+async function loadWorkedHours(teamId){
+  const card = document.getElementById("workedHoursCard");
+  const feed = document.getElementById("workedHoursFeed");
+  if(!card || !feed) return;
+  card.classList.add("hidden");
+  feed.innerHTML = "";
+  try {
+    const data  = await apiGET(`api/v1/admin/teams/${teamId}/worked_hours`);
+    const hours = data.worked_hours || data.hour_registrations || [];
+    if(!hours.length) return;
+    card.classList.remove("hidden");
+    renderWorkedHours(feed, hours);
+  } catch {
+    /* worked hours module may not be enabled — keep card hidden */
+  }
+}
+
+function renderWorkedHours(feed, hours){
+  const wrap = document.createElement("div");
+  wrap.className = "table-wrap";
+
+  let html = `<table>
+    <thead>
+      <tr>
+        <th>Collaborator</th>
+        <th>Planned</th>
+        <th>Actual</th>
+        <th>Break</th>
+        <th>Status</th>
+        <th style="min-width:130px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  hours.forEach(wh => {
+    const c    = wh.collaborator || wh.volunteer || {};
+    const name = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
+    const whId = String(wh.id);
+
+    /* Planned */
+    const pStart = wh.planned_starts_at || wh.shift_starts_at || wh.team_starts_at || "";
+    const pEnd   = wh.planned_ends_at   || wh.shift_ends_at   || wh.team_ends_at   || "";
+    const plannedStr = pStart ? (fmtDateTime(pStart)+" – "+fmtTime(pEnd)) : "—";
+
+    /* Effective actual — depends on choice_made */
+    const choice = wh.choice_made || "planned";
+    let aStart = "", aEnd = "", aBrk = "";
+    if(choice === "other"){
+      aStart = wh.other_starts_at || "";
+      aEnd   = wh.other_ends_at   || "";
+      aBrk   = wh.other_break_duration || "";
+    } else if(choice === "collaborator"){
+      aStart = wh.collaborator_starts_at || "";
+      aEnd   = wh.collaborator_ends_at   || "";
+      aBrk   = wh.collaborator_break_duration || "";
+    } else {
+      aStart = pStart; aEnd = pEnd;
+      aBrk   = wh.break_duration || "";
+    }
+    /* Fallback to whatever the API returns */
+    aStart = aStart || wh.starts_at || wh.actual_starts_at || "";
+    aEnd   = aEnd   || wh.ends_at   || wh.actual_ends_at   || "";
+    aBrk   = aBrk   || wh.break_duration || "";
+
+    const actualStr = aStart ? (fmtDateTime(aStart)+" – "+fmtTime(aEnd)) : "—";
+    const brkDisp   = aBrk || "—";
+    const confirmed = !!wh.confirmed;
+
+    let statusChip;
+    if(confirmed){
+      statusChip = '<span class="chip chip-green">Approved</span>';
+    } else if(wh.collaborator_confirmed){
+      statusChip = '<span class="chip chip-yellow">Pending review</span>';
+    } else {
+      statusChip = '<span class="chip chip-grey">Unsubmitted</span>';
+    }
+
+    html += `
+      <tr data-wh-id="${escHtml(whId)}">
+        <td style="white-space:normal;min-width:110px;">${escHtml(name)}</td>
+        <td style="font-size:12px;">${escHtml(plannedStr)}</td>
+        <td style="font-size:12px;" data-wh-actual="${escHtml(whId)}">${escHtml(actualStr)}</td>
+        <td style="font-size:12px;" data-wh-brk="${escHtml(whId)}">${escHtml(String(brkDisp))}</td>
+        <td data-wh-status="${escHtml(whId)}">${statusChip}</td>
+        <td>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <button class="btn btn-sm secondary" data-edit-wh="${escHtml(whId)}">Edit</button>
+            ${!confirmed ? `<button class="btn btn-sm btn-success" data-approve-wh="${escHtml(whId)}">Approve</button>` : ""}
+          </div>
+        </td>
+      </tr>
+      <tr class="wh-edit-row hidden" id="wh-edit-row-${escHtml(whId)}">
+        <td colspan="6" style="padding:14px 16px;">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;">
+            <div>
+              <label style="margin:0 0 4px;font-size:12px;">Actual start</label>
+              <input type="datetime-local" id="wh-start-${escHtml(whId)}"
+                value="${escHtml(toDatetimeLocal(aStart))}"
+                style="width:auto;font-size:13px;padding:6px 8px;min-height:auto;">
+            </div>
+            <div>
+              <label style="margin:0 0 4px;font-size:12px;">Actual end</label>
+              <input type="datetime-local" id="wh-end-${escHtml(whId)}"
+                value="${escHtml(toDatetimeLocal(aEnd))}"
+                style="width:auto;font-size:13px;padding:6px 8px;min-height:auto;">
+            </div>
+            <div>
+              <label style="margin:0 0 4px;font-size:12px;">Break (H:MM)</label>
+              <input type="text" id="wh-brk-${escHtml(whId)}"
+                value="${escHtml(typeof aBrk === "string" && aBrk ? aBrk : "0:00")}"
+                placeholder="0:00"
+                style="width:70px;font-size:13px;padding:6px 8px;min-height:auto;">
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn primary btn-sm" data-save-wh="${escHtml(whId)}">Save</button>
+              <button class="btn secondary btn-sm" data-cancel-edit-wh="${escHtml(whId)}">Cancel</button>
+            </div>
+          </div>
+          <div id="wh-result-${escHtml(whId)}" style="margin-top:8px;"></div>
+        </td>
+      </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  wrap.innerHTML = html;
+  feed.appendChild(wrap);
+}
+
+/* Toggle worked-hours edit row */
+document.addEventListener("click", function(ev){
+  const editBtn   = ev.target.closest("[data-edit-wh]");
+  const cancelBtn = ev.target.closest("[data-cancel-edit-wh]");
+  if(editBtn){
+    const row = document.getElementById(`wh-edit-row-${editBtn.dataset.editWh}`);
+    if(row) row.classList.toggle("hidden");
+  }
+  if(cancelBtn){
+    const row = document.getElementById(`wh-edit-row-${cancelBtn.dataset.cancelEditWh}`);
+    if(row) row.classList.add("hidden");
+  }
+});
+
+/* Approve worked hour */
+document.addEventListener("click", async function(ev){
+  const btn = ev.target.closest("[data-approve-wh]");
+  if(!btn) return;
+  const id = btn.dataset.approveWh;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;"></span>';
+  try {
+    await apiPATCH(`api/v1/admin/collaborators/worked_hours/${id}`, {
+      state_change: "end_work",
+      worked_hour_attributes: { confirmed: true }
+    });
+    const statusCell = document.querySelector(`[data-wh-status="${id}"]`);
+    if(statusCell) statusCell.innerHTML = '<span class="chip chip-green">Approved</span>';
+    btn.remove();
+  } catch(e){
+    btn.disabled = false;
+    btn.textContent = "Approve";
+    alert("Could not approve: " + e.message);
+  }
+});
+
+/* Save worked hour actual times */
+document.addEventListener("click", async function(ev){
+  const btn = ev.target.closest("[data-save-wh]");
+  if(!btn) return;
+  const id  = btn.dataset.saveWh;
+  const sEl = document.getElementById(`wh-start-${id}`);
+  const eEl = document.getElementById(`wh-end-${id}`);
+  const bEl = document.getElementById(`wh-brk-${id}`);
+  const res = document.getElementById(`wh-result-${id}`);
+  if(!sEl || !eEl) return;
+  const sVal = sEl.value, eVal = eEl.value;
+  const bVal = bEl ? (bEl.value.trim() || "0:00") : "0:00";
+  if(!sVal || !eVal){
+    if(res) res.innerHTML = '<div class="alert alert-warn">Please fill in both start and end times.</div>';
+    return;
+  }
+  const sIso = fromDatetimeLocal(sVal);
+  const eIso = fromDatetimeLocal(eVal);
+  if(!sIso || !eIso){
+    if(res) res.innerHTML = '<div class="alert alert-warn">Invalid date/time values.</div>';
+    return;
+  }
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;"></span>';
+  try {
+    await apiPATCH(`api/v1/admin/collaborators/worked_hours/${id}`, {
+      state_change: "start_work",
+      worked_hour_attributes: {
+        choice_made: "other",
+        other_starts_at:      sIso,
+        other_ends_at:        eIso,
+        other_break_duration: bVal
+      }
+    });
+    const actualCell = document.querySelector(`[data-wh-actual="${id}"]`);
+    const brkCell    = document.querySelector(`[data-wh-brk="${id}"]`);
+    if(actualCell) actualCell.textContent = fmtDateTime(sVal)+" – "+fmtTime(eVal);
+    if(brkCell)    brkCell.textContent    = bVal;
+    if(res) res.innerHTML = '<div class="alert alert-success">Saved successfully.</div>';
+    btn.disabled = false; btn.textContent = origText;
+    setTimeout(() => {
+      if(res) res.innerHTML = "";
+      const editRow = document.getElementById(`wh-edit-row-${id}`);
+      if(editRow) editRow.classList.add("hidden");
+    }, 1500);
+  } catch(e){
+    if(res) res.innerHTML = `<div class="alert alert-error">Save failed: ${escHtml(e.message)}</div>`;
+    btn.disabled = false; btn.textContent = origText;
   }
 });
 
