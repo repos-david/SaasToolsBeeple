@@ -706,6 +706,16 @@ let DEBUG        = debugParam === "1" || debugParam === "Y" || debugParam === "y
 /* ================================================================
    AUTH
    ================================================================ */
+// Restore token from localStorage backup when sessionStorage was wiped
+// by the OS/browser killing a backgrounded mobile tab (8-hour window).
+(function(){
+  if(!sessionStorage.getItem("bwToken")){
+    const saved = localStorage.getItem("bwTokenBackup");
+    const ts    = parseInt(localStorage.getItem("bwTokenBackupTs") || "0", 10);
+    if(saved && Date.now() - ts < 28800000) // 8 h
+      sessionStorage.setItem("bwToken", saved);
+  }
+})();
 const BASE  = localStorage.getItem("bwBase")   || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
 if(!BASE || !TOKEN){ window.location.replace("index.html"); }
@@ -714,6 +724,14 @@ function redactSensitive(s){
   if(!TOKEN || !s) return s;
   return String(s).split(TOKEN).join("[TOKEN REDACTED]");
 }
+// Persist token to localStorage whenever the tab is hidden so a
+// backgrounded/killed mobile tab can restore its session on next open.
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "hidden" && TOKEN){
+    localStorage.setItem("bwTokenBackup",   TOKEN);
+    localStorage.setItem("bwTokenBackupTs", String(Date.now()));
+  }
+});
 
 /* ================================================================
    THEME
