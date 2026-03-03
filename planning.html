@@ -1611,7 +1611,7 @@ async function selectTeam(team, noPush){
 
   loadEnrolments(team.id);
   loadCandidacies(team.id);
-  loadWorkedHours(team.id);
+  loadWorkedHours(team.id, state.selectedProject?.id);
 }
 
 /* ================================================================
@@ -1739,7 +1739,13 @@ document.addEventListener("click", async function(ev){
   btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;"></span>';
 
   try {
-    await apiDELETEorPOST("POST", `api/v1/admin/candidacies/${candId}/${isAccept ? "accept" : "reject"}`, {});
+    // Docs: PATCH .../collaborators/candidacies/{id}/accept
+    //       DELETE .../collaborators/candidacies/{id}/reject
+    if(isAccept){
+      await apiPATCH(`api/v1/admin/collaborators/candidacies/${candId}/accept`, {});
+    } else {
+      await apiDELETEorPOST("DELETE", `api/v1/admin/collaborators/candidacies/${candId}/reject`, {});
+    }
     const row = btn.closest(".enrol-item");
     if(row){
       row.style.opacity = ".4";
@@ -1761,15 +1767,25 @@ document.addEventListener("click", async function(ev){
 /* ================================================================
    WORKED HOURS
    ================================================================ */
-async function loadWorkedHours(teamId){
+async function loadWorkedHours(teamId, projectId){
   const card = document.getElementById("workedHoursCard");
   const feed = document.getElementById("workedHoursFeed");
   if(!card || !feed) return;
   card.classList.add("hidden");
   feed.innerHTML = "";
+  if(!projectId) return;
   try {
-    const data  = await apiGET(`api/v1/admin/teams/${teamId}/worked_hours`);
-    const hours = data.worked_hours || data.hour_registrations || [];
+    // Docs: GET /api/v1/admin/projects/{project_id}/worked_hours
+    // No team-level endpoint exists; filter client-side by teamId.
+    const data  = await apiGET(`api/v1/admin/projects/${projectId}/worked_hours`,
+                               { page: 1, page_items: 200 });
+    const all   = data.worked_hours || data.hour_registrations || [];
+    const tid   = String(teamId);
+    const hours = all.filter(wh =>
+      String(wh.team_id) === tid ||
+      String(wh.team?.id) === tid ||
+      String(wh.team_registration?.team_id) === tid
+    );
     if(!hours.length) return;
     card.classList.remove("hidden");
     renderWorkedHours(feed, hours);
@@ -2301,7 +2317,8 @@ async function openCollabModal(collabId){
         const d2 = new Date(d0); d2.setDate(d2.getDate()+7);
         const fromDate = isoDate(d1);
         const toDate   = isoDate(d2);
-        const avData   = await apiGET(`api/v1/admin/collaborators/${collabId}/availabilities`, { from: fromDate, to: toDate });
+        // Docs: GET /api/v1/admin/collaborators/{id}/availabilities2?start=&end=
+        const avData   = await apiGET(`api/v1/admin/collaborators/${collabId}/availabilities2`, { start: fromDate, end: toDate });
         const avList   = avData.availabilities || avData.volunteer_availabilities || [];
         html += `<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">`;
         html += `<div style="font-weight:700;font-size:13px;color:var(--muted);margin-bottom:10px;">Availabilities <span style="font-weight:400;">(${fmtDate(fromDate)} – ${fmtDate(toDate)})</span></div>`;
