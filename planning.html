@@ -115,7 +115,7 @@ button.nav-item.danger { color:var(--danger); }
 .tab-btn:hover { color:var(--text); }
 .tab-btn.tab-active { color:var(--accent); border-bottom-color:var(--accent); }
 /* BREADCRUMB */
-.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; position:sticky; top:0; z-index:5; background:var(--bg); padding:26px 16px 8px; margin-left:-16px; margin-right:-16px; margin-top:-20px; }
+.breadcrumb { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); margin-bottom:16px; flex-wrap:wrap; }
 /* SORT */
 .sort-bar { display:flex; align-items:center; gap:6px; margin-bottom:10px; font-size:12px; color:var(--muted); }
 .sort-bar label { margin:0; font-size:12px; font-weight:600; }
@@ -183,7 +183,12 @@ label:first-child { margin-top:0; }
 .view-btn.active { background:var(--accent); color:#fff; }
 .view-btn:not(.active):hover { background:var(--accentSoft); color:var(--text); }
 /* TIMELINE */
-.timeline-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -16px; padding:0 4px; }
+.timeline-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+/* Timeline full-width: remove main side padding when timeline is active */
+.main.timeline-mode { padding-left:0; padding-right:0; }
+.main.timeline-mode .breadcrumb { padding-left:16px; padding-right:16px; }
+.main.timeline-mode #subSortBar { padding-left:16px; padding-right:16px; }
+.main.timeline-mode .sort-bar { padding-left:16px; padding-right:16px; }
 .timeline-table { border-collapse:collapse; min-width:100%; }
 .timeline-table th { background:var(--tableHead); font-size:12px; font-weight:700; padding:8px 12px; text-align:center; border:1px solid var(--fieldBorder); min-width:130px; color:#0b1740; }
 .timeline-table th.tl-today { background:var(--accentSoft); color:var(--accent); }
@@ -537,28 +542,28 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
       <div id="enrolmentsFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
-    <!-- Pending invitations card (shown only when there are pending invitations) -->
-    <div id="pendingInvitationsCard" class="sec-card hidden">
+    <!-- Pending invitations card (always shown) -->
+    <div id="pendingInvitationsCard" class="sec-card">
       <h3 style="display:flex;align-items:center;gap:8px;">
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Pending Invitations
       </h3>
-      <div id="pendingInvitationsFeed"></div>
+      <div id="pendingInvitationsFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
-    <!-- Candidacies card (shown only when there are candidacies) -->
-    <div id="candidaciesCard" class="sec-card hidden">
+    <!-- Candidacies card (always shown) -->
+    <div id="candidaciesCard" class="sec-card">
       <h3>Candidacies</h3>
-      <div id="candidaciesFeed"></div>
+      <div id="candidaciesFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
-    <!-- Worked Hours card (shown only when team has worked hours data) -->
-    <div id="workedHoursCard" class="sec-card hidden">
+    <!-- Worked Hours card (always shown) -->
+    <div id="workedHoursCard" class="sec-card">
       <h3 style="display:flex;align-items:center;gap:8px;">
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Worked Hours
       </h3>
-      <div id="workedHoursFeed"></div>
+      <div id="workedHoursFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
     <!-- Find & add collaborators card -->
@@ -656,7 +661,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
         <div class="btn-row" style="margin-top:10px;">
           <button id="searchCollabBtn" class="btn primary btn-sm">Search</button>
           <button id="clearFiltersBtn" class="btn secondary btn-sm">Clear</button>
-          <span id="deptFilterNote" class="chip chip-blue hidden" style="font-size:11px;align-self:center;"></span>
+          <div id="deptFilterWrap" class="hidden" style="display:flex;align-items:center;gap:6px;align-self:center;">
+            <label style="margin:0;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Department</label>
+            <select id="deptFilterSelect" disabled style="width:auto;font-size:12px;padding:4px 8px;min-height:auto;border-radius:6px;opacity:0.65;cursor:default;"></select>
+          </div>
           <button id="advFilterBtn" class="adv-toggle">
             <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             Advanced filters
@@ -832,6 +840,7 @@ document.getElementById("teamInvitationsBtn").addEventListener("click", () => {
 document.getElementById("notifyPlannersBtn").addEventListener("click", async function(){
   const team = state.selectedTeam;
   if(!team) return;
+  if(!confirm(`Send a notification to planners for team "${escHtml(team.name||"(auto-named)")}"?`)) return;
   const btn = this;
   const res = document.getElementById("notifyPlannersResult");
   btn.disabled = true;
@@ -1088,6 +1097,21 @@ function proxyUrl(path, extra=""){
   return `${PROXY_URL}?base=${encodeURIComponent(BASE)}&path=${encodeURIComponent(path)}${extra}${DEBUG?"&debug=1":""}`;
 }
 
+function _refineFetchError(e){ return (e instanceof TypeError && e.message.toLowerCase().includes("failed to fetch")) ? new TypeError("Failed to fetch, try refreshing the page") : e; }
+function touchApiCall(){ localStorage.setItem("bwLastApiCall", String(Date.now())); }
+/* ---- Auto-logout after 60 min of API inactivity ---- */
+(function(){
+  const TIMEOUT_MS = 60 * 60 * 1000;
+  setInterval(function(){
+    const last = parseInt(localStorage.getItem("bwLastApiCall") || "0", 10);
+    if(last && Date.now() - last > TIMEOUT_MS){
+      sessionStorage.removeItem("bwToken");
+      localStorage.removeItem("bwLastApiCall");
+      window.location.replace("index.html?expired=1");
+    }
+  }, 30000);
+})();
+
 async function apiGET(path, queryObj){
   let qs = "";
   if(queryObj){
@@ -1096,8 +1120,11 @@ async function apiGET(path, queryObj){
       .map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
     if(params) qs = "&"+params;
   }
+  touchApiCall();
   dLog("GET", path, qs);
-  const res = await fetch(proxyUrl(path) + qs, { headers:{"X-Beeple-Token": TOKEN} });
+  let res;
+  try { res = await fetch(proxyUrl(path) + qs, { headers:{"X-Beeple-Token": TOKEN} }); }
+  catch(e){ throw _refineFetchError(e); }
   const txt = await res.text();
   if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
   let json = {};
@@ -1111,10 +1138,11 @@ async function apiGET(path, queryObj){
 }
 
 async function apiPOST(path, payload){
+  touchApiCall();
   dLog("POST", path, JSON.stringify(payload).slice(0,200));
-  const res = await fetch(proxyUrl(path), {
-    method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body: JSON.stringify(payload)
-  });
+  let res;
+  try { res = await fetch(proxyUrl(path), { method:"POST", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body: JSON.stringify(payload) }); }
+  catch(e){ throw _refineFetchError(e); }
   const txt = await res.text();
   if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
   let json = {};
@@ -1129,11 +1157,11 @@ async function apiPOST(path, payload){
 }
 
 async function apiDELETEorPOST(method, path, payload){
+  touchApiCall();
   dLog(method, path);
-  const res = await fetch(proxyUrl(path), {
-    method, headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"},
-    body: payload ? JSON.stringify(payload) : undefined
-  });
+  let res;
+  try { res = await fetch(proxyUrl(path), { method, headers:{"X-Beeple-Token": TOKEN, "Content-Type":"application/json"}, body: payload ? JSON.stringify(payload) : undefined }); }
+  catch(e){ throw _refineFetchError(e); }
   const txt = await res.text();
   if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
   let json = {};
@@ -1146,10 +1174,11 @@ async function apiDELETEorPOST(method, path, payload){
 }
 
 async function apiPATCH(path, payload){
+  touchApiCall();
   dLog("PATCH", path, JSON.stringify(payload).slice(0,200));
-  const res = await fetch(proxyUrl(path), {
-    method:"PATCH", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body: JSON.stringify(payload)
-  });
+  let res;
+  try { res = await fetch(proxyUrl(path), { method:"PATCH", headers:{"X-Beeple-Token":TOKEN,"Content-Type":"application/json"}, body: JSON.stringify(payload) }); }
+  catch(e){ throw _refineFetchError(e); }
   const txt = await res.text();
   if(DEBUG) dLog("<-", res.status, redactSensitive(txt.slice(0,500)));
   let json = {};
@@ -1339,14 +1368,8 @@ async function selectProject(project, noPush){
     { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } },
     { label: project.name }
   ]);
-  // Project-level worked hours button
   const phWrap = document.getElementById("projectWorkedHoursWrap");
-  if(phWrap) phWrap.innerHTML = `
-    <button class="btn secondary btn-sm" data-proj-wh="${escHtml(String(project.id))}">
-      <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Show all worked hours
-    </button>
-    <div id="allWorkedHoursFeed" style="margin-top:12px;"></div>`;
+  if(phWrap) phWrap.innerHTML = "";
 
   try{
     if(project.subprojects_enabled){
@@ -1401,14 +1424,8 @@ async function selectSubproject(sub, noPush){
 
   showFab(project.id, sub.id);
 
-  // Project-level worked hours button (uses project id)
   const swWrap = document.getElementById("projectWorkedHoursWrap");
-  if(swWrap) swWrap.innerHTML = `
-    <button class="btn secondary btn-sm" data-proj-wh="${escHtml(String(project.id))}">
-      <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Show all worked hours
-    </button>
-    <div id="allWorkedHoursFeed" style="margin-top:12px;"></div>`;
+  if(swWrap) swWrap.innerHTML = "";
 
   try {
     await loadTeamsIntoGrid(grid, project.id, sub.id);
@@ -1490,6 +1507,7 @@ const _tlTeamMap = {};
 
 document.getElementById("viewGridBtn").addEventListener("click", () => {
   viewMode = "grid";
+  document.getElementById("main").classList.remove("timeline-mode");
   document.getElementById("viewGridBtn").classList.add("active");
   document.getElementById("viewTimelineBtn").classList.remove("active");
   reloadCurrentTeamGrid();
@@ -1524,8 +1542,10 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     if(sv === "date-desc") teams.sort((a,b) => (b.shifts?.[0]?.start_datetime||"").localeCompare(a.shifts?.[0]?.start_datetime||""));
   }
   if(viewMode === "timeline"){
+    document.getElementById("main").classList.add("timeline-mode");
     renderTimeline(grid, teams, fromVal, toVal);
   } else {
+    document.getElementById("main").classList.remove("timeline-mode");
     grid.innerHTML = "";
     teams.forEach(t => {
       const el = document.createElement("div");
@@ -1547,22 +1567,27 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
         </div>`;
       el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
     });
-    // Async load accurate counts per team (list API may omit registrations_count)
-    (async () => {
-      const BATCH = 5;
-      for(let i = 0; i < teams.length; i += BATCH){
-        await Promise.allSettled(teams.slice(i, i + BATCH).map(async t => {
-          try {
-            const td = await apiGET(`api/v1/admin/teams/${t.id}`);
-            const ft = td.team || td;
-            const en = ft.registrations_count ?? ft.team_registrations_count ?? 0;
-            const nd = ft.volunteers_needed   ?? ft.volunteers_needed_count   ?? 0;
-            const card = grid.querySelector(`[data-team-id="${String(t.id)}"]`);
-            if(card){ const chip = card.querySelector("[data-count-chip]"); if(chip) chip.textContent = `${en}/${nd} filled`; }
-          } catch {}
-        }));
-      }
-    })();
+    // Lazy-load accurate counts only for visible team cards (IntersectionObserver)
+    const _countObserver = new IntersectionObserver((entries) => {
+      entries.forEach(async entry => {
+        if(!entry.isIntersecting) return;
+        _countObserver.unobserve(entry.target);
+        const card = entry.target;
+        const teamId = card.dataset.teamId;
+        try {
+          const td = await apiGET(`api/v1/admin/teams/${teamId}`);
+          const ft = td.team || td;
+          const en = ft.registrations_count ?? ft.team_registrations_count ?? 0;
+          const nd = ft.volunteers_needed   ?? ft.volunteers_needed_count   ?? 0;
+          const chip = card.querySelector("[data-count-chip]");
+          if(chip) chip.textContent = `${en}/${nd} filled`;
+        } catch {}
+      });
+    }, { rootMargin: "300px" });
+    teams.forEach(t => {
+      const card = grid.querySelector(`[data-team-id="${String(t.id)}"]`);
+      if(card) _countObserver.observe(card);
+    });
   }
 }
 
@@ -1678,23 +1703,21 @@ async function selectTeam(team, noPush){
   document.getElementById("enrolResults").innerHTML  = "";
   document.getElementById("collabResults").innerHTML = "";
   document.getElementById("collabSentinel").innerHTML = "";
-  // Show department filter indicator when the project has a department set
-  const deptNote = document.getElementById("deptFilterNote");
-  if(deptNote){
+  // Show department filter as a disabled dropdown when the project has a department set
+  const deptWrap = document.getElementById("deptFilterWrap");
+  const deptSel  = document.getElementById("deptFilterSelect");
+  if(deptWrap && deptSel){
     if(state.departmentId){
       const dname = state.selectedProject?.department?.name || "project department";
-      deptNote.textContent = `Filtered: ${escHtml(dname)}`;
-      deptNote.classList.remove("hidden");
+      deptSel.innerHTML = `<option>${escHtml(dname)}</option>`;
+      deptWrap.classList.remove("hidden");
     } else {
-      deptNote.classList.add("hidden");
+      deptWrap.classList.add("hidden");
     }
   }
-  document.getElementById("pendingInvitationsCard").classList.add("hidden");
-  document.getElementById("pendingInvitationsFeed").innerHTML = "";
-  document.getElementById("candidaciesCard").classList.add("hidden");
-  document.getElementById("candidaciesFeed").innerHTML = "";
-  document.getElementById("workedHoursCard").classList.add("hidden");
-  document.getElementById("workedHoursFeed").innerHTML = "";
+  document.getElementById("pendingInvitationsFeed").innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
+  document.getElementById("candidaciesFeed").innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
+  document.getElementById("workedHoursFeed").innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading…</p></div>`;
   document.getElementById("notifyPlannersResult") && (document.getElementById("notifyPlannersResult").innerHTML = "");
   document.getElementById("enrolmentsFeed").innerHTML = `<div class="empty"><div class="spinner"></div><p>Loading enrolments…</p></div>`;
 
@@ -1781,15 +1804,16 @@ async function loadEnrolments(teamId){
    PENDING INVITATIONS (inline card in team detail)
    ================================================================ */
 async function loadPendingInvitations(teamId){
-  const card = document.getElementById("pendingInvitationsCard");
   const feed = document.getElementById("pendingInvitationsFeed");
-  if(!card || !feed) return;
+  if(!feed) return;
   try {
     const data  = await apiGET(`api/v1/admin/teams/${teamId}/enrolments`);
     const enrols = data.enrolments || data.team_registrations || [];
     const invites = enrols.filter(e => e.invitation && !e.confirmed && !e.cancelled && !e.cancelled_at);
-    if(!invites.length){ card.classList.add("hidden"); return; }
-    card.classList.remove("hidden");
+    if(!invites.length){
+      feed.innerHTML = '<div class="empty"><p>No pending invitations for this team.</p></div>';
+      return;
+    }
     const ul = document.createElement("div"); ul.className = "enrol-list";
     invites.forEach(inv => {
       const c  = inv.collaborator || inv.volunteer || {};
@@ -1805,7 +1829,9 @@ async function loadPendingInvitations(teamId){
       ul.appendChild(row);
     });
     feed.innerHTML = ""; feed.appendChild(ul);
-  } catch { card.classList.add("hidden"); }
+  } catch(e) {
+    feed.innerHTML = `<div class="alert alert-error">Could not load: ${escHtml(e.message)}</div>`;
+  }
 }
 
 /* ================================================================
@@ -1835,37 +1861,39 @@ document.addEventListener("click", async function(ev){
    CANDIDACIES
    ================================================================ */
 async function loadCandidacies(teamId){
-  const card = document.getElementById("candidaciesCard");
   const feed = document.getElementById("candidaciesFeed");
-  if(!card || !feed) return;
+  if(!feed) return;
   try {
     const data = await apiGET(`api/v1/admin/teams/${teamId}/candidacies`);
     const candidacies = data.candidacies || [];
-    if(!candidacies.length){ card.classList.add("hidden"); return; }
-    card.classList.remove("hidden");
-    feed.innerHTML = `<div class="enrol-list" id="candidaciesListInner"></div>`;
-    const list = document.getElementById("candidaciesListInner");
+    if(!candidacies.length){
+      feed.innerHTML = '<div class="empty"><p>No candidacies for this team.</p></div>';
+      return;
+    }
+    const list = document.createElement("div"); list.className = "enrol-list";
     candidacies.forEach(cand => {
       const c = cand.collaborator || cand.volunteer || {};
       const nm = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
       const av = initials(c.first_name, c.last_name) || "?";
       const row = document.createElement("div");
       row.className = "enrol-item";
+      row.style.flexWrap = "wrap";
       row.dataset.candidacyId = cand.id;
       row.innerHTML = `
         <div class="collab-avatar" style="cursor:pointer;" title="View details" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(av)}</div>
-        <div class="enrol-info">
+        <div class="enrol-info" style="flex:1 1 auto;">
           <div class="enrol-name">${escHtml(nm)}</div>
           <div style="font-size:12px;color:var(--muted);">${c.email ? escHtml(c.email) : ""}</div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <div style="width:100%;padding-left:50px;display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-success btn-sm" data-accept-candidacy="${escHtml(String(cand.id))}">Accept</button>
           <button class="btn btn-danger btn-sm" data-reject-candidacy="${escHtml(String(cand.id))}">Reject</button>
         </div>`;
       list.appendChild(row);
     });
+    feed.innerHTML = ""; feed.appendChild(list);
   } catch(ex) {
-    card.classList.add("hidden");
+    feed.innerHTML = `<div class="alert alert-error">Could not load: ${escHtml(ex.message)}</div>`;
   }
 }
 
@@ -1881,12 +1909,10 @@ document.addEventListener("click", async function(ev){
   btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;"></span>';
 
   try {
-    // Docs: PATCH .../collaborators/candidacies/{id}/accept
-    //       DELETE .../collaborators/candidacies/{id}/reject
     if(isAccept){
-      await apiPATCH(`api/v1/admin/collaborators/candidacies/${candId}/accept`, {});
+      await apiDELETEorPOST("POST", `api/v1/admin/collaborators/candidacies/${candId}/accept`, {});
     } else {
-      await apiDELETEorPOST("DELETE", `api/v1/admin/collaborators/candidacies/${candId}/reject`, {});
+      await apiDELETEorPOST("DELETE", `api/v1/admin/collaborators/candidacies/${candId}/reject`);
     }
     const row = btn.closest(".enrol-item");
     if(row){
@@ -1942,18 +1968,19 @@ document.addEventListener("click", async function(ev){
    WORKED HOURS
    ================================================================ */
 async function loadWorkedHours(teamId, projectId){
-  const card = document.getElementById("workedHoursCard");
   const feed = document.getElementById("workedHoursFeed");
-  if(!card || !feed) return;
-  card.classList.add("hidden");
-  feed.innerHTML = "";
-  if(!projectId) return;
+  if(!feed) return;
+  if(!projectId){
+    feed.innerHTML = '<div class="empty"><p>No worked hours data available.</p></div>';
+    return;
+  }
   // Only show worked hours after the team's first shift has started.
   const teamShiftStart = state.selectedTeam?.shifts?.[0]?.start_datetime;
-  if(teamShiftStart && new Date(teamShiftStart) > new Date()) return;
+  if(teamShiftStart && new Date(teamShiftStart) > new Date()){
+    feed.innerHTML = '<div class="empty"><p>Worked hours will appear after the shift starts.</p></div>';
+    return;
+  }
   try {
-    // Docs: GET /api/v1/admin/projects/{project_id}/worked_hours
-    // No team-level endpoint exists; filter client-side by teamId.
     const data  = await apiGET(`api/v1/admin/projects/${projectId}/worked_hours`,
                                { page: 1, page_items: 200 });
     const all   = data.worked_hours || data.hour_registrations || [];
@@ -1963,11 +1990,14 @@ async function loadWorkedHours(teamId, projectId){
       String(wh.team?.id) === tid ||
       String(wh.team_registration?.team_id) === tid
     );
-    if(!hours.length) return;
-    card.classList.remove("hidden");
+    if(!hours.length){
+      feed.innerHTML = '<div class="empty"><p>No worked hours registered for this team yet.</p></div>';
+      return;
+    }
+    feed.innerHTML = "";
     renderWorkedHours(feed, hours);
   } catch {
-    /* worked hours module may not be enabled — keep card hidden */
+    feed.innerHTML = '<div class="empty"><p>Worked hours not available for this team.</p></div>';
   }
 }
 
