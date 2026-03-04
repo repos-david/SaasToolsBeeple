@@ -1,5 +1,5 @@
 const CACHE = 'saastools-v6';
-const STATIC = ['index.html', 'login-token.html', 'create.html', 'planning.html', 'manifest.json', 'icon.svg'];
+const STATIC = ['index.html', 'create.html', 'planning.html', 'manifest.json', 'icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));
