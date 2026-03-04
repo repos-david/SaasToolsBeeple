@@ -1504,7 +1504,7 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
           ${t.address  ? `<div title="Location">${ICON_PIN} ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
         </div>`;
       el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
-  }
+    });
 }
 
 function renderTimeline(grid, teams, fromVal, toVal){
