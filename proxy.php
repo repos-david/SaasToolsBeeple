@@ -9,7 +9,7 @@
 // Body is forwarded for POST, PATCH, PUT.
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Origin: https://saastools.eu");
 header('Access-Control-Allow-Headers: Content-Type, X-Beeple-Token');
 header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, PUT, OPTIONS');
 
