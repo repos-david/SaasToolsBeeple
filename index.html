@@ -308,7 +308,7 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session: { email, password: pass, display: "Team Wizard", expiry_date: expiryDate } })
+      body: JSON.stringify({ session: { email, password: pass, display: "SaasTools", expiry_date: expiryDate } })
     });
     const txt = await res.text();
     let json = {};

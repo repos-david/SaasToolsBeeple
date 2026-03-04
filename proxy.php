@@ -40,7 +40,8 @@ if (!$token) {
     $auth  = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
     $token = $auth ? trim(preg_replace('/^(bearer|token(\s+token=)?)\s+/i', '', $auth), '"') : '';
 }
-if (!$token) json_error(401, "Missing X-Beeple-Token");
+// Allow unauthenticated requests to the authenticate endpoint (login with email+password)
+if (!$token && $path !== 'api/v1/authenticate') json_error(401, "Missing X-Beeple-Token");
 
 $method  = $_SERVER['REQUEST_METHOD'];
 $hasBody = in_array($method, ['POST', 'PUT', 'PATCH'], true);
