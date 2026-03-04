@@ -1455,7 +1455,10 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     : `api/v1/admin/projects/${projectId}/teams`;
   const fromVal = document.getElementById("teamDateFrom").value || defaultDateFrom();
   const toVal   = document.getElementById("teamDateTo").value   || defaultDateTo();
-  const data  = await apiGET(path, { start_date: fromVal, end_date: toVal });
+  const data  = await apiGET(path, {
+    "filter[period_start_at]": fromVal,
+    "filter[period_end_at]":   toVal
+  });
   const from  = fromVal ? new Date(fromVal + "T00:00:00") : null;
   const to    = toVal   ? new Date(toVal   + "T23:59:59") : null;
   const teams = (data.teams || []).filter(t => {
@@ -1490,43 +1493,17 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
       const el = document.createElement("div");
       el.className = "card";
       el.dataset.teamId = String(t.id);
-      const enrolled = t.registrations_count ?? t.team_registrations_count ?? null;
-      const needed   = t.volunteers_needed   ?? t.volunteers_needed_count   ?? null;
-      const countTxt = (enrolled !== null && needed !== null) ? `${enrolled}/${needed} filled` : "…/… filled";
       el.innerHTML = `
         <h3>${escHtml(t.name||"(auto-named)")}</h3>
         <div class="meta">
           <div title="Shift">${ICON_CAL} ${escHtml(fmtShift(t))}</div>
-          <div style="margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="margin-top:4px;">
             <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${t.published?ICON_PUBLISHED:ICON_DRAFT}${t.published?"Published":"Draft"}</span>
-            <span class="chip chip-blue" data-count-chip>${escHtml(countTxt)}</span>
           </div>
           ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
           ${t.address  ? `<div title="Location">${ICON_PIN} ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
         </div>`;
       el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
-    });
-    // Lazy-load accurate counts only for visible team cards (IntersectionObserver)
-    const _countObserver = new IntersectionObserver((entries) => {
-      entries.forEach(async entry => {
-        if(!entry.isIntersecting) return;
-        _countObserver.unobserve(entry.target);
-        const card = entry.target;
-        const teamId = card.dataset.teamId;
-        try {
-          const td = await apiGET(`api/v1/admin/teams/${teamId}`);
-          const ft = td.team || td;
-          const en = ft.registrations_count ?? ft.team_registrations_count ?? 0;
-          const nd = ft.volunteers_needed   ?? ft.volunteers_needed_count   ?? 0;
-          const chip = card.querySelector("[data-count-chip]");
-          if(chip) chip.textContent = `${en}/${nd} filled`;
-        } catch {}
-      });
-    }, { rootMargin: "300px" });
-    teams.forEach(t => {
-      const card = grid.querySelector(`[data-team-id="${String(t.id)}"]`);
-      if(card) _countObserver.observe(card);
-    });
   }
 }
 
