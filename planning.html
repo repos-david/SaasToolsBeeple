@@ -726,44 +726,14 @@ let DEBUG        = debugParam === "1" || debugParam === "Y" || debugParam === "y
 /* ================================================================
    AUTH
    ================================================================ */
-// Restore token from localStorage backup when sessionStorage was wiped
-// by the OS/browser killing a backgrounded mobile tab (8-hour window).
-(function(){
-  if(!sessionStorage.getItem("bwToken")){
-    const saved = localStorage.getItem("bwTokenBackup");
-    const ts    = parseInt(localStorage.getItem("bwTokenBackupTs") || "0", 10);
-    if(saved && Date.now() - ts < 28800000) // 8 h
-      sessionStorage.setItem("bwToken", saved);
-  }
-})();
 const BASE  = localStorage.getItem("bwBase")   || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
 if(!BASE || !TOKEN){ window.location.replace("index.html"); }
-
-// Write backup immediately on every successful load — this is the critical
-// step: the backup must exist before the first visibilitychange fires, so
-// that even a first-ever backgrounding is covered.
-if(TOKEN){
-  localStorage.setItem("bwTokenBackup",   TOKEN);
-  localStorage.setItem("bwTokenBackupTs", String(Date.now()));
-}
 
 function redactSensitive(s){
   if(!TOKEN || !s) return s;
   return String(s).split(TOKEN).join("[TOKEN REDACTED]");
 }
-// Belt-and-suspenders: also refresh the backup whenever the tab goes hidden.
-// visibilitychange covers Android Chrome; pagehide covers iOS Safari / PWAs.
-function _saveTokenBackup(){
-  if(TOKEN){
-    localStorage.setItem("bwTokenBackup",   TOKEN);
-    localStorage.setItem("bwTokenBackupTs", String(Date.now()));
-  }
-}
-document.addEventListener("visibilitychange", function(){
-  if(document.visibilityState === "hidden") _saveTokenBackup();
-});
-window.addEventListener("pagehide", _saveTokenBackup);
 
 /* ================================================================
    THEME
@@ -819,10 +789,28 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;display:inline-block;margin-right:6px;"></span>Sending…';
   try {
+    // Fetch current user for notification message
+    const cu = await getCurrentUser();
+    const cuName = ((cu.first_name||"") + " " + (cu.last_name||"")).trim();
+    const ucfirstName = cuName ? cuName.charAt(0).toUpperCase() + cuName.slice(1) : null;
+    const sender = ucfirstName || cu.email || "The client";
+    const notifMessage = `${sender} wants team ${team.id} to be filled.`;
+    const shift = teamShift(team);
+    const periodStart = shift?.start_datetime ? shift.start_datetime.slice(0, 10) : null;
+    const periodEnd   = shift?.end_datetime   ? shift.end_datetime.slice(0, 10)   : null;
+
     // Beeple: POST /api/v1/admin/teams/{team_id}/alerts
     await apiPOST(`api/v1/admin/teams/${team.id}/alerts`, {
       alert: { message: "Planners, please fill this team" }
     });
+
+    // Send dashboard notification
+    const notifFilter = {};
+    if(periodStart) notifFilter.period_start_at = periodStart;
+    if(periodEnd)   notifFilter.period_end_at   = periodEnd;
+    const notifPayload = { notification: { message: notifMessage, filter: { period: notifFilter } } };
+    await apiPOST(`api/v1/admin/notifications`, notifPayload);
+
     if(res) res.innerHTML = '<div class="alert alert-success">Notification sent to planners.</div>';
   } catch(e) {
     if(res) res.innerHTML = `<div class="alert alert-error">Could not send notification: ${escHtml(e.message)}</div>`;
@@ -912,8 +900,20 @@ const state = {
   selectedTeam:       null,
   collabPage:         1,
   collabTotal:        0,
-  departmentId:       null
+  departmentId:       null,
+  currentUser:        null
 };
+
+async function getCurrentUser(){
+  if(state.currentUser) return state.currentUser;
+  try {
+    const data = await apiGET("api/v1/admin/me");
+    state.currentUser = data.user || data;
+  } catch(e) {
+    state.currentUser = {};
+  }
+  return state.currentUser;
+}
 
 /* ================================================================
    UTILS
