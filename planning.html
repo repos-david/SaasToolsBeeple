@@ -380,10 +380,6 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     Install as app
   </button>
-  <button id="copyLoginUrlBtn" class="nav-item">
-    <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-    Copy autologin URL
-  </button>
   <button id="logoutBtn" class="nav-item danger">
     <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     Log out
@@ -730,44 +726,14 @@ let DEBUG        = debugParam === "1" || debugParam === "Y" || debugParam === "y
 /* ================================================================
    AUTH
    ================================================================ */
-// Restore token from localStorage backup when sessionStorage was wiped
-// by the OS/browser killing a backgrounded mobile tab (8-hour window).
-(function(){
-  if(!sessionStorage.getItem("bwToken")){
-    const saved = localStorage.getItem("bwTokenBackup");
-    const ts    = parseInt(localStorage.getItem("bwTokenBackupTs") || "0", 10);
-    if(saved && Date.now() - ts < 28800000) // 8 h
-      sessionStorage.setItem("bwToken", saved);
-  }
-})();
 const BASE  = localStorage.getItem("bwBase")   || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
 if(!BASE || !TOKEN){ window.location.replace("index.html"); }
-
-// Write backup immediately on every successful load — this is the critical
-// step: the backup must exist before the first visibilitychange fires, so
-// that even a first-ever backgrounding is covered.
-if(TOKEN){
-  localStorage.setItem("bwTokenBackup",   TOKEN);
-  localStorage.setItem("bwTokenBackupTs", String(Date.now()));
-}
 
 function redactSensitive(s){
   if(!TOKEN || !s) return s;
   return String(s).split(TOKEN).join("[TOKEN REDACTED]");
 }
-// Belt-and-suspenders: also refresh the backup whenever the tab goes hidden.
-// visibilitychange covers Android Chrome; pagehide covers iOS Safari / PWAs.
-function _saveTokenBackup(){
-  if(TOKEN){
-    localStorage.setItem("bwTokenBackup",   TOKEN);
-    localStorage.setItem("bwTokenBackupTs", String(Date.now()));
-  }
-}
-document.addEventListener("visibilitychange", function(){
-  if(document.visibilityState === "hidden") _saveTokenBackup();
-});
-window.addEventListener("pagehide", _saveTokenBackup);
 
 /* ================================================================
    THEME
@@ -809,26 +775,6 @@ document.getElementById("logoutBtn").addEventListener("click", function() {
   sessionStorage.removeItem("bwToken");
   localStorage.removeItem("bwBase");
   window.location.href = "index.html";
-});
-
-/* ================================================================
-   COPY AUTOLOGIN URL
-   ================================================================ */
-document.getElementById("copyLoginUrlBtn").addEventListener("click", function(){
-  const url = new URL(location.origin + location.pathname.replace(/\/[^/]*$/, "/index.html"));
-  url.searchParams.set("base", BASE);
-  url.searchParams.set("token", TOKEN);
-  navigator.clipboard.writeText(url.toString()).then(() => {
-    const orig = this.querySelector("span") ? this.innerHTML : this.textContent;
-    this.textContent = "Copied!";
-    setTimeout(() => {
-      this.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Copy autologin URL';
-    }, 1500);
-  }).catch(() => {
-    prompt("Copy this autologin URL:", url.toString());
-  });
-  navMenu.classList.remove("open");
-  navOverlay.classList.remove("show");
 });
 
 /* ================================================================
