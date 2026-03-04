@@ -813,7 +813,7 @@ document.getElementById("logoutBtn").addEventListener("click", function() {
 document.getElementById("notifyPlannersBtn").addEventListener("click", async function(){
   const team = state.selectedTeam;
   if(!team) return;
-  if(!confirm(`Do you want to send a planning request to the planners to fill team "${escHtml(team.name||"(auto-named)")}"?`)) return;
+  if(!confirm(`Do you want to send a planning request to the planners to fill team "${team.name||"(auto-named)"}"?`)) return;
   const btn = this;
   const res = document.getElementById("notifyPlannersResult");
   btn.disabled = true;
@@ -958,8 +958,8 @@ function extractErrorList(json){
   return ["Unknown error"];
 }
 function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpperCase(); }
-function fmtDate(d){ if(!d)return"—"; return new Date(d).toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"}); }
-function isEnded(d){ if(!d)return false; return d < new Date().toISOString().slice(0,10); }
+function fmtDate(d){ if(!d)return"—"; const dt=new Date(d); if(isNaN(dt.getTime()))return"—"; return dt.toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"}); }
+function isEnded(d){ if(!d)return false; if(!/^\d{4}-\d{2}-\d{2}/.test(d))return false; return d < new Date().toISOString().slice(0,10); }
 
 // Always use the first (and only) shift per team
 function teamShift(team){ return team?.shifts?.[0] ?? null; }
@@ -1123,6 +1123,7 @@ async function apiPATCH(path, payload){
 
 /* ALERT / RESULT HELPERS */
 function makeAlert(type, html){
+  type = ['error','success','info','warning'].includes(type) ? type : 'info';
   const d = document.createElement("div");
   d.className = `alert alert-${type}`; d.innerHTML = html; return d;
 }
@@ -1198,7 +1199,7 @@ function renderProjectGrid(projects){
     return;
   }
   projects.forEach(p => {
-    const color = p.color_code || "#4e6bff";
+    const color = /^#[0-9a-fA-F]{3,6}$|^[a-zA-Z]+$/.test(p.color_code||"") ? p.color_code : "#4e6bff";
     const ended = isEnded(p.end_date);
     const el = document.createElement("div");
     el.className = ended ? "card card-ended" : "card";
@@ -1213,7 +1214,7 @@ function renderProjectGrid(projects){
       <div class="meta">
         <span title="Date">
           <svg style="width:12px;height:12px;vertical-align:-1px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          ${fmtDate(p.start_date)} – ${fmtDate(p.end_date)}
+          ${escHtml(fmtDate(p.start_date))} – ${escHtml(fmtDate(p.end_date))}
         </span><br>
         ${p.department ? `<span title="Department"><svg style="width:12px;height:12px;vertical-align:-1px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> ${escHtml(p.department.name)}</span>` : ""}
         ${p.customer   ? `<span title="Client"><svg style="width:12px;height:12px;vertical-align:-1px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${escHtml(p.customer.name)}</span>` : ""}
@@ -1266,7 +1267,7 @@ function renderSubprojectGrid(subs){
     el.innerHTML = `
       <h3>${escHtml(s.name)}</h3>
       <div class="meta">
-        <span title="Date">${ICON_CAL} ${fmtDate(s.start_date)} – ${fmtDate(s.end_date)}</span>
+        <span title="Date">${ICON_CAL} ${escHtml(fmtDate(s.start_date))} – ${escHtml(fmtDate(s.end_date))}</span>
       </div>
       <div style="margin-top:8px;">
         <span class="chip chip-blue">${s.registrations_count||s.volunteers_needed?`${s.registrations_count||0}/${s.volunteers_needed||0} enrolled`:""}</span>
@@ -1500,7 +1501,7 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
           <div style="margin-top:4px;">
             <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${t.published?ICON_PUBLISHED:ICON_DRAFT}${t.published?"Published":"Draft"}</span>
           </div>
-          ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
+          ${t["function"] ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t["function"].name)}</div>` : ""}
           ${t.address  ? `<div title="Location">${ICON_PIN} ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
         </div>`;
       el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
@@ -1558,7 +1559,7 @@ function renderTimeline(grid, teams, fromVal, toVal){
         html += `<div class="tl-team" data-tl-id="${escHtml(String(t.id))}">
           <div class="tl-team-name">${name}</div>
           <div class="tl-team-meta">${timeStr ? escHtml(timeStr) + " · " : ""}${escHtml(filled)} ${t.published?ICON_PUBLISHED:ICON_DRAFT}</div>
-          ${t.function ? `<div class="tl-team-meta">⚙ ${escHtml(t.function.name)}</div>` : ""}
+          ${t["function"] ? `<div class="tl-team-meta">⚙ ${escHtml(t["function"].name)}</div>` : ""}
         </div>`;
       });
     }
@@ -1733,7 +1734,7 @@ async function loadPendingInvitations(teamId){
         <div class="collab-avatar" style="cursor:pointer" title="View details" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(initials(c.first_name,c.last_name))}</div>
         <div class="enrol-info" style="cursor:pointer" data-view-collab="${escHtml(String(c.id||""))}">
           <div class="enrol-name">${escHtml(nm)}</div>
-          <div style="font-size:12px;color:var(--muted);">${c.email?escHtml(c.email)+" · ":""}Invited ${inv.created_at?fmtDate(inv.created_at.slice(0,10)):""}</div>
+          <div style="font-size:12px;color:var(--muted);">${c.email?escHtml(c.email)+" · ":""}Invited ${inv.created_at?escHtml(fmtDate(inv.created_at.slice(0,10))):""}</div>
         </div>
         <span class="chip chip-yellow">Pending</span>`;
       ul.appendChild(row);
@@ -1763,7 +1764,7 @@ document.addEventListener("click", async function(ev){
     btn.textContent = "Cancelled";
   } catch(e) {
     btn.disabled = false; btn.textContent = "Cancel";
-    alert("Cancel failed: " + e.message);
+    alert("Cancel failed. Please try again.");
   }
 });
 
@@ -1838,7 +1839,7 @@ document.addEventListener("click", async function(ev){
   } catch(e) {
     btn.disabled = false;
     btn.textContent = isAccept ? "Accept" : "Reject";
-    alert((isAccept ? "Accept" : "Reject") + " failed: " + e.message);
+    alert((isAccept ? "Accept" : "Reject") + " failed. Please try again.");
   }
 });
 
@@ -2056,7 +2057,7 @@ document.addEventListener("click", async function(ev){
   } catch(e){
     btn.disabled = false;
     btn.textContent = "Approve";
-    alert("Could not approve: " + e.message);
+    alert("Could not approve. Please try again.");
   }
 });
 
@@ -2297,7 +2298,8 @@ document.getElementById("advFilterBtn").addEventListener("click", function(){
   const isHidden = wrap.classList.toggle("hidden");
   const arrow = this.querySelector("svg");
   if(arrow) arrow.style.transform = isHidden ? "" : "rotate(180deg)";
-  this.childNodes[1] && (this.lastChild.textContent = isHidden ? " Advanced filters" : " Hide advanced");
+  const textNode = Array.from(this.childNodes).find(n => n.nodeType === 3 && n.textContent.trim());
+  if(textNode) textNode.textContent = isHidden ? " Advanced filters" : " Hide advanced";
 });
 
 /* ================================================================
@@ -2379,6 +2381,7 @@ document.getElementById("collabModal").addEventListener("click", e => {
 });
 
 async function openCollabModal(collabId){
+  const safeCollabId = parseInt(collabId, 10); if(!safeCollabId) return;
   const modal  = document.getElementById("collabModal");
   const body   = document.getElementById("collabModalBody");
   const avatar = document.getElementById("collabModalAvatar");
@@ -2390,7 +2393,7 @@ async function openCollabModal(collabId){
   modal.classList.remove("hidden");
 
   try {
-    const data = await apiGET(`api/v1/admin/collaborators/${collabId}`);
+    const data = await apiGET(`api/v1/admin/collaborators/${safeCollabId}`);
     const c    = data.volunteer || data.collaborator || data;
 
     const av = initials(c.first_name, c.last_name);
@@ -2437,10 +2440,10 @@ async function openCollabModal(collabId){
         const fromDate = isoDate(d1);
         const toDate   = isoDate(d2);
         // Docs: GET /api/v1/admin/collaborators/{id}/availabilities2?start=&end=
-        const avData   = await apiGET(`api/v1/admin/collaborators/${collabId}/availabilities2`, { start: fromDate, end: toDate });
+        const avData   = await apiGET(`api/v1/admin/collaborators/${safeCollabId}/availabilities2`, { start: fromDate, end: toDate });
         const avList   = avData.availabilities || avData.volunteer_availabilities || [];
         html += `<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">`;
-        html += `<div style="font-weight:700;font-size:13px;color:var(--muted);margin-bottom:10px;">Availabilities <span style="font-weight:400;">(${fmtDate(fromDate)} – ${fmtDate(toDate)})</span></div>`;
+        html += `<div style="font-weight:700;font-size:13px;color:var(--muted);margin-bottom:10px;">Availabilities <span style="font-weight:400;">(${escHtml(fmtDate(fromDate))} – ${escHtml(fmtDate(toDate))})</span></div>`;
         if(avList.length){
           html += `<div style="display:flex;flex-direction:column;gap:0;">`;
           avList.forEach(a => {
@@ -2452,7 +2455,7 @@ async function openCollabModal(collabId){
             const color = unavail ? "var(--danger)" : "var(--accent)";
             const label = unavail ? "Unavailable" : (a.type ? a.type.charAt(0).toUpperCase()+a.type.slice(1) : "Available");
             html += `<div style="display:flex;gap:12px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);">
-              <span style="min-width:90px;">${fmtDate(dateStr)}</span>
+              <span style="min-width:90px;">${escHtml(fmtDate(dateStr))}</span>
               <span style="flex:1;color:var(--muted);">${escHtml(timeStr)}</span>
               <span style="color:${color};font-weight:600;">${escHtml(label)}</span>
             </div>`;
