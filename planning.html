@@ -795,9 +795,6 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
     const ucfirstName = cuName ? cuName.charAt(0).toUpperCase() + cuName.slice(1) : null;
     const sender = ucfirstName || cu.email || "The client";
     const notifMessage = `${sender} wants team ${team.id} to be filled.`;
-    const shift = teamShift(team);
-    const periodStart = shift?.start_datetime ? shift.start_datetime.slice(0, 10) : null;
-    const periodEnd   = shift?.end_datetime   ? shift.end_datetime.slice(0, 10)   : null;
 
     // Beeple: POST /api/v1/admin/teams/{team_id}/alerts
     await apiPOST(`api/v1/admin/teams/${team.id}/alerts`, {
@@ -805,11 +802,14 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
     });
 
     // Send dashboard notification
-    const notifFilter = {};
-    if(periodStart) notifFilter.period_start_at = periodStart;
-    if(periodEnd)   notifFilter.period_end_at   = periodEnd;
-    const notifPayload = { notification: { message: notifMessage, filter: { period: notifFilter } } };
-    await apiPOST(`api/v1/admin/notifications`, notifPayload);
+    await apiPOST(`api/v1/admin/notifications`, {
+      notification: {
+        type: "external",
+        custom_data: {
+          message: [{ language: "en", message: notifMessage }]
+        }
+      }
+    });
 
     if(res) res.innerHTML = '<div class="alert alert-success">Notification sent to planners.</div>';
   } catch(e) {
