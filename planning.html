@@ -819,10 +819,27 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;display:inline-block;margin-right:6px;"></span>Sending…';
   try {
+    // Fetch current user for notification message
+    const cu = await getCurrentUser();
+    const cuName = ((cu.first_name||"") + " " + (cu.last_name||"")).trim();
+    const ucfirstName = cuName ? cuName.charAt(0).toUpperCase() + cuName.slice(1) : null;
+    const sender = ucfirstName || cu.email || "";
+    const notifMessage = `${sender} wants team ${team.id} to be filled.`;
+    const shift = teamShift(team);
+    const periodStart = shift?.start_datetime ? shift.start_datetime.slice(0, 10) : null;
+    const periodEnd   = shift?.end_datetime   ? shift.end_datetime.slice(0, 10)   : null;
+
     // Beeple: POST /api/v1/admin/teams/{team_id}/alerts
     await apiPOST(`api/v1/admin/teams/${team.id}/alerts`, {
       alert: { message: "Planners, please fill this team" }
     });
+
+    // Send dashboard notification
+    const notifPayload = { notification: { message: notifMessage, filter: {} } };
+    if(periodStart) notifPayload.notification.filter.period_start_at = periodStart;
+    if(periodEnd)   notifPayload.notification.filter.period_end_at   = periodEnd;
+    await apiPOST(`api/v1/admin/notifications`, notifPayload);
+
     if(res) res.innerHTML = '<div class="alert alert-success">Notification sent to planners.</div>';
   } catch(e) {
     if(res) res.innerHTML = `<div class="alert alert-error">Could not send notification: ${escHtml(e.message)}</div>`;
@@ -912,8 +929,20 @@ const state = {
   selectedTeam:       null,
   collabPage:         1,
   collabTotal:        0,
-  departmentId:       null
+  departmentId:       null,
+  currentUser:        null
 };
+
+async function getCurrentUser(){
+  if(state.currentUser) return state.currentUser;
+  try {
+    const data = await apiGET("api/v1/admin/me");
+    state.currentUser = data.user || data;
+  } catch(e) {
+    state.currentUser = {};
+  }
+  return state.currentUser;
+}
 
 /* ================================================================
    UTILS
