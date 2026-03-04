@@ -471,19 +471,6 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <div id="projectGrid" class="card-grid"></div>
   </div>
 
-  <!-- PENDING INVITATIONS VIEW -->
-  <div id="viewInvitations" class="hidden">
-    <div class="breadcrumb" id="breadcrumbInv"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
-      <h1 class="section-title">Pending Invitations</h1>
-      <button id="invBackBtn" class="btn secondary btn-sm">← Back to team</button>
-    </div>
-    <p class="section-sub">Invitations sent to collaborators for this team that are still waiting for acceptance.</p>
-    <div id="invitationsFeed">
-      <div class="empty"><div class="spinner"></div><p>Loading invitations…</p></div>
-    </div>
-  </div>
-
   <!-- SUBPROJECT / TEAMS VIEW -->
   <div id="viewProject" class="hidden">
     <div class="breadcrumb" id="breadcrumb"></div>
@@ -520,21 +507,15 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
           </div>
           <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="teamMeta"></div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;">
-          <button id="teamInvitationsBtn" class="btn secondary btn-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Invitations
-          </button>
-          <button id="notifyPlannersBtn" class="btn secondary btn-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Notify planners
-          </button>
-        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button id="notifyPlannersBtn" class="btn secondary btn-sm">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Notify planners
+        </button>
+        <div id="notifyPlannersResult" style="flex:1;min-width:0;"></div>
       </div>
     </div>
-
-    <!-- Notify planners result -->
-    <div id="notifyPlannersResult" style="margin-bottom:8px;"></div>
 
     <!-- Enrolments card -->
     <div id="enrolmentsCard" class="sec-card">
@@ -817,23 +798,6 @@ document.getElementById("logoutBtn").addEventListener("click", function() {
   window.location.href = "index.html";
 });
 
-document.getElementById("teamInvitationsBtn").addEventListener("click", () => {
-  const team    = state.selectedTeam;
-  const project = state.selectedProject;
-  const sub     = state.selectedSubproject;
-  if(!team) return;
-  const crumbs = [
-    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } }
-  ];
-  if(project) crumbs.push({ label: project.name, action: () => selectProject(project) });
-  if(sub)     crumbs.push({ label: sub.name,     action: () => selectSubproject(sub) });
-  crumbs.push({ label: team.name || "(team)", action: () => selectTeam(team) });
-  crumbs.push({ label: "Invitations" });
-  showView("viewInvitations");
-  setBreadcrumb("viewInvitations", crumbs);
-  loadTeamInvitations(team);
-});
-
 /* ================================================================
    NOTIFY PLANNERS
    ================================================================ */
@@ -858,51 +822,6 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notify planners';
   }
 });
-
-document.getElementById("invBackBtn").addEventListener("click", () => {
-  if(state.selectedTeam){
-    selectTeam(state.selectedTeam);
-  } else if(state.selectedProject){
-    selectProject(state.selectedProject);
-  } else {
-    showView("viewProjects");
-    history.pushState({view:"projects"}, "");
-  }
-});
-
-/* ================================================================
-   TEAM INVITATIONS
-   ================================================================ */
-async function loadTeamInvitations(team){
-  const feed = document.getElementById("invitationsFeed");
-  feed.innerHTML = '<div class="empty"><div class="spinner"></div><p>Loading invitations…</p></div>';
-  try {
-    const data   = await apiGET(`api/v1/admin/teams/${team.id}/enrolments`);
-    const enrols = data.enrolments || data.team_registrations || [];
-    const invitations = enrols.filter(e => e.invitation && !e.confirmed && !e.cancelled);
-    if(!invitations.length){
-      feed.innerHTML = '<div class="empty"><p>No pending invitations for this team.</p></div>';
-      return;
-    }
-    feed.innerHTML = '';
-    const sec = document.createElement("div"); sec.className = "sec-card";
-    sec.innerHTML = `<h3>${escHtml(team.name||"(auto-named)")} <span style="font-weight:400;font-size:13px;color:var(--muted);">${escHtml(fmtShift(team))}</span></h3>`;
-    const ul = document.createElement("div"); ul.className = "enrol-list";
-    invitations.forEach(inv => {
-      const c  = inv.collaborator || inv.volunteer || {};
-      const nm = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
-      const av = initials(c.first_name, c.last_name) || "?";
-      const row = document.createElement("div"); row.className = "enrol-item";
-      row.innerHTML = `<div class="collab-avatar" style="cursor:pointer" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(av)}</div>
-        <div class="enrol-info"><div class="enrol-name">${escHtml(nm)}</div>
-        <div style="font-size:12px;color:var(--muted);">${c.email?escHtml(c.email)+" · ":""}Invited ${inv.created_at?fmtDate(inv.created_at.slice(0,10)):""}</div></div>`;
-      ul.appendChild(row);
-    });
-    sec.appendChild(ul); feed.appendChild(sec);
-  } catch(e) {
-    feed.innerHTML = `<div class="alert alert-error"><b>Could not load invitations:</b> ${escHtml(e.message)}</div>`;
-  }
-}
 
 /* ================================================================
    DEBUG TOGGLE
@@ -1075,7 +994,7 @@ function fromDatetimeLocal(localVal){
 }
 
 function showView(id){
-  ["viewLoading","viewProjects","viewProject","viewTeam","viewInvitations"].forEach(v => {
+  ["viewLoading","viewProjects","viewProject","viewTeam"].forEach(v => {
     document.getElementById(v).classList.toggle("hidden", v!==id);
   });
   const showToolbar = (id === "viewProject");
@@ -2583,7 +2502,7 @@ function renderPagination(container, current, total, callback){
 
 /* BREADCRUMB */
 function setBreadcrumb(containerId, crumbs){
-  const idMap = { viewTeam:"breadcrumbTeam", viewInvitations:"breadcrumbInv" };
+  const idMap = { viewTeam:"breadcrumbTeam" };
   const el = document.getElementById(idMap[containerId] || "breadcrumb");
   el.innerHTML = "";
   crumbs.forEach((c, i) => {
