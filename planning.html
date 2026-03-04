@@ -7,6 +7,7 @@
 <link rel="icon" href="icon.svg">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="TeamWizard">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -153,6 +154,8 @@ button.nav-item.danger { color:var(--danger); }
   padding:18px; box-shadow:var(--shadow); margin-bottom:12px;
 }
 .sec-card h3 { margin:0 0 14px; font-size:16px; font-weight:700; }
+.sec-card:has(> div > .empty) { padding-top:12px; padding-bottom:12px; }
+.sec-card:has(> div > .empty) h3 { margin-bottom:8px; }
 /* FORM */
 input,select,textarea { display:block; width:100%; padding:10px 12px; border:1px solid var(--fieldBorder); border-radius:var(--radius); background:var(--field); color:var(--text); font-family:inherit; font-size:16px; line-height:1.4; transition:border-color .15s,box-shadow .15s; -webkit-appearance:none; appearance:none; }
 input::placeholder,textarea::placeholder { color:var(--muted); opacity:.6; }
@@ -519,7 +522,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
     <!-- Enrolments card -->
     <div id="enrolmentsCard" class="sec-card">
-      <h3>Enrolments</h3>
+      <h3 style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+        Enrolments
+      </h3>
       <div id="enrolmentsFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
@@ -534,7 +540,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
     <!-- Candidacies card (always shown) -->
     <div id="candidaciesCard" class="sec-card">
-      <h3>Candidacies</h3>
+      <h3 style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Candidacies
+      </h3>
       <div id="candidaciesFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
@@ -804,7 +813,7 @@ document.getElementById("logoutBtn").addEventListener("click", function() {
 document.getElementById("notifyPlannersBtn").addEventListener("click", async function(){
   const team = state.selectedTeam;
   if(!team) return;
-  if(!confirm(`Send a notification to planners for team "${escHtml(team.name||"(auto-named)")}"?`)) return;
+  if(!confirm(`Do you want to send a planning request to the planners to fill team "${escHtml(team.name||"(auto-named)")}"?`)) return;
   const btn = this;
   const res = document.getElementById("notifyPlannersResult");
   btn.disabled = true;
