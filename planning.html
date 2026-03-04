@@ -961,17 +961,18 @@ function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpper
 function fmtDate(d){ if(!d)return"—"; return new Date(d).toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"}); }
 function isEnded(d){ if(!d)return false; return d < new Date().toISOString().slice(0,10); }
 
+// Always use the first (and only) shift per team
+function teamShift(team){ return team?.shifts?.[0] ?? null; }
+
 function fmtShift(team){
-  if(!team) return "—";
-  if(team.shifts && team.shifts.length){
-    const s = team.shifts[0];
-    const start = s.start_datetime ? new Date(s.start_datetime) : null;
-    const end   = s.end_datetime   ? new Date(s.end_datetime)   : null;
-    if(start && end){
-      return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+
-             start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})+" – "+
-             end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
-    }
+  const s = teamShift(team);
+  if(!s) return "—";
+  const start = s.start_datetime ? new Date(s.start_datetime) : null;
+  const end   = s.end_datetime   ? new Date(s.end_datetime)   : null;
+  if(start && end){
+    return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+
+           start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})+" – "+
+           end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
   }
   return "—";
 }
@@ -1455,7 +1456,17 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
   const fromVal = document.getElementById("teamDateFrom").value || defaultDateFrom();
   const toVal   = document.getElementById("teamDateTo").value   || defaultDateTo();
   const data  = await apiGET(path, { start_date: fromVal, end_date: toVal });
-  const teams = (data.teams || []).filter(t => !t.deleted && !t.deleted_at);
+  const from  = fromVal ? new Date(fromVal + "T00:00:00") : null;
+  const to    = toVal   ? new Date(toVal   + "T23:59:59") : null;
+  const teams = (data.teams || []).filter(t => {
+    if(t.deleted || t.deleted_at) return false;
+    const shiftStart = teamShift(t)?.start_datetime;
+    if(!shiftStart) return true; // keep teams with no shift date set
+    const d = new Date(shiftStart);
+    if(from && d < from) return false;
+    if(to   && d > to)   return false;
+    return true;
+  });
   if(!teams.length){
     grid.innerHTML = `<div class="empty"><p>No teams found in the selected date range.</p></div>`;
     return;
@@ -1466,8 +1477,8 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     const sv = teamSortSel.value;
     if(sv === "name-asc")  teams.sort((a,b) => (a.name||"").localeCompare(b.name||""));
     if(sv === "name-desc") teams.sort((a,b) => (b.name||"").localeCompare(a.name||""));
-    if(sv === "date-asc")  teams.sort((a,b) => (a.shifts?.[0]?.start_datetime||"").localeCompare(b.shifts?.[0]?.start_datetime||""));
-    if(sv === "date-desc") teams.sort((a,b) => (b.shifts?.[0]?.start_datetime||"").localeCompare(a.shifts?.[0]?.start_datetime||""));
+    if(sv === "date-asc")  teams.sort((a,b) => (teamShift(a)?.start_datetime||"").localeCompare(teamShift(b)?.start_datetime||""));
+    if(sv === "date-desc") teams.sort((a,b) => (teamShift(b)?.start_datetime||"").localeCompare(teamShift(a)?.start_datetime||""));
   }
   if(viewMode === "timeline"){
     document.getElementById("main").classList.add("timeline-mode");
@@ -1534,8 +1545,7 @@ function renderTimeline(grid, teams, fromVal, toVal){
   const byDate = {};
   dates.forEach(d => { byDate[d] = []; });
   teams.forEach(t => {
-    const shiftDate = t.shifts && t.shifts[0] && t.shifts[0].start_datetime
-      ? t.shifts[0].start_datetime.slice(0, 10) : null;
+    const shiftDate = teamShift(t)?.start_datetime?.slice(0, 10) ?? null;
     if(shiftDate && byDate[shiftDate] !== undefined) byDate[shiftDate].push(t);
   });
 
@@ -1557,9 +1567,10 @@ function renderTimeline(grid, teams, fromVal, toVal){
         const name   = escHtml(t.name || "(auto-named)");
         const filled = `${t.registrations_count||t.team_registrations_count||0}/${t.volunteers_needed||t.volunteers_needed_count||0}`;
         const timeStr = (() => {
-          if(t.shifts && t.shifts[0]){
-            const s = new Date(t.shifts[0].start_datetime);
-            const e = new Date(t.shifts[0].end_datetime);
+          const sh = teamShift(t);
+          if(sh){
+            const s = new Date(sh.start_datetime);
+            const e = new Date(sh.end_datetime);
             if(!isNaN(s.getTime()) && !isNaN(e.getTime())){
               return s.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}) + "–" +
                      e.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
@@ -1668,7 +1679,7 @@ async function selectTeam(team, noPush){
   loadEnrolments(team.id);
   loadPendingInvitations(team.id);
   loadCandidacies(team.id);
-  loadWorkedHours(team.id, state.selectedProject?.id);
+  loadWorkedHours(team.id);
 }
 
 /* ================================================================
@@ -1889,37 +1900,39 @@ document.addEventListener("click", async function(ev){
 /* ================================================================
    WORKED HOURS
    ================================================================ */
-async function loadWorkedHours(teamId, projectId){
+async function loadWorkedHours(teamId){
   const feed = document.getElementById("workedHoursFeed");
   if(!feed) return;
-  if(!projectId){
-    feed.innerHTML = '<div class="empty"><p>No worked hours data available.</p></div>';
-    return;
-  }
-  // Only show worked hours after the team's first shift has started.
-  const teamShiftStart = state.selectedTeam?.shifts?.[0]?.start_datetime;
-  if(teamShiftStart && new Date(teamShiftStart) > new Date()){
+  // Only show worked hours after the team's shift has started.
+  const shiftStart = teamShift(state.selectedTeam)?.start_datetime;
+  if(shiftStart && new Date(shiftStart) > new Date()){
     feed.innerHTML = '<div class="empty"><p>Worked hours will appear after the shift starts.</p></div>';
     return;
   }
   try {
-    const data  = await apiGET(`api/v1/admin/projects/${projectId}/worked_hours`,
-                               { page: 1, page_items: 200 });
-    const all   = data.worked_hours || data.hour_registrations || [];
-    const tid   = String(teamId);
-    const hours = all.filter(wh =>
-      String(wh.team_id) === tid ||
-      String(wh.team?.id) === tid ||
-      String(wh.team_registration?.team_id) === tid
+    // 1. Get enrolments for this team
+    const enrolData = await apiGET(`api/v1/admin/teams/${teamId}/enrolments`);
+    const enrols = (enrolData.enrolments || enrolData.team_registrations || [])
+      .filter(e => !e.cancelled && !e.cancelled_at);
+    if(!enrols.length){
+      feed.innerHTML = '<div class="empty"><p>No active enrolments — no worked hours to show.</p></div>';
+      return;
+    }
+    // 2. Fetch worked hours per enrolment in parallel
+    const results = await Promise.allSettled(
+      enrols.map(e => apiGET(`api/v1/admin/enrolments/${e.id}/hour_registrations`))
     );
-    if(!hours.length){
+    const allHours = results.flatMap(r =>
+      r.status === "fulfilled" ? (r.value.hour_registrations || r.value.worked_hours || []) : []
+    );
+    if(!allHours.length){
       feed.innerHTML = '<div class="empty"><p>No worked hours registered for this team yet.</p></div>';
       return;
     }
     feed.innerHTML = "";
-    renderWorkedHours(feed, hours);
-  } catch {
-    feed.innerHTML = '<div class="empty"><p>Worked hours not available for this team.</p></div>';
+    renderWorkedHours(feed, allHours);
+  } catch(e) {
+    feed.innerHTML = `<div class="alert alert-error">Could not load worked hours: ${escHtml(e.message)}</div>`;
   }
 }
 
@@ -2438,7 +2451,7 @@ async function openCollabModal(collabId){
     }
 
     // Availabilities around team start date
-    const teamStartDate = state.selectedTeam?.shifts?.[0]?.start_datetime?.slice(0,10);
+    const teamStartDate = teamShift(state.selectedTeam)?.start_datetime?.slice(0,10);
     if(teamStartDate){
       try{
         const d0 = new Date(teamStartDate + "T00:00:00");
