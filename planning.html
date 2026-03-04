@@ -7,8 +7,9 @@
 <link rel="icon" href="icon.svg">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="TeamWizard">
+<meta name="apple-mobile-web-app-title" content="SaasTools">
 <link rel="apple-touch-icon" href="icon.svg">
 <meta name="theme-color" content="#4e6bff">
 <style>
@@ -153,6 +154,8 @@ button.nav-item.danger { color:var(--danger); }
   padding:18px; box-shadow:var(--shadow); margin-bottom:12px;
 }
 .sec-card h3 { margin:0 0 14px; font-size:16px; font-weight:700; }
+.sec-card:has(> div > .empty) { padding-top:12px; padding-bottom:12px; }
+.sec-card:has(> div > .empty) h3 { margin-bottom:8px; }
 /* FORM */
 input,select,textarea { display:block; width:100%; padding:10px 12px; border:1px solid var(--fieldBorder); border-radius:var(--radius); background:var(--field); color:var(--text); font-family:inherit; font-size:16px; line-height:1.4; transition:border-color .15s,box-shadow .15s; -webkit-appearance:none; appearance:none; }
 input::placeholder,textarea::placeholder { color:var(--muted); opacity:.6; }
@@ -424,7 +427,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 <div id="pwaOverlay" class="pwa-overlay hidden" role="dialog" aria-label="Install app">
   <img src="icon.svg" width="52" height="52" class="pwa-icon" alt="">
   <div class="pwa-text">
-    <strong>Install TeamWizard</strong>
+    <strong>Install SaasTools</strong>
     <span>Add to home screen for quick access</span>
   </div>
   <div class="pwa-actions">
@@ -471,19 +474,6 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     <div id="projectGrid" class="card-grid"></div>
   </div>
 
-  <!-- PENDING INVITATIONS VIEW -->
-  <div id="viewInvitations" class="hidden">
-    <div class="breadcrumb" id="breadcrumbInv"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
-      <h1 class="section-title">Pending Invitations</h1>
-      <button id="invBackBtn" class="btn secondary btn-sm">← Back to team</button>
-    </div>
-    <p class="section-sub">Invitations sent to collaborators for this team that are still waiting for acceptance.</p>
-    <div id="invitationsFeed">
-      <div class="empty"><div class="spinner"></div><p>Loading invitations…</p></div>
-    </div>
-  </div>
-
   <!-- SUBPROJECT / TEAMS VIEW -->
   <div id="viewProject" class="hidden">
     <div class="breadcrumb" id="breadcrumb"></div>
@@ -520,25 +510,22 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
           </div>
           <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="teamMeta"></div>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;">
-          <button id="teamInvitationsBtn" class="btn secondary btn-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Invitations
-          </button>
-          <button id="notifyPlannersBtn" class="btn secondary btn-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            Notify planners
-          </button>
-        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button id="notifyPlannersBtn" class="btn secondary btn-sm">
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Notify planners
+        </button>
+        <div id="notifyPlannersResult" style="flex:1;min-width:0;"></div>
       </div>
     </div>
 
-    <!-- Notify planners result -->
-    <div id="notifyPlannersResult" style="margin-bottom:8px;"></div>
-
     <!-- Enrolments card -->
     <div id="enrolmentsCard" class="sec-card">
-      <h3>Enrolments</h3>
+      <h3 style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+        Enrolments
+      </h3>
       <div id="enrolmentsFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
@@ -553,7 +540,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 
     <!-- Candidacies card (always shown) -->
     <div id="candidaciesCard" class="sec-card">
-      <h3>Candidacies</h3>
+      <h3 style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;stroke-linecap:round;stroke-linejoin:round;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Candidacies
+      </h3>
       <div id="candidaciesFeed"><div class="empty"><div class="spinner"></div><p>Loading…</p></div></div>
     </div>
 
@@ -663,7 +653,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
           <button id="clearFiltersBtn" class="btn secondary btn-sm">Clear</button>
           <div id="deptFilterWrap" class="hidden" style="display:flex;align-items:center;gap:6px;align-self:center;">
             <label style="margin:0;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Department</label>
-            <select id="deptFilterSelect" disabled style="width:auto;font-size:12px;padding:4px 8px;min-height:auto;border-radius:6px;opacity:0.65;cursor:default;"></select>
+            <span id="deptFilterSelect" style="font-size:12px;padding:4px 8px;border-radius:6px;background:var(--field);border:1px solid var(--fieldBorder);opacity:0.65;"></span>
           </div>
           <button id="advFilterBtn" class="adv-toggle">
             <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -729,7 +719,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
 /* ================================================================
    CONFIG
    ================================================================ */
-const PROXY_URL  = "https://coraligo.com/team-wizard/proxy.php";
+const PROXY_URL  = "https://api.saastools.eu/proxy.php";
 const debugParam = new URLSearchParams(location.search).get("debug");
 let DEBUG        = debugParam === "1" || debugParam === "Y" || debugParam === "y";
 
@@ -817,30 +807,13 @@ document.getElementById("logoutBtn").addEventListener("click", function() {
   window.location.href = "index.html";
 });
 
-document.getElementById("teamInvitationsBtn").addEventListener("click", () => {
-  const team    = state.selectedTeam;
-  const project = state.selectedProject;
-  const sub     = state.selectedSubproject;
-  if(!team) return;
-  const crumbs = [
-    { label:"Projects", action: () => { showView("viewProjects"); history.pushState({view:"projects"}, ""); } }
-  ];
-  if(project) crumbs.push({ label: project.name, action: () => selectProject(project) });
-  if(sub)     crumbs.push({ label: sub.name,     action: () => selectSubproject(sub) });
-  crumbs.push({ label: team.name || "(team)", action: () => selectTeam(team) });
-  crumbs.push({ label: "Invitations" });
-  showView("viewInvitations");
-  setBreadcrumb("viewInvitations", crumbs);
-  loadTeamInvitations(team);
-});
-
 /* ================================================================
    NOTIFY PLANNERS
    ================================================================ */
 document.getElementById("notifyPlannersBtn").addEventListener("click", async function(){
   const team = state.selectedTeam;
   if(!team) return;
-  if(!confirm(`Send a notification to planners for team "${escHtml(team.name||"(auto-named)")}"?`)) return;
+  if(!confirm(`Do you want to send a planning request to the planners to fill team "${escHtml(team.name||"(auto-named)")}"?`)) return;
   const btn = this;
   const res = document.getElementById("notifyPlannersResult");
   btn.disabled = true;
@@ -858,51 +831,6 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notify planners';
   }
 });
-
-document.getElementById("invBackBtn").addEventListener("click", () => {
-  if(state.selectedTeam){
-    selectTeam(state.selectedTeam);
-  } else if(state.selectedProject){
-    selectProject(state.selectedProject);
-  } else {
-    showView("viewProjects");
-    history.pushState({view:"projects"}, "");
-  }
-});
-
-/* ================================================================
-   TEAM INVITATIONS
-   ================================================================ */
-async function loadTeamInvitations(team){
-  const feed = document.getElementById("invitationsFeed");
-  feed.innerHTML = '<div class="empty"><div class="spinner"></div><p>Loading invitations…</p></div>';
-  try {
-    const data   = await apiGET(`api/v1/admin/teams/${team.id}/enrolments`);
-    const enrols = data.enrolments || data.team_registrations || [];
-    const invitations = enrols.filter(e => e.invitation && !e.confirmed && !e.cancelled);
-    if(!invitations.length){
-      feed.innerHTML = '<div class="empty"><p>No pending invitations for this team.</p></div>';
-      return;
-    }
-    feed.innerHTML = '';
-    const sec = document.createElement("div"); sec.className = "sec-card";
-    sec.innerHTML = `<h3>${escHtml(team.name||"(auto-named)")} <span style="font-weight:400;font-size:13px;color:var(--muted);">${escHtml(fmtShift(team))}</span></h3>`;
-    const ul = document.createElement("div"); ul.className = "enrol-list";
-    invitations.forEach(inv => {
-      const c  = inv.collaborator || inv.volunteer || {};
-      const nm = ((c.first_name||"")+" "+(c.last_name||"")).trim() || c.email || "(unknown)";
-      const av = initials(c.first_name, c.last_name) || "?";
-      const row = document.createElement("div"); row.className = "enrol-item";
-      row.innerHTML = `<div class="collab-avatar" style="cursor:pointer" data-view-collab="${escHtml(String(c.id||""))}">${escHtml(av)}</div>
-        <div class="enrol-info"><div class="enrol-name">${escHtml(nm)}</div>
-        <div style="font-size:12px;color:var(--muted);">${c.email?escHtml(c.email)+" · ":""}Invited ${inv.created_at?fmtDate(inv.created_at.slice(0,10)):""}</div></div>`;
-      ul.appendChild(row);
-    });
-    sec.appendChild(ul); feed.appendChild(sec);
-  } catch(e) {
-    feed.innerHTML = `<div class="alert alert-error"><b>Could not load invitations:</b> ${escHtml(e.message)}</div>`;
-  }
-}
 
 /* ================================================================
    DEBUG TOGGLE
@@ -1033,17 +961,18 @@ function initials(fn,ln){ return ((fn||"").charAt(0)+(ln||"").charAt(0)).toUpper
 function fmtDate(d){ if(!d)return"—"; return new Date(d).toLocaleDateString(undefined,{day:"2-digit",month:"short",year:"numeric"}); }
 function isEnded(d){ if(!d)return false; return d < new Date().toISOString().slice(0,10); }
 
+// Always use the first (and only) shift per team
+function teamShift(team){ return team?.shifts?.[0] ?? null; }
+
 function fmtShift(team){
-  if(!team) return "—";
-  if(team.shifts && team.shifts.length){
-    const s = team.shifts[0];
-    const start = s.start_datetime ? new Date(s.start_datetime) : null;
-    const end   = s.end_datetime   ? new Date(s.end_datetime)   : null;
-    if(start && end){
-      return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+
-             start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})+" – "+
-             end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
-    }
+  const s = teamShift(team);
+  if(!s) return "—";
+  const start = s.start_datetime ? new Date(s.start_datetime) : null;
+  const end   = s.end_datetime   ? new Date(s.end_datetime)   : null;
+  if(start && end){
+    return start.toLocaleDateString(undefined,{day:"2-digit",month:"short"})+" "+
+           start.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})+" – "+
+           end.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
   }
   return "—";
 }
@@ -1075,7 +1004,7 @@ function fromDatetimeLocal(localVal){
 }
 
 function showView(id){
-  ["viewLoading","viewProjects","viewProject","viewTeam","viewInvitations"].forEach(v => {
+  ["viewLoading","viewProjects","viewProject","viewTeam"].forEach(v => {
     document.getElementById(v).classList.toggle("hidden", v!==id);
   });
   const showToolbar = (id === "viewProject");
@@ -1526,8 +1455,21 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     : `api/v1/admin/projects/${projectId}/teams`;
   const fromVal = document.getElementById("teamDateFrom").value || defaultDateFrom();
   const toVal   = document.getElementById("teamDateTo").value   || defaultDateTo();
-  const data  = await apiGET(path, { start_date: fromVal, end_date: toVal });
-  const teams = (data.teams || []).filter(t => !t.deleted && !t.deleted_at);
+  const data  = await apiGET(path, {
+    "filter[period_start_at]": fromVal,
+    "filter[period_end_at]":   toVal
+  });
+  const from  = fromVal ? new Date(fromVal + "T00:00:00") : null;
+  const to    = toVal   ? new Date(toVal   + "T23:59:59") : null;
+  const teams = (data.teams || []).filter(t => {
+    if(t.deleted || t.deleted_at) return false;
+    const shiftStart = teamShift(t)?.start_datetime;
+    if(!shiftStart) return true; // keep teams with no shift date set
+    const d = new Date(shiftStart);
+    if(from && d < from) return false;
+    if(to   && d > to)   return false;
+    return true;
+  });
   if(!teams.length){
     grid.innerHTML = `<div class="empty"><p>No teams found in the selected date range.</p></div>`;
     return;
@@ -1538,8 +1480,8 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
     const sv = teamSortSel.value;
     if(sv === "name-asc")  teams.sort((a,b) => (a.name||"").localeCompare(b.name||""));
     if(sv === "name-desc") teams.sort((a,b) => (b.name||"").localeCompare(a.name||""));
-    if(sv === "date-asc")  teams.sort((a,b) => (a.shifts?.[0]?.start_datetime||"").localeCompare(b.shifts?.[0]?.start_datetime||""));
-    if(sv === "date-desc") teams.sort((a,b) => (b.shifts?.[0]?.start_datetime||"").localeCompare(a.shifts?.[0]?.start_datetime||""));
+    if(sv === "date-asc")  teams.sort((a,b) => (teamShift(a)?.start_datetime||"").localeCompare(teamShift(b)?.start_datetime||""));
+    if(sv === "date-desc") teams.sort((a,b) => (teamShift(b)?.start_datetime||"").localeCompare(teamShift(a)?.start_datetime||""));
   }
   if(viewMode === "timeline"){
     document.getElementById("main").classList.add("timeline-mode");
@@ -1551,43 +1493,17 @@ async function loadTeamsIntoGrid(grid, projectId, subprojectId){
       const el = document.createElement("div");
       el.className = "card";
       el.dataset.teamId = String(t.id);
-      const enrolled = t.registrations_count ?? t.team_registrations_count ?? null;
-      const needed   = t.volunteers_needed   ?? t.volunteers_needed_count   ?? null;
-      const countTxt = (enrolled !== null && needed !== null) ? `${enrolled}/${needed} filled` : "…/… filled";
       el.innerHTML = `
         <h3>${escHtml(t.name||"(auto-named)")}</h3>
         <div class="meta">
           <div title="Shift">${ICON_CAL} ${escHtml(fmtShift(t))}</div>
-          <div style="margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="margin-top:4px;">
             <span style="font-size:12px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${t.published?ICON_PUBLISHED:ICON_DRAFT}${t.published?"Published":"Draft"}</span>
-            <span class="chip chip-blue" data-count-chip>${escHtml(countTxt)}</span>
           </div>
           ${t.function ? `<div style="margin-top:4px;" title="Function">⚙ ${escHtml(t.function.name)}</div>` : ""}
           ${t.address  ? `<div title="Location">${ICON_PIN} ${escHtml(t.address.name||t.address.city||"")}</div>` : ""}
         </div>`;
       el.addEventListener("click",()=>selectTeam(t)); grid.appendChild(el);
-    });
-    // Lazy-load accurate counts only for visible team cards (IntersectionObserver)
-    const _countObserver = new IntersectionObserver((entries) => {
-      entries.forEach(async entry => {
-        if(!entry.isIntersecting) return;
-        _countObserver.unobserve(entry.target);
-        const card = entry.target;
-        const teamId = card.dataset.teamId;
-        try {
-          const td = await apiGET(`api/v1/admin/teams/${teamId}`);
-          const ft = td.team || td;
-          const en = ft.registrations_count ?? ft.team_registrations_count ?? 0;
-          const nd = ft.volunteers_needed   ?? ft.volunteers_needed_count   ?? 0;
-          const chip = card.querySelector("[data-count-chip]");
-          if(chip) chip.textContent = `${en}/${nd} filled`;
-        } catch {}
-      });
-    }, { rootMargin: "300px" });
-    teams.forEach(t => {
-      const card = grid.querySelector(`[data-team-id="${String(t.id)}"]`);
-      if(card) _countObserver.observe(card);
-    });
   }
 }
 
@@ -1606,8 +1522,7 @@ function renderTimeline(grid, teams, fromVal, toVal){
   const byDate = {};
   dates.forEach(d => { byDate[d] = []; });
   teams.forEach(t => {
-    const shiftDate = t.shifts && t.shifts[0] && t.shifts[0].start_datetime
-      ? t.shifts[0].start_datetime.slice(0, 10) : null;
+    const shiftDate = teamShift(t)?.start_datetime?.slice(0, 10) ?? null;
     if(shiftDate && byDate[shiftDate] !== undefined) byDate[shiftDate].push(t);
   });
 
@@ -1629,9 +1544,10 @@ function renderTimeline(grid, teams, fromVal, toVal){
         const name   = escHtml(t.name || "(auto-named)");
         const filled = `${t.registrations_count||t.team_registrations_count||0}/${t.volunteers_needed||t.volunteers_needed_count||0}`;
         const timeStr = (() => {
-          if(t.shifts && t.shifts[0]){
-            const s = new Date(t.shifts[0].start_datetime);
-            const e = new Date(t.shifts[0].end_datetime);
+          const sh = teamShift(t);
+          if(sh){
+            const s = new Date(sh.start_datetime);
+            const e = new Date(sh.end_datetime);
             if(!isNaN(s.getTime()) && !isNaN(e.getTime())){
               return s.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"}) + "–" +
                      e.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"});
@@ -1693,7 +1609,7 @@ async function selectTeam(team, noPush){
   document.getElementById("teamTitle").textContent = team.name || "(auto-named)";
   document.getElementById("teamChips").innerHTML =
     `<span style="font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${team.published?ICON_PUBLISHED:ICON_DRAFT}${team.published?"Published":"Draft"}</span>
-     <span class="chip chip-blue">${team.registrations_count??team.team_registrations_count??0}/${team.volunteers_needed??team.volunteers_needed_count??0} filled</span>`;
+     <span class="chip chip-blue" id="teamFillChip">…/… filled</span>`;
   document.getElementById("teamMeta").innerHTML =
     [fmtShift(team),
      team.function ? `<span title="Function">⚙ ${escHtml(team.function.name)}</span>` : "",
@@ -1709,7 +1625,7 @@ async function selectTeam(team, noPush){
   if(deptWrap && deptSel){
     if(state.departmentId){
       const dname = state.selectedProject?.department?.name || "project department";
-      deptSel.innerHTML = `<option>${escHtml(dname)}</option>`;
+      deptSel.textContent = dname;
       deptWrap.classList.remove("hidden");
     } else {
       deptWrap.classList.add("hidden");
@@ -1731,11 +1647,8 @@ async function selectTeam(team, noPush){
       state.selectedTeam.volunteers_needed = needed;
       state.selectedTeam.registrations_count = enrolled;
     }
-    const chipsEl = document.getElementById("teamChips");
-    if(chipsEl){
-      const chip = chipsEl.querySelector(".chip-blue");
-      if(chip) chip.textContent = `${enrolled}/${needed} filled`;
-    }
+    const chip = document.getElementById("teamFillChip");
+    if(chip) chip.textContent = `${enrolled}/${needed} filled`;
     // Also update title/meta if team has fresher name/info
     if(t.name) document.getElementById("teamTitle").textContent = t.name;
   }).catch(()=>{});
@@ -1743,7 +1656,7 @@ async function selectTeam(team, noPush){
   loadEnrolments(team.id);
   loadPendingInvitations(team.id);
   loadCandidacies(team.id);
-  loadWorkedHours(team.id, state.selectedProject?.id);
+  loadWorkedHours(team.id);
 }
 
 /* ================================================================
@@ -1760,15 +1673,12 @@ async function loadEnrolments(teamId){
     // Preserve the denominator already written by the concurrent team-detail
     // fetch (if > 0) to avoid the race condition that caused "X/0 filled".
     const activeCount = enrols.filter(e => !e.cancelled && !e.cancelled_at).length;
-    const chipsEl = document.getElementById("teamChips");
-    if(chipsEl){
-      const chip = chipsEl.querySelector(".chip-blue");
-      if(chip){
-        const existingDenom = parseInt((chip.textContent.match(/\/(\d+)\s/) || [])[1] ?? "0", 10);
-        const needed = existingDenom > 0 ? existingDenom
-          : (state.selectedTeam ? (state.selectedTeam.volunteers_needed ?? state.selectedTeam.volunteers_needed_count ?? 0) : 0);
-        chip.textContent = `${activeCount}/${needed} filled`;
-      }
+    const chip = document.getElementById("teamFillChip");
+    if(chip){
+      const needed = state.selectedTeam
+        ? (state.selectedTeam.volunteers_needed ?? state.selectedTeam.volunteers_needed_count ?? "?")
+        : "?";
+      chip.textContent = `${activeCount}/${needed} filled`;
     }
     if(!enrols.length){
       feed.innerHTML = `<div class="empty"><p>No enrolments yet for this team.</p></div>`;
@@ -1967,37 +1877,39 @@ document.addEventListener("click", async function(ev){
 /* ================================================================
    WORKED HOURS
    ================================================================ */
-async function loadWorkedHours(teamId, projectId){
+async function loadWorkedHours(teamId){
   const feed = document.getElementById("workedHoursFeed");
   if(!feed) return;
-  if(!projectId){
-    feed.innerHTML = '<div class="empty"><p>No worked hours data available.</p></div>';
-    return;
-  }
-  // Only show worked hours after the team's first shift has started.
-  const teamShiftStart = state.selectedTeam?.shifts?.[0]?.start_datetime;
-  if(teamShiftStart && new Date(teamShiftStart) > new Date()){
+  // Only show worked hours after the team's shift has started.
+  const shiftStart = teamShift(state.selectedTeam)?.start_datetime;
+  if(shiftStart && new Date(shiftStart) > new Date()){
     feed.innerHTML = '<div class="empty"><p>Worked hours will appear after the shift starts.</p></div>';
     return;
   }
   try {
-    const data  = await apiGET(`api/v1/admin/projects/${projectId}/worked_hours`,
-                               { page: 1, page_items: 200 });
-    const all   = data.worked_hours || data.hour_registrations || [];
-    const tid   = String(teamId);
-    const hours = all.filter(wh =>
-      String(wh.team_id) === tid ||
-      String(wh.team?.id) === tid ||
-      String(wh.team_registration?.team_id) === tid
+    // 1. Get enrolments for this team
+    const enrolData = await apiGET(`api/v1/admin/teams/${teamId}/enrolments`);
+    const enrols = (enrolData.enrolments || enrolData.team_registrations || [])
+      .filter(e => !e.cancelled && !e.cancelled_at);
+    if(!enrols.length){
+      feed.innerHTML = '<div class="empty"><p>No active enrolments — no worked hours to show.</p></div>';
+      return;
+    }
+    // 2. Fetch worked hours per enrolment in parallel
+    const results = await Promise.allSettled(
+      enrols.map(e => apiGET(`api/v1/admin/enrolments/${e.id}/hour_registrations`))
     );
-    if(!hours.length){
+    const allHours = results.flatMap(r =>
+      r.status === "fulfilled" ? (r.value.hour_registrations || r.value.worked_hours || []) : []
+    );
+    if(!allHours.length){
       feed.innerHTML = '<div class="empty"><p>No worked hours registered for this team yet.</p></div>';
       return;
     }
     feed.innerHTML = "";
-    renderWorkedHours(feed, hours);
-  } catch {
-    feed.innerHTML = '<div class="empty"><p>Worked hours not available for this team.</p></div>';
+    renderWorkedHours(feed, allHours);
+  } catch(e) {
+    feed.innerHTML = `<div class="alert alert-error">Could not load worked hours: ${escHtml(e.message)}</div>`;
   }
 }
 
@@ -2516,7 +2428,7 @@ async function openCollabModal(collabId){
     }
 
     // Availabilities around team start date
-    const teamStartDate = state.selectedTeam?.shifts?.[0]?.start_datetime?.slice(0,10);
+    const teamStartDate = teamShift(state.selectedTeam)?.start_datetime?.slice(0,10);
     if(teamStartDate){
       try{
         const d0 = new Date(teamStartDate + "T00:00:00");
@@ -2583,7 +2495,7 @@ function renderPagination(container, current, total, callback){
 
 /* BREADCRUMB */
 function setBreadcrumb(containerId, crumbs){
-  const idMap = { viewTeam:"breadcrumbTeam", viewInvitations:"breadcrumbInv" };
+  const idMap = { viewTeam:"breadcrumbTeam" };
   const el = document.getElementById(idMap[containerId] || "breadcrumb");
   el.innerHTML = "";
   crumbs.forEach((c, i) => {
@@ -2626,6 +2538,12 @@ if(_dbgClearBtn) _dbgClearBtn.addEventListener("click",()=>{ document.getElement
   if(!getCookie("beeple_cookie_ok")){
     document.getElementById("cookie").classList.remove("hidden");
   }
+  document.getElementById("cookieOk").addEventListener("click", () => {
+    setCookie("beeple_cookie_ok", "1");
+    const banner = document.getElementById("cookie");
+    banner.classList.add("hide");
+    setTimeout(() => banner.classList.add("hidden"), 400);
+  });
 
   if(!BASE||!TOKEN){
     window.location.replace("index.html");

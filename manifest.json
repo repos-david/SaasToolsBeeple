@@ -1,6 +1,6 @@
 {
-  "name": "Beeple TeamWizard",
-  "short_name": "TeamWizard",
+  "name": "Beeple SaasTools",
+  "short_name": "SaasTools",
   "description": "Quick team creation and planning for Beeple",
   "start_url": "./index.html",
   "scope": "./",
