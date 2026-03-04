@@ -644,7 +644,7 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
           <button id="clearFiltersBtn" class="btn secondary btn-sm">Clear</button>
           <div id="deptFilterWrap" class="hidden" style="display:flex;align-items:center;gap:6px;align-self:center;">
             <label style="margin:0;font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;">Department</label>
-            <select id="deptFilterSelect" disabled style="width:auto;font-size:12px;padding:4px 8px;min-height:auto;border-radius:6px;opacity:0.65;cursor:default;"></select>
+            <span id="deptFilterSelect" style="font-size:12px;padding:4px 8px;border-radius:6px;background:var(--field);border:1px solid var(--fieldBorder);opacity:0.65;"></span>
           </div>
           <button id="advFilterBtn" class="adv-toggle">
             <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1612,7 +1612,7 @@ async function selectTeam(team, noPush){
   document.getElementById("teamTitle").textContent = team.name || "(auto-named)";
   document.getElementById("teamChips").innerHTML =
     `<span style="font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:3px;">${team.published?ICON_PUBLISHED:ICON_DRAFT}${team.published?"Published":"Draft"}</span>
-     <span class="chip chip-blue">${team.registrations_count??team.team_registrations_count??0}/${team.volunteers_needed??team.volunteers_needed_count??0} filled</span>`;
+     <span class="chip chip-blue" id="teamFillChip">…/… filled</span>`;
   document.getElementById("teamMeta").innerHTML =
     [fmtShift(team),
      team.function ? `<span title="Function">⚙ ${escHtml(team.function.name)}</span>` : "",
@@ -1628,7 +1628,7 @@ async function selectTeam(team, noPush){
   if(deptWrap && deptSel){
     if(state.departmentId){
       const dname = state.selectedProject?.department?.name || "project department";
-      deptSel.innerHTML = `<option>${escHtml(dname)}</option>`;
+      deptSel.textContent = dname;
       deptWrap.classList.remove("hidden");
     } else {
       deptWrap.classList.add("hidden");
@@ -1650,11 +1650,8 @@ async function selectTeam(team, noPush){
       state.selectedTeam.volunteers_needed = needed;
       state.selectedTeam.registrations_count = enrolled;
     }
-    const chipsEl = document.getElementById("teamChips");
-    if(chipsEl){
-      const chip = chipsEl.querySelector(".chip-blue");
-      if(chip) chip.textContent = `${enrolled}/${needed} filled`;
-    }
+    const chip = document.getElementById("teamFillChip");
+    if(chip) chip.textContent = `${enrolled}/${needed} filled`;
     // Also update title/meta if team has fresher name/info
     if(t.name) document.getElementById("teamTitle").textContent = t.name;
   }).catch(()=>{});
@@ -1679,15 +1676,12 @@ async function loadEnrolments(teamId){
     // Preserve the denominator already written by the concurrent team-detail
     // fetch (if > 0) to avoid the race condition that caused "X/0 filled".
     const activeCount = enrols.filter(e => !e.cancelled && !e.cancelled_at).length;
-    const chipsEl = document.getElementById("teamChips");
-    if(chipsEl){
-      const chip = chipsEl.querySelector(".chip-blue");
-      if(chip){
-        const existingDenom = parseInt((chip.textContent.match(/\/(\d+)\s/) || [])[1] ?? "0", 10);
-        const needed = existingDenom > 0 ? existingDenom
-          : (state.selectedTeam ? (state.selectedTeam.volunteers_needed ?? state.selectedTeam.volunteers_needed_count ?? 0) : 0);
-        chip.textContent = `${activeCount}/${needed} filled`;
-      }
+    const chip = document.getElementById("teamFillChip");
+    if(chip){
+      const needed = state.selectedTeam
+        ? (state.selectedTeam.volunteers_needed ?? state.selectedTeam.volunteers_needed_count ?? "?")
+        : "?";
+      chip.textContent = `${activeCount}/${needed} filled`;
     }
     if(!enrols.length){
       feed.innerHTML = `<div class="empty"><p>No enrolments yet for this team.</p></div>`;
