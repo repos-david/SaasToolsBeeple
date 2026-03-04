@@ -2626,6 +2626,12 @@ if(_dbgClearBtn) _dbgClearBtn.addEventListener("click",()=>{ document.getElement
   if(!getCookie("beeple_cookie_ok")){
     document.getElementById("cookie").classList.remove("hidden");
   }
+  document.getElementById("cookieOk").addEventListener("click", () => {
+    setCookie("beeple_cookie_ok", "1");
+    const banner = document.getElementById("cookie");
+    banner.classList.add("hide");
+    setTimeout(() => banner.classList.add("hidden"), 400);
+  });
 
   if(!BASE||!TOKEN){
     window.location.replace("index.html");
