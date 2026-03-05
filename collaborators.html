@@ -67,7 +67,7 @@ button.nav-item.danger { color:var(--danger); }
 .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow); overflow:hidden; }
 .card h2 { margin:0 0 4px; font-size:17px; display:flex; align-items:center; gap:8px; }
 .card-sub { color:var(--muted); font-size:13px; margin:0 0 18px; }
-input,select,textarea {
+input:not([type=checkbox]):not([type=color]),select,textarea {
   display:block; width:100%; padding:11px 12px;
   border:1px solid var(--fieldBorder); border-radius:var(--radius);
   background:var(--field); color:var(--text); font-family:inherit;
@@ -75,12 +75,12 @@ input,select,textarea {
   transition:border-color .15s,box-shadow .15s;
   -webkit-appearance:none; appearance:none;
 }
-input::placeholder,textarea::placeholder { color:var(--muted); opacity:.6; }
-input:focus,select:focus,textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
+input:not([type=checkbox]):not([type=color])::placeholder,textarea::placeholder { color:var(--muted); opacity:.6; }
+input:not([type=checkbox]):not([type=color]):focus,select:focus,textarea:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(78,107,255,.18); }
+input[type=checkbox] { display:inline-block; width:18px; height:18px; padding:0; flex-shrink:0; accent-color:var(--accent); cursor:pointer; }
 select { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:36px; cursor:pointer; }
 textarea { resize:vertical; min-height:80px; }
 label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
-.required::after { content:" *"; color:var(--accent); }
 .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 @media(max-width:480px){ .row { grid-template-columns:1fr; } }
 .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:var(--radius); padding:11px 20px; font-family:inherit; font-size:15px; font-weight:700; line-height:1.2; cursor:pointer; min-height:46px; white-space:nowrap; transition:filter .15s,opacity .15s; }
@@ -145,6 +145,10 @@ input[type=color] { padding:4px 6px; height:46px; cursor:pointer; }
     <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
     Add collaborator
   </a>
+  <button id="debugToggleBtn" class="nav-item">
+    <svg id="debugToggleIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span id="debugToggleLabel">Debug mode</span>
+  </button>
   <button id="themeMenuBtn" class="nav-item">
     <svg id="themeMenuIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     <span id="themeMenuLabel">Dark mode</span>
@@ -175,23 +179,22 @@ input[type=color] { padding:4px 6px; height:46px; cursor:pointer; }
   <!-- FORM CARD -->
   <div id="formCard" class="card">
     <h2>New collaborator</h2>
-    <p class="card-sub">Required fields are marked with *</p>
 
     <form id="collabForm" novalidate autocomplete="off">
 
       <!-- Required fields -->
       <div class="row">
         <div>
-          <label for="other_names" class="required">Other names</label>
+          <label for="other_names" class="">Other names</label>
           <input id="other_names" type="text" placeholder="Jane">
         </div>
         <div>
-          <label for="family_name" class="required">Family name</label>
+          <label for="family_name" class="">Family name</label>
           <input id="family_name" type="text" placeholder="Doe">
         </div>
       </div>
 
-      <label for="email" class="required">Email</label>
+      <label for="email" class="">Email</label>
       <input id="email" type="email" placeholder="jane.doe@example.com" autocomplete="off">
 
       <!-- Common optional fields -->
@@ -331,7 +334,7 @@ input[type=color] { padding:4px 6px; height:46px; cursor:pointer; }
 </div><!-- /container -->
 
 <script>
-const PROXY_URL = "https://coraligo.com/beeple/proxy.php";
+const PROXY_URL = "https://10SpaanseWoordenPerDag.eu/beeple/proxy.php";
 const debugParam = new URLSearchParams(location.search).get("debug");
 let DEBUG = debugParam === "1" || debugParam === "Y" || debugParam === "y";
 
@@ -380,6 +383,22 @@ document.getElementById("logoutBtn").addEventListener("click", function(){
   localStorage.removeItem("bwBase");
   window.location.href = "index.html";
 });
+
+/* ---- Debug toggle ---- */
+function syncDebug(){
+  const banner = document.getElementById("debugBanner");
+  DEBUG ? banner.classList.remove("hidden") : banner.classList.add("hidden");
+  document.getElementById("debugToggleLabel").textContent = DEBUG ? "Debug mode ON" : "Debug mode";
+  document.getElementById("debugToggleIcon").innerHTML = DEBUG
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+}
+document.getElementById("debugToggleBtn").addEventListener("click", () => {
+  DEBUG = !DEBUG;
+  syncDebug();
+  navMenu.classList.remove("open"); navOverlay.classList.remove("show");
+});
+if(DEBUG) syncDebug();
 
 /* ---- Advanced toggle ---- */
 const advToggle  = document.getElementById("advancedToggle");
