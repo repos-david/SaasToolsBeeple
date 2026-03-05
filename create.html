@@ -185,6 +185,8 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
 /* DEBUG BANNER */
 .debug-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--radius); padding:8px 14px; font-size:13px; color:#92400e; }
 [data-theme="dark"] .debug-banner { background:#451a03; color:#fbbf24; border-color:#b45309; }
+pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px; font-size:11px; max-height:260px; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; box-sizing:border-box; }
+[data-theme="dark"] pre.log { background:#070e1f; color:#c7dbff; }
 </style>
 </head>
 <body>
@@ -359,7 +361,7 @@ pre { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); bo
   <!-- Logs (only visible in debug mode) -->
   <section class="card hidden" id="sec-logs">
     <h2>Logs</h2>
-    <pre id="log">Ready</pre>
+    <pre class="log" id="log">Ready</pre>
   </section>
 </main>
 

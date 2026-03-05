@@ -701,8 +701,8 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
     </div>
 
     <!-- Debug log (shown only when debug=Y) -->
-    <div id="debugLogWrap" class="log-wrap hidden">
-      <h4 style="margin:16px 0 4px;font-size:13px;color:var(--muted);">Debug log</h4>
+    <div id="debugLogWrap" class="sec-card hidden" style="margin-top:16px;">
+      <h3>Debug log</h3>
       <pre class="log" id="debugLog"></pre>
     </div>
 
@@ -803,24 +803,15 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
     const sender = ucfirstName || cu.email || "The client";
     const notifMessage = `${sender} wants team ${team.id} to be filled.`;
 
-    // Beeple: POST /api/v1/admin/teams/{team_id}/alerts
-    await apiPOST(`api/v1/admin/teams/${team.id}/alerts`, {
-      alert: { message: "Planners, please fill this team" }
-    });
-
-    // Send dashboard notification (non-critical — requires Setting permission)
-    try {
-      await apiPOST(`api/v1/admin/notifications`, {
-        notification: {
-          type: "external",
-          custom_data: {
-            message: [{ language: "en", message: notifMessage }]
-          }
+    // Beeple: POST /api/v1/admin/notifications
+    await apiPOST(`api/v1/admin/notifications`, {
+      notification: {
+        type: "external",
+        custom_data: {
+          message: [{ language: "en", message: notifMessage }]
         }
-      });
-    } catch(notifErr) {
-      if(DEBUG) dLog("Dashboard notification failed (non-critical):", notifErr.message);
-    }
+      }
+    });
 
     if(res) res.innerHTML = '<div class="alert alert-success">Notification sent to planners.</div>';
   } catch(e) {

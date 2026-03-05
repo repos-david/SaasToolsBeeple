@@ -4,7 +4,7 @@
    Add an entry to BRANDS[] for each client/tenant you want to brand.
    Each entry:
      match          – RegExp tested against the tenant HOSTNAME only
-                      (e.g. /colruyt/i matches "colruyt.beepleapp.com")
+                      (e.g. /acme/i matches "acme.beepleapp.com")
      logo           – URL / data-URI for topbar logo (optional, defaults to icon.svg)
      accent         – primary accent colour, light mode
      accent2        – secondary/lighter accent, light mode
@@ -23,16 +23,6 @@
    ================================================================ */
 
 const BRANDS = [
-  {
-    match:         /colruyt/i,
-    accent:         "#E2001A",
-    accent2:        "#FF5566",
-    accentSoft:     "#FFF0F1",
-    darkAccent:     "#FF4455",
-    darkAccent2:    "#FF8899",
-    darkAccentSoft: "#3A0009",
-    // words: { team:"Shift", teams:"Shifts", enrolment:"Registration", enrolments:"Registrations" },
-  },
   {
     match:         /saas/i, // test
     accent:         "#FF001A",
