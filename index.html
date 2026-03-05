@@ -38,7 +38,6 @@ body {
   min-height:100vh;
   -webkit-text-size-adjust:100%; text-size-adjust:100%;
 }
-/* TOP BAR */
 .topbar {
   position:sticky; top:0; z-index:30;
   background:var(--card); border-bottom:1px solid var(--border);
@@ -55,18 +54,15 @@ body {
 }
 [data-theme="dark"] .icon-btn { color:var(--accent2); }
 .icon-btn svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-/* CONTAINER */
 .container {
   width:100%; max-width:480px; margin:40px auto; padding:0 16px 60px;
 }
-/* CARD */
 .card {
   background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
   padding:24px; box-shadow:var(--shadow); overflow:hidden;
 }
 .card h2 { margin:0 0 4px; font-size:20px; }
 .card-sub { color:var(--muted); font-size:13px; margin:0 0 20px; }
-/* FORM */
 input, select {
   display:block; width:100%; padding:11px 12px;
   border:1px solid var(--fieldBorder); border-radius:var(--radius);
@@ -80,7 +76,6 @@ input:focus, select:focus { outline:none; border-color:var(--accent); box-shadow
 label { display:block; font-weight:600; font-size:13px; color:var(--muted); margin:14px 0 5px; }
 label:first-child { margin-top:0; }
 .required::after { content:" *"; color:var(--accent); }
-/* BUTTONS */
 .btn {
   display:inline-flex; align-items:center; justify-content:center;
   width:100%; border:none; border-radius:var(--radius);
@@ -90,46 +85,15 @@ label:first-child { margin-top:0; }
 }
 .btn.primary { background:linear-gradient(160deg,var(--accent),var(--accent2)); color:#fff; }
 .btn.primary:hover { filter:brightness(1.08); }
-.btn.secondary { background:#edf2ff; color:#0f172a; border:1px solid var(--border); }
-[data-theme="dark"] .btn.secondary { background:#1e2a45; color:#e5e7eb; }
 .btn:disabled { opacity:.6; cursor:default; }
-/* LOGIN TABS */
-.login-tabs {
-  display:flex; gap:0; border:1px solid var(--border); border-radius:var(--radius);
-  overflow:hidden; margin:20px 0 0;
-}
-.login-tab {
-  flex:1; padding:10px; font-family:inherit; font-size:14px; font-weight:600;
-  border:none; cursor:pointer; background:transparent; color:var(--muted);
-  transition:background .15s,color .15s;
-}
-.login-tab.active { background:var(--accentSoft); color:var(--accent); }
-[data-theme="dark"] .login-tab.active { color:var(--accent2); }
-/* FORMS */
-.login-form { margin-top:16px; }
-.hidden { display:none !important; }
-/* DIVIDER */
-.divider {
-  display:flex; align-items:center; gap:10px; margin:16px 0 0;
-  color:var(--muted); font-size:13px;
-}
-.divider::before,.divider::after { content:""; flex:1; height:1px; background:var(--border); }
-/* ALERT */
+.btn-row { margin-top:16px; }
 .alert {
   padding:12px 14px; border-radius:var(--radius); font-size:14px;
   margin-top:14px; word-break:break-word;
 }
 .alert-error { background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; }
 [data-theme="dark"] .alert-error { color:#fca5a5; }
-/* BTN ROW */
-.btn-row { margin-top:16px; }
-/* SECURITY NOTICE */
-.security-notice {
-  margin-top:14px; padding:10px 12px;
-  border:1px dashed #f59e0b; border-radius:10px;
-  background:rgba(245,158,11,.10); color:#92400e; font-size:13px;
-}
-[data-theme="dark"] .security-notice { color:#fcd34d; }
+.hidden { display:none !important; }
 </style>
 </head>
 <body>
@@ -147,14 +111,7 @@ label:first-child { margin-top:0; }
     <h2>Connect to Beeple</h2>
     <p class="card-sub">Enter your tenant URL to get started.</p>
 
-    <!-- Tab selector -->
-    <div class="login-tabs">
-      <button class="login-tab active" data-tab="password" type="button">Email &amp; password</button>
-      <button class="login-tab" data-tab="token" type="button">API token</button>
-    </div>
-
-    <!-- EMAIL + PASSWORD FORM -->
-    <form id="formPassword" class="login-form" autocomplete="on" novalidate>
+    <form id="formPassword" autocomplete="on" novalidate>
       <label for="pwBaseUrl" class="required">Tenant URL</label>
       <input id="pwBaseUrl" type="url" name="url" autocomplete="url"
              inputmode="url" placeholder="https://acme.beepleapp.com">
@@ -167,42 +124,11 @@ label:first-child { margin-top:0; }
       </div>
     </form>
 
-    <!-- API TOKEN FORM -->
-    <!-- autocomplete="username" on the URL field makes browsers pair tenant URL + token as a saved credential -->
-    <form id="formToken" class="login-form hidden" autocomplete="on" novalidate>
-      <label for="tkBaseUrl" class="required">Tenant URL</label>
-      <input id="tkBaseUrl" type="url" name="username" autocomplete="username"
-             inputmode="url" placeholder="https://acme.beepleapp.com">
-      <label class="required">API token</label>
-      <input id="tokenInput" type="password" name="password" autocomplete="current-password"
-             placeholder="Paste your API token here">
-      <div class="security-notice">
-        <b>Security notice:</b> Your API token is confidential. Never share it with others and handle it as securely as you would a password.
-      </div>
-      <div class="btn-row">
-        <button id="tokenLoginBtn" type="submit" class="btn primary">Connect</button>
-      </div>
-      <details style="margin-top:16px;font-size:13px;">
-        <summary style="cursor:pointer;color:var(--accent);font-weight:600;list-style:none;display:flex;align-items:center;gap:6px;user-select:none;">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          How to get your API token?
-        </summary>
-        <div style="margin-top:10px;padding:12px 14px;background:var(--accentSoft);border-radius:var(--radius);color:var(--muted);line-height:1.7;">
-          <ol style="margin:0;padding-left:18px;">
-            <li>Log in to Beeple as an <strong>admin</strong></li>
-            <li>Click the <strong>profile menu</strong> (top-right of Beeple)</li>
-            <li>Choose <strong>Admin profile</strong></li>
-            <li>Scroll to the <strong>API token</strong> section</li>
-            <li>Generate or copy your existing token and paste it above</li>
-          </ol>
-        </div>
-      </details>
-    </form>
-
     <div id="loginError" class="alert alert-error hidden"></div>
   </div>
 </div>
 
+<script src="brands.js"></script>
 <script>
 const PROXY_URL = "https://coraligo.com/beeple/proxy.php";
 const debugParam = new URLSearchParams(location.search).get("debug");
@@ -225,23 +151,7 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
   syncTheme();
-});
-
-/* ---- Tab switching (sync URL fields so the user never loses what they typed) ---- */
-document.querySelectorAll(".login-tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".login-tab").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    const tab = btn.dataset.tab;
-    if(tab === "token"){
-      document.getElementById("tkBaseUrl").value = document.getElementById("pwBaseUrl").value;
-    } else {
-      document.getElementById("pwBaseUrl").value = document.getElementById("tkBaseUrl").value;
-    }
-    document.getElementById("formPassword").classList.toggle("hidden", tab !== "password");
-    document.getElementById("formToken").classList.toggle("hidden", tab !== "token");
-    clearError();
-  });
+  applyBrand();
 });
 
 function clearError(){ document.getElementById("loginError").classList.add("hidden"); }
@@ -249,23 +159,12 @@ function showError(msg){ const el=document.getElementById("loginError"); el.text
 
 function originOf(u){ try{ return new URL(u).origin; }catch{ return u; } }
 
-function getBase(){
-  const pwHidden = document.getElementById("formPassword").classList.contains("hidden");
-  const id = pwHidden ? "tkBaseUrl" : "pwBaseUrl";
-  return originOf(document.getElementById(id).value.trim());
-}
-
 /* ---- Storage helpers ---- */
 function saveBase(v){ if(v) localStorage.setItem("bwBase", v); }
 function saveToken(v){ if(v) sessionStorage.setItem("bwToken", v); }
 
-function isDemoOrStagingDomain(url){
-  try{ const h=new URL(url).hostname.toLowerCase(); return h.includes("demo")||h.includes("staging"); }
-  catch{ return false; }
-}
-
 function saveAndGo(token){
-  const base = getBase();
+  const base = originOf(document.getElementById("pwBaseUrl").value.trim());
   saveBase(base);
   saveToken(token);
   localStorage.setItem("bwLastApiCall", String(Date.now()));
@@ -273,27 +172,23 @@ function saveAndGo(token){
   window.location.replace("create.html");
 }
 
-/* ---- Pre-fill tenant URL from localStorage into both forms ---- */
-function loadSavedBase(){
+/* ---- Pre-fill tenant URL from localStorage ---- */
+(function(){
   const saved = localStorage.getItem("bwBase") || "";
-  if(saved){
-    document.getElementById("pwBaseUrl").value = saved;
-    document.getElementById("tkBaseUrl").value = saved;
-  }
-}
-loadSavedBase();
+  if(saved) document.getElementById("pwBaseUrl").value = saved;
+})();
 
-/* ---- Helper: extract token from API response ---- */
-function extractToken(json){
-  return json.token || json.auth_token || json.access_token || json.api_token ||
-         (json.user && json.user.token) || (json.data && json.data.token) ||
-         (json.session && json.session.token) || null;
-}
+/* ---- Apply brand on URL blur ---- */
+document.getElementById("pwBaseUrl").addEventListener("blur", () => {
+  const v = document.getElementById("pwBaseUrl").value.trim();
+  saveBase(originOf(v));
+  applyBrand(v);
+});
 
 /* ---- Login with email + password ---- */
 document.getElementById("formPassword").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const base  = getBase();
+  const base  = originOf(document.getElementById("pwBaseUrl").value.trim());
   const email = document.getElementById("email").value.trim();
   const pass  = document.getElementById("password").value;
 
@@ -315,12 +210,7 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
     try { json = JSON.parse(txt); } catch {}
 
     if(!res.ok){
-      let msg = (json && (json.error || json.message)) || txt.trim() || ("Login failed (HTTP " + res.status + ")");
-      if(msg.toLowerCase().includes("missing x-beeple-token") || msg.toLowerCase().includes("x-beeple-token")){
-        msg = "Email & password login is not supported by this API configuration. Please use the API Token tab instead.";
-        // Switch to token tab automatically
-        document.querySelector('[data-tab="token"]').click();
-      }
+      const msg = (json && (json.error || json.message)) || txt.trim() || ("Login failed (HTTP " + res.status + ")");
       throw new Error(msg);
     }
 
@@ -330,7 +220,7 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
       || (json.data && json.data.api_token)
       || null;
 
-    if(!token) throw new Error("Login succeeded but no API token found in response. Try logging in with an API token instead.");
+    if(!token) throw new Error("Login succeeded but no API token found in response.");
     saveAndGo(token);
   } catch(err){
     showError(err.message);
@@ -338,54 +228,6 @@ document.getElementById("formPassword").addEventListener("submit", async (e) => 
     btn.disabled = false; btn.textContent = "Log in";
   }
 });
-
-/* ---- Login with API token ---- */
-document.getElementById("formToken").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const base  = getBase();
-  const token = document.getElementById("tokenInput").value.trim();
-
-  if(!base || !token){
-    showError("Please fill in both the tenant URL and API token.");
-    return;
-  }
-
-  const btn = document.getElementById("tokenLoginBtn");
-  btn.disabled = true; btn.textContent = "Connecting…";
-  clearError();
-
-  try {
-    const url = `${PROXY_URL}?base=${encodeURIComponent(base)}&path=${encodeURIComponent("api/v1/admin/projects")}${DEBUG?"&debug=1":""}`;
-    const res = await fetch(url, { headers: { "X-Beeple-Token": token } });
-    const txt = await res.text();
-    let json = {};
-    try { json = JSON.parse(txt); } catch {}
-
-    if(DEBUG) console.log("Token verify response:", res.status, txt);
-
-    if(!res.ok){
-      const msg = (json && (json.error || json.message)) || ("HTTP " + res.status);
-      throw new Error("Connection failed: " + msg);
-    }
-    saveAndGo(token);
-  } catch(err){
-    showError(err.message);
-  } finally {
-    btn.disabled = false; btn.textContent = "Connect";
-  }
-});
-
-/* ---- Save base URL on blur and keep both URL fields in sync ---- */
-["pwBaseUrl", "tkBaseUrl"].forEach(id => {
-  document.getElementById(id).addEventListener("blur", () => {
-    const v = document.getElementById(id).value.trim();
-    const other = id === "pwBaseUrl" ? "tkBaseUrl" : "pwBaseUrl";
-    document.getElementById(other).value = v;
-    saveBase(originOf(v));
-  });
-});
-
-function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":'&#39;'}[m])); }
 
 /* ---- Session-expired notice ---- */
 (function(){
@@ -397,29 +239,13 @@ function escHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<
   }
 })();
 
-/* ---- Auto-login from shared URL (?base=…&token=…) ---- */
-/* Only works when the tenant domain contains "demo" or "staging".     */
-(function trySharedLink(){
-  const p = new URLSearchParams(location.search);
-  const sharedBase  = p.get("base");
-  const sharedToken = p.get("token");
-  if(!sharedBase || !sharedToken) return;
-  if(!isDemoOrStagingDomain(sharedBase)) return;
-  // Switch to the token tab and pre-fill both fields
-  document.querySelector('[data-tab="token"]').click();
-  document.getElementById("tkBaseUrl").value  = sharedBase;
-  document.getElementById("pwBaseUrl").value  = sharedBase;
-  document.getElementById("tokenInput").value = sharedToken;
-  // Auto-submit
-  document.getElementById("formToken").dispatchEvent(
-    new Event("submit", {bubbles:true, cancelable:true})
-  );
-})();
-
 /* ---- PWA: Service Worker ---- */
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
+
+/* ---- Apply branding for saved tenant ---- */
+applyBrand();
 </script>
 </body>
 </html>

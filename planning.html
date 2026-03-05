@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="SaasTools">
 <link rel="apple-touch-icon" href="icon.svg">
 <meta name="theme-color" content="#4e6bff">
+<script src="brands.js"></script>
 <style>
 :root {
   --bg:#f0f4ff; --bg2:#ffffff; --card:#ffffff; --text:#0f172a; --muted:#475569;
@@ -367,6 +368,10 @@ pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder)
   <a href="javascript:void(0)" class="nav-item active" onclick="navMenu.classList.remove('open');navOverlay.classList.remove('show');">
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
     Planning
+  </a>
+  <a href="collaborators.html" class="nav-item">
+    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+    Add collaborator
   </a>
   <button id="debugToggleBtn" class="nav-item">
     <svg id="debugToggleIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -729,6 +734,7 @@ let DEBUG        = debugParam === "1" || debugParam === "Y" || debugParam === "y
 const BASE  = localStorage.getItem("bwBase")   || "";
 const TOKEN = sessionStorage.getItem("bwToken") || "";
 if(!BASE || !TOKEN){ window.location.replace("index.html"); }
+applyBrand(BASE);
 
 function redactSensitive(s){
   if(!TOKEN || !s) return s;
@@ -753,6 +759,7 @@ document.getElementById("themeMenuBtn").addEventListener("click", () => {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
   syncTheme();
+  applyBrand(BASE);
   navMenu.classList.remove("open"); navOverlay.classList.remove("show");
 });
 
@@ -795,21 +802,25 @@ document.getElementById("notifyPlannersBtn").addEventListener("click", async fun
     const ucfirstName = cuName ? cuName.charAt(0).toUpperCase() + cuName.slice(1) : null;
     const sender = ucfirstName || cu.email || "The client";
     const notifMessage = `${sender} wants team ${team.id} to be filled.`;
-    const shift = teamShift(team);
-    const periodStart = shift?.start_datetime ? shift.start_datetime.slice(0, 10) : null;
-    const periodEnd   = shift?.end_datetime   ? shift.end_datetime.slice(0, 10)   : null;
 
     // Beeple: POST /api/v1/admin/teams/{team_id}/alerts
     await apiPOST(`api/v1/admin/teams/${team.id}/alerts`, {
       alert: { message: "Planners, please fill this team" }
     });
 
-    // Send dashboard notification
-    const notifFilter = {};
-    if(periodStart) notifFilter.period_start_at = periodStart;
-    if(periodEnd)   notifFilter.period_end_at   = periodEnd;
-    const notifPayload = { notification: { message: notifMessage, filter: { period: notifFilter } } };
-    await apiPOST(`api/v1/admin/notifications`, notifPayload);
+    // Send dashboard notification (non-critical — requires Setting permission)
+    try {
+      await apiPOST(`api/v1/admin/notifications`, {
+        notification: {
+          type: "external",
+          custom_data: {
+            message: [{ language: "en", message: notifMessage }]
+          }
+        }
+      });
+    } catch(notifErr) {
+      if(DEBUG) dLog("Dashboard notification failed (non-critical):", notifErr.message);
+    }
 
     if(res) res.innerHTML = '<div class="alert alert-success">Notification sent to planners.</div>';
   } catch(e) {
