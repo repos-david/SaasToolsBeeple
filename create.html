@@ -670,7 +670,10 @@ async function loadSubprojectsForProject(pid){
     const today2 = new Date().toISOString().slice(0,10);
     const subs = (sData.subprojects || []).filter(s => !s.deleted && !s.deleted_at && !(s.end_date && s.end_date < today2));
     if(subs.length){
-      fillSelect(els.subprojectSelect, subs.map(s => ({value:s.id, label:s.name||"Sub #"+s.id})));
+      fillSelect(els.subprojectSelect, [
+        {value:"", label:"— no subproject —"},
+        ...subs.map(s => ({value:s.id, label:s.name||"Sub #"+s.id}))
+      ]);
       state.maps.subprojects = Object.fromEntries(subs.map(s => [String(s.id), s.name||"Sub #"+s.id]));
       els.subprojectBlock.classList.remove("hidden");
     } else { els.subprojectBlock.classList.add("hidden"); }
@@ -682,7 +685,7 @@ function buildApiPayload(){
   const noSub = els.subprojectBlock.classList.contains("hidden");
   const team = {
     auto_generate_name: els.autoName.value === "yes",
-    name: els.autoName.value === "yes" ? undefined : (els.teamName.value || undefined),
+    name: els.autoName.value === "yes" ? "" : (els.teamName.value || ""),
     volunteers_needed: els.volNeeded.value ? parseInt(els.volNeeded.value, 10) : undefined,
     function_id: els.functionSelect.value || undefined,
     work_location_id: els.addressSelect.value || undefined,
