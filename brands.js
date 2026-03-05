@@ -33,6 +33,16 @@ const BRANDS = [
     darkAccentSoft: "#3A0009",
     // words: { team:"Shift", teams:"Shifts", enrolment:"Registration", enrolments:"Registrations" },
   },
+  {
+    match:         /saas/i, // test
+    accent:         "#FF001A",
+    accent2:        "#1155FF",
+    accentSoft:     "#FFF0F1",
+    darkAccent:     "#FF4455",
+    darkAccent2:    "#FF8899",
+    darkAccentSoft: "#3A0009",
+    words: { team:"gig", teams:"Gigs", enrolment:"Registration", enrolments:"Registrations" },
+  },
   // ── Add more clients below ──────────────────────────────────────
   // {
   //   match:         /acme/i,
