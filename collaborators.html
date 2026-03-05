@@ -117,6 +117,8 @@ input[type=color] { padding:4px 6px; height:46px; cursor:pointer; }
 .hidden { display:none !important; }
 .debug-banner { background:#fef3c7; border:1px solid #f59e0b; border-radius:var(--radius); padding:8px 14px; font-size:13px; color:#92400e; margin:10px 14px 0; }
 [data-theme="dark"] .debug-banner { background:#451a03; color:#fbbf24; border-color:#b45309; }
+pre.log { background:#f7f9ff; color:#111827; border:1px solid var(--fieldBorder); border-radius:var(--radius); padding:10px; font-size:11px; max-height:260px; overflow:auto; white-space:pre-wrap; word-break:break-word; width:100%; box-sizing:border-box; }
+[data-theme="dark"] pre.log { background:#070e1f; color:#c7dbff; }
 </style>
 </head>
 <body>
@@ -331,6 +333,12 @@ input[type=color] { padding:4px 6px; height:46px; cursor:pointer; }
     </form>
   </div><!-- /formCard -->
 
+  <!-- Debug log (shown only when debug mode is active) -->
+  <div id="debugLogWrap" class="card hidden" style="margin-top:12px;">
+    <h2 style="margin:0 0 12px;font-size:16px;font-weight:700;">Debug log</h2>
+    <pre class="log" id="debugLog"></pre>
+  </div>
+
 </div><!-- /container -->
 
 <script>
@@ -384,10 +392,15 @@ document.getElementById("logoutBtn").addEventListener("click", function(){
   window.location.href = "index.html";
 });
 
+/* ---- Debug log ---- */
+const debugLogEl = document.getElementById("debugLog");
+function dLog(...a){ debugLogEl.textContent += a.join(" ") + "\n"; debugLogEl.scrollTop = debugLogEl.scrollHeight; }
+
 /* ---- Debug toggle ---- */
 function syncDebug(){
   const banner = document.getElementById("debugBanner");
   DEBUG ? banner.classList.remove("hidden") : banner.classList.add("hidden");
+  document.getElementById("debugLogWrap").classList.toggle("hidden", !DEBUG);
   document.getElementById("debugToggleLabel").textContent = DEBUG ? "Debug mode ON" : "Debug mode";
   document.getElementById("debugToggleIcon").innerHTML = DEBUG
     ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
@@ -422,7 +435,7 @@ async function apiPOST(path, payload){
     body: JSON.stringify(payload)
   });
   const txt = await res.text();
-  if(DEBUG) console.log("POST", path, res.status, txt.slice(0,500));
+  if(DEBUG) dLog("POST", path, res.status, txt.slice(0,500));
   let json = {};
   try { json = JSON.parse(txt); } catch {}
   if(!res.ok){
